@@ -12,7 +12,7 @@ Included material:
 - non-smoke trained model weights;
 - prediction arrays, metrics, figures, and publication plots;
 - Config 3 bootstrap and processed 2D arrays;
-- end-to-end notebooks and legacy documentation.
+- documentation assets and legacy documentation.
 
 The 2D Config 3 model in this package is the two-epoch pipeline-validation
 checkpoint generated from bootstrap data. It is not a publication-quality
