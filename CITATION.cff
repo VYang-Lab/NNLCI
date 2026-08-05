@@ -19,6 +19,10 @@ authors:
     given-names: Haoxiang
   - family-names: Yang
     given-names: Vigor
+  - family-names: She
+    given-names: I-Hsuan
+  - family-names: Sun
+    given-names: Haotian
 repository-code: "https://github.com/jinboxiao98/NNLCI"
 license: MIT
 keywords:

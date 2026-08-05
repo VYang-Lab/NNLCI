@@ -558,12 +558,10 @@ Each problem keeps source code, data, models, and results separate. Python
 paths are resolved from the script location, so the documented commands can be
 run from the repository root without editing working directories.
 
-## Software Authors and Project Roles
+## Software Authors
 
-- **Jinbo Xiao:** repository integrator and GPU code developer
-- **Weiming Ding and Li-Chian Yao:** new-method exploration and extensions
-- **Yingjie Liu and Haoxiang Huang:** NNLCI creators
-- **Vigor Yang:** project director
+Jinbo Xiao, Weiming Ding, Li-Chian Yao, Yingjie Liu, Haoxiang Huang,
+Vigor Yang, I-Hsuan She, and Haotian Sun.
 
 ## Citation
 
