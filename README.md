@@ -57,6 +57,12 @@ with the point or region being reconstructed.
   once, train the local reconstruction model, then reuse it for faster
   predictions on new related cases.
 
+<p align="center">
+  <img src="docs/assets/nnlci-concept-overview.png"
+       alt="NNLCI concept overview from low-fidelity input to high-fidelity output"
+       width="100%">
+</p>
+
 ## How NNLCI Works
 
 NNLCI converts each high-fidelity field into many point-centered learning
