@@ -1,0 +1,33 @@
+# Python environments and caches
+.venv/
+.venv-wsl/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# Local smoke-test artifacts
+.smoke/
+**/smoke_model_*.pth
+**/sol_smoke_*.dat
+**/smoke_results_*/
+**/solver_local
+**/solver_lax_local
+
+# Native build products
+**/.vs/
+**/x64/Debug/
+**/x64/Release/
+*.obj
+*.pdb
+*.ilk
+*.idb
+*.ipdb
+*.iobj
+*.tlog
+*.lastbuildstate
+*.mod
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
