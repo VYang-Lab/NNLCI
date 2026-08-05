@@ -9,7 +9,7 @@ reproducible workflows for three 1D Euler problems and one 2D Riemann problem.
 | [1D Sod](problems/1d_sod/README.md) | 50 / 100 / 800 points | 18 features | density, velocity, pressure |
 | [1D Lax](problems/1d_lax/README.md) | 50 / 100 / 800 points | 30 features | density, velocity, pressure |
 | [1D Woodward–Colella](problems/1d_woodward_colella/README.md) | 100 / 200 / 1600 points; 800-point target | 18 features | density, velocity, pressure |
-| [2D Riemann, Config 3](problems/2d_riemann/README.md) | 100 / 200 / 800 grids | 72 features | density, x/y velocity, pressure |
+| [2D Riemann, Config 3](problems/2d_riemann/README.md) | 100^2 / 200^2 / 800^2 grids | 72 features | density, x/y velocity, pressure |
 
 All commands below are run from the repository root. Linux or Ubuntu under
 WSL 2 is recommended because the CFD build scripts use `g++` and
