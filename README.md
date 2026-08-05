@@ -32,6 +32,9 @@ with the point or region being reconstructed.
   legacy data.
 - **Imperfect does not mean uninformative.** LF fields can still carry
   geometry, boundary-condition, wave-structure, and trend information.
+- **Shock waves and strong gradients are first-class targets.** Local LF
+  patches retain how steep structures change across space and resolution,
+  giving NNLCI more information than an isolated point value.
 - **NNLCI turns local LF information into HF predictions.** During training,
   the HF value at the same point of interest is used as the supervisor.
   During inference, the model only needs the local LF neighborhood.
@@ -60,6 +63,23 @@ with the point or region being reconstructed.
 <p align="center">
   <img src="docs/assets/nnlci-concept-overview.png"
        alt="NNLCI concept overview from low-fidelity input to high-fidelity output"
+       width="100%">
+</p>
+
+### Local Patches Around Shocks
+
+NNLCI is especially well suited to shock-wave and strong-gradient flows:
+
+- In smooth regions, neighboring samples change gradually as the mesh is
+  refined.
+- Near a shock or discontinuity, the local patch records the jump, its
+  location, and how the transition sharpens across fidelity levels.
+- NNLCI learns these local multi-fidelity signatures and maps them to the HF
+  value at the point of interest without assuming that the solution is smooth.
+
+<p align="center">
+  <img src="docs/assets/Picture2.png"
+       alt="Local mesh-refinement patterns for smooth and discontinuous solutions"
        width="100%">
 </p>
 
@@ -528,6 +548,7 @@ NNLCI/
 |-- common/       reusable models, data processing, and error metrics
 |-- docs/         assets and legacy documentation
 |-- scripts/      repository maintenance and asset-preparation scripts
+|-- CITATION.cff
 |-- README.md
 |-- requirements.txt
 `-- LICENSE
@@ -537,11 +558,19 @@ Each problem keeps source code, data, models, and results separate. Python
 paths are resolved from the script location, so the documented commands can be
 run from the repository root without editing working directories.
 
+## Software Authors and Project Roles
+
+- **Jinbo Xiao:** repository integrator and GPU code developer
+- **Weiming Ding and Li-Chian Yao:** new-method exploration and extensions
+- **Yingjie Liu and Haoxiang Huang:** NNLCI creators
+- **Vigor Yang:** project director
+
 ## Citation
 
-If you use NNLCI in research, please cite the relevant papers. Parts I and II
-introduce the 1D and 2D NNLCI methods; the AIAA Journal paper demonstrates an
-extension to unstructured-grid CFD.
+For software attribution, use [CITATION.cff](CITATION.cff). If you use NNLCI
+in research, please also cite the relevant papers. Parts I and II introduce
+the 1D and 2D NNLCI methods; the AIAA Journal paper demonstrates an extension
+to unstructured-grid CFD.
 
 ```bibtex
 @article{huang2023nnlci_part1,

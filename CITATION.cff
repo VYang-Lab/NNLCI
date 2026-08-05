@@ -1,0 +1,30 @@
+cff-version: 1.2.0
+message: "If you use NNLCI, please cite this software and the relevant papers listed in the README."
+type: software
+title: "NNLCI: Neural Networks with Local Converging Inputs"
+abstract: >-
+  NNLCI is a data-centric framework for reconstructing high-fidelity flow
+  fields from local, physics-bearing low-fidelity inputs, with particular
+  strength in shock-wave and strong-gradient problems.
+authors:
+  - family-names: Xiao
+    given-names: Jinbo
+  - family-names: Ding
+    given-names: Weiming
+  - family-names: Yao
+    given-names: Li-Chian
+  - family-names: Liu
+    given-names: Yingjie
+  - family-names: Huang
+    given-names: Haoxiang
+  - family-names: Yang
+    given-names: Vigor
+repository-code: "https://github.com/jinboxiao98/NNLCI"
+license: MIT
+keywords:
+  - neural networks
+  - multi-fidelity learning
+  - computational fluid dynamics
+  - conservation laws
+  - shock waves
+  - strong gradients
