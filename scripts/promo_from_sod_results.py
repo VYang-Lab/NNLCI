@@ -9,7 +9,6 @@ import glob
 import hashlib
 import json
 import argparse
-import subprocess
 
 import matplotlib
 matplotlib.use("Agg")
@@ -33,25 +32,15 @@ X = np.linspace(0, 1, 800)
 SUBTITLE = ("Sod P1.25 · best_model_sod_final.pth · fidelity lift from "
             "packaged demo (not a speedup claim)")
 COLORS = ("#bd741b", "#087f8c", "#23334d")
-LABELS = ("LF1 · 50 points", "NNLCI · LF1 + LF2 inputs", "HF · 800 points")
+LABELS = ("LF1 · 50 points", "Refined prediction (HF-like)", "HF reference · 800 points")
 LOW_MEMORY = False
 
 
 def memory_gate():
     """Check before every plot/GIF; any low reading disables animation."""
     global LOW_MEMORY
-    report = subprocess.check_output(["free", "-m"], text=True)
-    print(report, flush=True)
-    available = int(next(line for line in report.splitlines()
-                         if line.startswith("Mem:")).split()[-1])
-    # Container limits can be tighter than the host value reported by free.
-    limit_path = Path("/sys/fs/cgroup/memory.max")
-    usage_path = Path("/sys/fs/cgroup/memory.current")
-    if limit_path.exists() and usage_path.exists():
-        limit = limit_path.read_text().strip()
-        if limit != "max":
-            available = min(available, (int(limit) - int(usage_path.read_text())) // 2**20)
-    print(f"Effective available memory: {available} MiB", flush=True)
+    from replot_sod_promo import memory_gate as effective_memory
+    available = effective_memory()
     LOW_MEMORY |= available < 2500
     return not LOW_MEMORY
 
@@ -274,6 +263,9 @@ def main():
     else:
         sequence(fields)
     write_provenance()
+    # Keep P1.25 presentation layout consistent with the array-only renderer.
+    from replot_sod_promo import main as replot_saved_arrays
+    replot_saved_arrays()
 
 
 if __name__ == "__main__":

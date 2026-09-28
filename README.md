@@ -1,127 +1,62 @@
-# NNLCI: Neural Networks with Local Converging Inputs
+# NNLCI: CFD-informed fidelity lift
 
-> Lift low-cost CFD solutions toward high-fidelity flow fields.
+Lift coarse, low-fidelity (LF) CFD solutions toward high-fidelity-like (HF-like) physical fields through learned refinement.
 
-**NNLCI is a CFD-informed solution-refinement framework.** It learns to map
-coarse, low-fidelity (LF) solutions to high-fidelity-like predictions of
-density, velocity, and pressure. The goal is **fidelity lifting**: recover
-physical structure that inexpensive CFD under-resolves, using high-fidelity
-(HF) solutions as supervision during training.
+![Schematic / Conceptual: coarse LF CFD passes through learned local refinement to an HF-like predicted field](docs/assets/nnlci-concept-overview.png)
 
-This repository brings that idea into four Euler workflows: **Sod, Lax,
-Woodward–Colella, and 2D Riemann Config 3**, with source, data, model
-checkpoints, and evaluation scripts.
-
-[Repository results](#results-from-this-repository) ·
-[Why fidelity lifting?](#why-fidelity-lifting) · [How it works](#how-it-works) ·
-[Choose a workflow](#choose-a-workflow) · [Installation](#installation) ·
-[Run the demos](#run-the-demos) · [Adapt NNLCI](#adapting-nnlci) ·
-[Repository map](#repository-layout) · [Citation](#citation)
-
-## Results from this repository
-
-These density fields come from the packaged Sod data and
-`best_model_sod_final.pth`, evaluated on CPU with the same preprocessing and
-inference logic as the repository's prediction script. This is **fidelity
-lift from the packaged demo, not a surrogate speedup claim**.
-
-![Sod P1.25 density: LF1, NNLCI prediction, and HF reference on a shared density scale](docs/assets/promo/sod_P1.25_fidelity_lift_triptych.png)
-
-*Sod P1.25 · checkpoint: `best_model_sod_final.pth` · LF | NNLCI | HF.
-The displayed LF baseline is LF1 (50 points), interpolated to the 800-point
-target grid. NNLCI uses both LF1 and LF2 (100 points); HF is the 800-point
-reference. The three panels share the same density limits.*
-
-**Read the result:** compare wave positions and transition widths against HF;
-inspect the [overlay and signed density error](docs/assets/promo/sod_P1.25_density_overlay.png)
-to see where agreement holds and where differences remain. A visual match in
-one variable is not evidence of conservation, stability, or generalization.
-
-![Six packaged Sod prediction cases, comparing LF1, NNLCI, and HF density](docs/assets/promo/sod_pred_density_sweep.png)
-
-*All six shipped prediction cases, with shared axes. P1.25–P4.25 lie inside
-the generator's training pressure range (1.0–5.0); P5.50 and P6.00 lie beyond
-it. These are case comparisons, not an aggregate accuracy or speed benchmark.*
-
-[Gallery and regeneration guide](docs/assets/promo/README.md) ·
-[Saved density arrays](docs/assets/promo/arrays/) ·
-[Permanent static comparison strip](docs/assets/promo/sod_P1.25_fidelity_lift_strip.png)
-
-> **Evidence boundary.** The Sod gallery uses a packaged trained checkpoint.
-> Concept diagrams below are illustrative. The 2D Config 3 package is a
-> **two-epoch bootstrap software check**, and its default evaluator reads
-> **training arrays**, not held-out cases.
-
-## Why fidelity lifting?
-
-<p align="center">
-  <img src="docs/assets/nnlci-lf-to-hf.png"
-       alt="Low-fidelity and high-fidelity field examples illustrating the refinement objective"
-       width="100%">
-  <br>
-  <em>The objective: lift a coarse physical representation toward a more resolved
-  field. This LF/HF illustration is not a benchmark of the packaged checkpoint.</em>
-</p>
-
-A coarse CFD solution already carries physical information: wave locations,
-jumps, and relationships among flow variables. It can also smear shocks or
-miss finer structure. NNLCI uses this imperfect solution as the starting
-point for a learned refinement.
-
-The central question is **how much HF structure can be reconstructed from
-inexpensive LF solutions?** Local neighborhoods across fidelity levels give
-the model evidence about how a solution changes with refinement. Near shocks
-and strong gradients, that evidence includes the shape and position of a
-transition, rather than just its value at one point.
-
-Reconstruction quality comes first. Reusing a trained mapping may reduce the
-cost of repeated HF simulations, but a computational-savings claim must
-account for LF CFD, preprocessing, and neural refinement together. This
-landing page makes no measured speedup claim.
+*Schematic / Conceptual · field artwork illustrates the refinement objective.*
 
 ## How it works
 
-The included workflows use **two LF fields, LF1 and LF2**, organized around
-the same target coordinates. “Converging inputs” refers to related numerical
-solutions at successive fidelity levels: their local differences expose
-refinement trends for the network to learn. It does not guarantee that every
-point improves monotonically or that a prediction equals the HF solution.
+![Schematic / Conceptual: LF1 and LF2 neighborhoods form a token and refined prediction; training-only HF supplies the loss](docs/assets/nnlci-training-tokenization.png)
 
-1. **Solve related cases at multiple fidelities.** Keep physical conditions,
-   variables, and output time consistent across LF and HF fields.
-2. **Align and collect local inputs.** Interpolate LF1 and LF2 to target
-   coordinates and gather a stencil around each point of interest.
-3. **Learn the lift.** Concatenate the LF stencil values into an input vector;
-   use the HF value at the same point as the training label.
-4. **Refine a new LF solution.** Apply the trained model with its training
-   transforms to LF stencils and assemble point predictions into a field.
+*Schematic / Conceptual · two fidelities at the same location and time, not two timesteps.
+[Alignment close-up](#local-alignment)*
 
-<p align="center">
-  <img src="docs/assets/nnlci-training-tokenization.png"
-       alt="Two local low-fidelity neighborhoods feed a regressor; the high-fidelity value supplies the training loss"
-       width="100%">
-  <br>
-  <em>One training sample: LF neighborhoods form the input; HF supplies the
-  supervisor. The mesh drawing illustrates the concept; the packaged Euler
-  demos use structured grids.</em>
-</p>
+## Results from this repository
 
-**No new-case HF truth enters the model's inference inputs.** HF references
-are used for training and evaluation. The supplied prediction scripts are
-reproduction/evaluation tools: they load reference fields to score and plot
-results. Woodward–Colella also rebuilds training transforms from the supplied
-training arrays, including training HF data. A standalone deployment should
-save those fixed transforms and use LF data and available coordinates for
-new cases.
+![Checkpoint result · Sod P1.25: LF1 baseline | NNLCI refined prediction (HF-like) | HF reference, with shared density axes](docs/assets/promo/sod_P1.25_fidelity_lift_triptych.png)
 
-Locality and converging inputs are the mechanism serving the refinement
-objective. Each field supplies many point-centered training samples, but
-those samples do not replace independent physical cases for testing
-generalization. The broader idea can accommodate different input designs;
-the recipes below document the specific implementations shipped here.
+*Checkpoint result · Sod P1.25 density: compare transition widths and wave positions.
+[Gallery: overlay, arrays & provenance](docs/assets/promo/README.md)*
 
-For a closer look at point alignment, see the
-[annotated local-stencil diagram](docs/assets/nnlci-local-stencil-explained.png).
+> **Evidence boundary.** Sod uses a packaged checkpoint; concept art is illustrative.
+> 2D Config 3 is a two-epoch bootstrap software check whose default evaluator uses training arrays.
+> Sharper density alone establishes neither conservation, stability, nor generalization. No measured speedup claim.
+
+## Local alignment
+
+![Schematic / Conceptual: LF1 and LF2 stencils align at the same physical location before concatenation](docs/assets/nnlci-local-stencil-explained.png)
+
+*Schematic / Conceptual · alignment precedes local feature collection; packaged Euler demos use structured grids.
+[Full-size close-up](docs/assets/nnlci-local-stencil-explained.png)*
+
+## Run a supplied checkpoint
+
+After [installation](#installation) and LFS retrieval, run from the repository root:
+
+```bash
+python problems/1d_sod/src/prediction/predict.py
+```
+
+Uses supplied data and weights; writes `problems/1d_sod/results/predictions/` without training.
+[Sod guide](problems/1d_sod/README.md) · [Four workflows](#choose-a-workflow) ·
+[Package provenance](docs/UPLOAD_MANIFEST.md) · [Citation](#citation)
+
+<details>
+<summary>Input contract and deployment</summary>
+
+LF1/LF2 neighborhoods share physical case, location, variables, and output time.
+Locality and converging inputs provide refinement trends; the model architecture is swappable.
+No new-case HF truth enters inference features, point selection, or correction.
+HF supplies training supervision and evaluation references only.
+
+The prediction scripts load references for scoring and plotting. Woodward–Colella
+also rebuilds training transforms from supplied training arrays, including training
+HF. Deployment should persist those fixed transforms and use LF data and available
+coordinates. See the [problem guides](#choose-a-workflow) for preprocessing contracts.
+
+</details>
 
 ## Choose a workflow
 

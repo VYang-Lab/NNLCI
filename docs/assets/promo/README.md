@@ -10,7 +10,7 @@ contain no measured wall-clock or FLOP comparison.
 
 ## Read the comparison
 
-![Sod P1.25 density overlay and signed error against HF](sod_P1.25_density_overlay.png)
+![Checkpoint result · Sod P1.25: LF1, refined prediction (HF-like), HF reference and signed error](sod_P1.25_density_overlay.png)
 
 The amber baseline is **LF1 (50 points)** interpolated onto the 800-point
 grid. The teal NNLCI prediction uses **both LF1 and LF2 (100 points)**; the
@@ -18,13 +18,17 @@ dark HF curve is the supplied 800-point reference. The lower panel subtracts
 HF point by point, exposing local differences that a full-field overlay can
 hide. It is a density error profile, not a conservation or stability test.
 
-![All six packaged prediction pressures](sod_pred_density_sweep.png)
+**Checkpoint result · six packaged Sod cases**
+
+![Checkpoint results: LF1, NNLCI refined predictions (HF-like), and HF references at six Sod pressures](sod_pred_density_sweep.png)
 
 Axes are shared across cases. The CFD generator uses training pressures
 1.0–5.0 in increments of 0.5. P1.25, P2.25, P3.75, and P4.25 are distinct
 prediction pressures inside that range; P5.50 and P6.00 are outside it.
 This describes the supplied case construction, not independent verification
 of every checkpoint's training history or generalization to other flows.
+
+[Visual review and schematic regeneration](VISUAL_REVIEW.md)
 
 ## Artifacts and provenance
 
@@ -46,6 +50,17 @@ stencils, and LF1 values at the first/last prediction points. HF is loaded
 for comparison, not as a network input. Density is shown here; inspect the
 [problem result](../../../problems/1d_sod/results/predictions/P1.25.png) for
 all three output variables.
+
+## Replot saved P1.25 arrays (preferred)
+
+```bash
+MPLBACKEND=Agg python scripts/replot_sod_promo.py
+```
+
+This changes only the triptych, permanent strip, and signed-error overlay layout.
+It reads the saved arrays without inference or smoothing, preserves all original
+source hashes, and records renderer versions and array hashes in `provenance.json`.
+It checks host and process-cgroup memory; output is always static PNG.
 
 ## Regenerate without training
 
