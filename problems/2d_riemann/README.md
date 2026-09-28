@@ -21,4 +21,8 @@ nvfortran -O3 -cuda problems/2d_riemann/src/cfd/weno_gpu_solver.f90 \
 ```
 
 The provided Config 3 bootstrap is intended for software validation, not as a
-scientific training dataset.
+scientific training dataset. Per the [upload manifest](../../docs/UPLOAD_MANIFEST.md),
+the supplied model is a two-epoch pipeline-validation checkpoint. The default
+evaluator reads processed training arrays; its metrics do not measure held-out
+generalization. See the [root workflow guide](../../README.md#2d-riemann-config-3)
+for the distinction between bootstrap and independently solved CFD data.
