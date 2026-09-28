@@ -1,3 +1,6 @@
+> **Archived documentation.** Paths and setup assumptions below are historical.
+> Use the [current installation and workflow guides](../../README.md#installation).
+
 # NNLCI: Neural Network with Local Converging 
 
 **NNLCI** is a deep learning framework for high-fidelity flow field reconstruction in fluid dynamics. It utilizes a locally converging input (stencil) approach to map dual low-fidelity (LF) coarse grids to a high-fidelity (HF) fine grid
