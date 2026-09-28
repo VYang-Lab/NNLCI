@@ -1,0 +1,124 @@
+{
+  "operation": "Read-only rendering of packaged CFD values and explicitly conceptual workflow artwork. No training, CFD solve, or inference.",
+  "renderer": "scripts/render_gatech_promo.py",
+  "renderer_sha256": "db60aed52281ebb1312d930fc728d8c1bcf0ae482503316efb6266446993364e",
+  "versions": {
+    "python": "3.13.5",
+    "numpy": "2.5.3",
+    "matplotlib": "3.11.2",
+    "pillow": "12.3.0"
+  },
+  "backend": "Agg / Pillow, CPU",
+  "source": {
+    "path": "problems/2d_riemann/data/raw/flow_standard_config3.dat",
+    "sha256": "02037fbc38dab8d9bef879d7ab4184a50f9e9d9a7b7f0f1c6d98d2d91dc02d3c",
+    "shape": [
+      801,
+      801,
+      6
+    ],
+    "columns": [
+      "x",
+      "y",
+      "density",
+      "u",
+      "v",
+      "pressure"
+    ],
+    "coordinate_check": "X varies along columns; Y along rows; uniform 0..1, 801 nodes; increasing Y plotted upward",
+    "identity": "Packaged standard Config 3 CFD field from which bootstrap grids were subsampled; not NNLCI output"
+  },
+  "scientific_panels": {
+    "classification": "Illustrative field visualization / bootstrap source",
+    "detail_window_xy": [
+      0.24,
+      0.54,
+      0.22,
+      0.52
+    ],
+    "full_domain_export": "config3_full_domain.png",
+    "density": {
+      "range": [
+        0.138,
+        1.7528
+      ],
+      "colormap": "inferno"
+    },
+    "pressure": {
+      "range": [
+        0.029,
+        1.67326
+      ],
+      "colormap": "viridis"
+    },
+    "normalization": "Linear, complete source min/max per variable; same scales in detail and full domain",
+    "rendering": "80 filled contour intervals and 15 isolines; standard contour interpolation only; no smoothing, field fabrication, or numerical modification",
+    "dimensions": [
+      2400,
+      1680
+    ],
+    "dpi": 240
+  },
+  "concept_assets": {
+    "classification": "Schematic / Conceptual",
+    "field_imagery": "Same source density detail; LF1/LF2 artwork subsamples rows and columns with strides 8/4 (matching bootstrap sampling); goal uses stride 1. Nearest-neighbor display. This is not an LF/prediction/HF scientific comparison.",
+    "colorbar": "None on concept artwork; numerical colorbars only on scientific panels",
+    "mechanism": "Two aligned 3x3 neighborhoods depicted schematically, concatenated LF token, local map, refined value. HF supervisor connects only to training loss; inference uses LF and fixed transforms."
+  },
+  "excluded_prediction_array": {
+    "used_for_contours": false,
+    "reason": "Sampled training rows have no saved spatial coordinates; do not reshape or interpolate into a purported prediction field.",
+    "path": "problems/2d_riemann/results/NNLCI_Output/predictions_config3.npy",
+    "sha256": "747791a539bbd381dd4cac2872ecb825b47ea72e6291daf6bf551012233fdad7",
+    "shape": [
+      291195,
+      4
+    ],
+    "density_range": [
+      -1.7526588439941406,
+      1.5741369724273682
+    ]
+  },
+  "evidence_boundary": "Two-epoch Config 3 bootstrap uses subsamples of one CFD solution; default evaluation reads training arrays. Neither these figures nor the animation establish held-out reconstruction, conservation, stability, generalization, or speedup.",
+  "memory": {
+    "before_render_mib": 5718,
+    "before_animation_mib": 5558,
+    "animation_threshold_mib": 2500
+  },
+  "animation": {
+    "file": "nnlci_local_to_hf.gif",
+    "dimensions": [
+      960,
+      430
+    ],
+    "frames": 21,
+    "duration_ms": 7520,
+    "meaning": "Conceptual presentation sequence; highlight inputs, map, and goal. No physical time or iterative solver steps."
+  },
+  "outputs": {
+    "config3_contour_hero.png": {
+      "sha256": "d615d0e41582add000d5a7d586ccbf67e5899f8cdcc218e613b2caa8f53e3638",
+      "bytes": 503899
+    },
+    "config3_full_domain.png": {
+      "sha256": "d8e717b179c7643a8bb7a94bcbff15a7525032d6e1f9b6a3db833e82ad9fc56d",
+      "bytes": 234248
+    },
+    "nnlci_motion_poster.png": {
+      "sha256": "09ee0032489b10f1fa527582dfd9e2eaf910499ad5271cf4707248da8d8ee7f3",
+      "bytes": 114862
+    },
+    "nnlci_local_to_hf_concept.png": {
+      "sha256": "68ccbb9850d6ba152cece3fbc837a07afff6ad2d67a534937d08e8abea51bf8d",
+      "bytes": 131996
+    },
+    "nnlci_local_mechanism.png": {
+      "sha256": "054666816e14d7014321b7f10690ed7199f791efb06fb7825999ba081471287a",
+      "bytes": 75202
+    },
+    "nnlci_local_to_hf.gif": {
+      "sha256": "d120e7e9e5661d0b8051f111fbb3d63112f48ef99fc1d0a2f3b098bb827ac3f1",
+      "bytes": 500866
+    }
+  }
+}

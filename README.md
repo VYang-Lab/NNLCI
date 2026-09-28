@@ -1,16 +1,25 @@
+![Conceptual animation: coarse CFD local neighborhoods feed NNLCI toward an HF-like field; packaged CFD imagery illustrates the goal](docs/assets/promo/nnlci_local_to_hf.gif)
+
+[Motion-free opening](docs/assets/promo/nnlci_motion_poster.png)
+
+![Schematic / Conceptual: local LF1 and LF2 stencils at the same location flow through NNLCI toward high-fidelity-like field reconstruction](docs/assets/promo/nnlci_local_to_hf_concept.png)
+
+> **Evidence boundary.** Opening imagery is conceptual. Config 3 is a two-epoch bootstrap software check evaluated on training arrays; the contours below show its packaged CFD source, not held-out NNLCI accuracy. Sod below is packaged checkpoint evidence.
+
+![Illustrative field visualization: vibrant density and pressure contours of the packaged Config 3 CFD bootstrap source, with physical coordinates and full-domain color scales](docs/assets/promo/config3_contour_hero.png)
+
+*Illustrative field visualization · Config 3 interaction detail.
+[Full domain](docs/assets/promo/config3_full_domain.png) · [Source & rendering](docs/assets/promo/README.md#2d-fields-and-the-motion-open)*
+
 # NNLCI: CFD-informed fidelity lift
 
-Lift coarse, low-fidelity (LF) CFD solutions toward high-fidelity-like (HF-like) physical fields through learned refinement.
-
-![Schematic / Conceptual: coarse LF CFD passes through learned local refinement to an HF-like predicted field](docs/assets/nnlci-concept-overview.png)
-
-*Schematic / Conceptual · field artwork illustrates the refinement objective.*
+Learn from local coarse-CFD neighborhoods to reconstruct high-fidelity-like fields.
 
 ## How it works
 
-![Schematic / Conceptual: LF1 and LF2 neighborhoods form a token and refined prediction; training-only HF supplies the loss](docs/assets/nnlci-training-tokenization.png)
+![Schematic / Conceptual: two aligned LF stencils form a token, NNLCI predicts a refined value, and HF supervision connects only to training loss](docs/assets/promo/nnlci_local_mechanism.png)
 
-*Schematic / Conceptual · two fidelities at the same location and time, not two timesteps.
+*Local inputs at the same physical time; HF supervises training.
 [Alignment close-up](#local-alignment)*
 
 ## Results from this repository
@@ -20,16 +29,15 @@ Lift coarse, low-fidelity (LF) CFD solutions toward high-fidelity-like (HF-like)
 *Checkpoint result · Sod P1.25 density: compare transition widths and wave positions.
 [Gallery: overlay, arrays & provenance](docs/assets/promo/README.md)*
 
-> **Evidence boundary.** Sod uses a packaged checkpoint; concept art is illustrative.
-> 2D Config 3 is a two-epoch bootstrap software check whose default evaluator uses training arrays.
-> Sharper density alone establishes neither conservation, stability, nor generalization. No measured speedup claim.
-
-## Local alignment
+<details id="local-alignment">
+<summary>Local alignment: a closer look</summary>
 
 ![Schematic / Conceptual: LF1 and LF2 stencils align at the same physical location before concatenation](docs/assets/nnlci-local-stencil-explained.png)
 
 *Schematic / Conceptual · alignment precedes local feature collection; packaged Euler demos use structured grids.
 [Full-size close-up](docs/assets/nnlci-local-stencil-explained.png)*
+
+</details>
 
 ## Run a supplied checkpoint
 
@@ -50,6 +58,8 @@ LF1/LF2 neighborhoods share physical case, location, variables, and output time.
 Locality and converging inputs provide refinement trends; the model architecture is swappable.
 No new-case HF truth enters inference features, point selection, or correction.
 HF supplies training supervision and evaluation references only.
+Sharper fields alone establish neither conservation, stability, nor generalization.
+No measured speedup is claimed; cost comparisons would need the complete LF-to-prediction pipeline.
 
 The prediction scripts load references for scoring and plotting. Woodward–Colella
 also rebuilds training transforms from supplied training arrays, including training

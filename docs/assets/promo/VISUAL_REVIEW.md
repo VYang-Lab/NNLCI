@@ -1,48 +1,110 @@
-# Promo visual review · 2026-09-28
+# Gatech feedback pass · visual review
 
-Scope: approved visual specification, implemented on `promo/readme-redesign`.
-This is an author self-review of presentation, not an independent scientific validation.
+2026-09-28 · baseline `3741986` · branch `promo/readme-redesign`.
+Author visual review, not an independent reviewer acceptance or scientific validation.
+The session runtime record confirms **gpt-6-astra / xhigh**. No model downgrade.
 
-- [x] Opening message: coarse LF CFD → learned refinement → HF-like field.
-- [x] Conceptual schematics and Sod checkpoint evidence are explicitly classified.
-- [x] Refined prediction and HF reference are separate; no exactness guarantee.
-- [x] LF1/LF2 share case, location, variables, and time; neither is a timestep.
-- [x] HF supervision terminates at loss. New-case HF is excluded from inference features, point selection, and correction.
-- [x] Schematics use structured grids; no arbitrary-mesh or viscous capability is implied.
-- [x] Blue/green LF inputs, red training supervisor, teal prediction; Sod amber/teal/navy with dashed/solid/dotted curves. Grayscale preview preserves roles and line distinctions.
-- [x] PNGs inspected at 900–960 px: no overlaps, clipping, or missing glyphs. Schematic key labels are at least 16 display px at 900 px; secondary text at least 14 px. Plot titles and legends are at least 16 px, secondary labels at least 14 px.
-- [x] 390 px previews retain the principal flow and evidence classification; original PNG links provide detail.
-- [x] Sod panels share x/density limits. Overlay errors retain both signs, the zero line, and the full spatial/error range.
-- [x] No invented metrics, badges, speedup claims, or new science.
-- [x] Short captions; local Markdown targets checked, with protocol/provenance linked.
-- [x] One opening evidence-boundary callout. 2D two-epoch/training-array limit is explicit; WC supplied-array/missing-generator limit remains in workflows and guide.
-- [x] Descriptive presentation paths under `docs/assets/`; source artwork and original problem figures retained.
-- [x] Alt text describes LF1/prediction/reference or schematic roles.
-- [x] `free -m` and the process cgroup plus ancestor limits checked before result rendering. Agg/CPU static replot; figures closed after saving.
-- [x] P1.25 arrays read without writes, inference, or smoothing. Original checkpoint/data hashes preserved; array hashes and renderer versions recorded separately.
-- [x] No animation generated in this execution; permanent PNG strip exists. No Markdown image depends on a GIF.
-- [x] Ten-second author check: opening identifies the refinement objective, LF inputs, HF supervision, and the first real Sod result. One principle hero leads; mechanism and evidence follow below.
+## Reviewer requests → delivered changes
 
-No checklist waivers. Full CFD, model training, and inference were not run.
+| Request | Delivered |
+| --- | --- |
+| lyao76: higher visual quality and vibrant 2D contours | [Density/pressure hero](config3_contour_hero.png): 2400 × 1680, 240 dpi; inferno/viridis, true physical coordinates, readable numerical colorbars. [Full domain](config3_full_domain.png) locates the detail window. |
+| ishe3: understand local information → high fidelity at a glance | [Concept strip](nnlci_local_to_hf_concept.png): two visibly coarse local inputs → NNLCI → resolved goal imagery. Three stages, large arrows, little prose. |
+| bjin60: open with motion, then show how it works | The first README element is a [7.52-second GIF](nnlci_local_to_hf.gif). It opens on the field and fidelity-lift identity, then highlights inputs, the learned map, and the field goal. [Permanent poster](nnlci_motion_poster.png) and concept PNG remain available. |
+| Airphonse: CFD-informed fidelity/resolution lift first | Opening says “Coarse CFD. Finer fields.” Local information supplies the refinement map. No runtime or speedup claim. |
 
-## Reproduce the schematic assets
+The revised order is motion → core concept → 2D field hero → compact mechanism
+→ packaged Sod evidence → runnable entry and details. The project heading
+follows the opening figures. The old expanded alignment schematic is folded
+into a details block; historical artwork remains in the repository.
 
-From the repository root with Pillow installed:
+The user's feedback overrides the standing spec's earlier GIF/2D demotion,
+Sod-first evidence order, and previous opening storyboard. White backgrounds,
+role colors, honest labels, inference separation, and source provenance remain.
+
+## Data boundary and source choice
+
+- The numerical contours use **the packaged CFD bootstrap source**,
+  `problems/2d_riemann/data/raw/flow_standard_config3.dat`, with its original
+  density and pressure values. They are labeled **Illustrative field visualization**
+  and **Packaged CFD bootstrap source** inside the image.
+- The detail window is x = 0.24–0.54, y = 0.22–0.52. The entire 0–1 domain is
+  provided separately with the window marked. Each variable's complete source
+  min/max sets the linear color scale in both views. There is no smoothing,
+  invented field, hidden rescaling between views, or fabricated metric.
+- `predictions_config3.npy` was inspected, not reshaped. It is a 291,195 × 4
+  sampled training table without saved spatial coordinates; density includes
+  negative values. A dense prediction contour would need a validated index
+  map or new inference. Neither is invented here. The array's hash, shape,
+  and density range are recorded in [provenance](gatech_provenance.json).
+- Concept artwork uses stride-8/stride-4 samples and full-resolution values
+  from **one** source field. All such artwork is labeled **Schematic / Conceptual**;
+  the output is **HF-like goal**, not measured NNLCI reconstruction. The conceptual
+  imagery has no numerical colorbar. The independent contour panels do.
+- Config 3 remains a two-epoch bootstrap software check whose default evaluator
+  reads training arrays. The top has one short evidence-boundary callout.
+  No held-out 2D, exactness, conservation, stability, generalization, or speed claim.
+- Sod checkpoint figures and their original arrays/provenance are unchanged
+  and appear below the mechanism. No inference, training, or CFD was run.
+
+## Motion and memory
+
+Before final rendering, `free -m` and the process cgroup/ancestors reported
+5,718 MiB effective available RAM; the check before animation reported
+5,558 MiB. The process cgroup was unlimited, so host availability governed.
+No NVIDIA GPU is available or required.
+
+The GIF has 21 indexed frames at 960 × 430, lasts 7,520 ms, and is 500,866 bytes.
+It is a conceptual presentation sequence: clean fades, numbered explanations, and stage highlights,
+not physics evolving, an iterative corrector, or progressive accuracy gains.
+The first frame already contains a field and the fidelity-lift message.
+
+No motion deliverable was deferred. The renderer checks memory again before
+animation; below 2,500 MiB (or `--static-only`) it deletes its old GIF and points
+the first README image at the permanent PNG. The concept strip always remains.
+
+## Visual and pre-ship checks
+
+- [x] Viewed exported poster, concept, mechanism, contour detail, and full-domain figures.
+- [x] Viewed GIF frames for the cover, transition, and all three highlighted stages.
+- [x] Reviewed 960 px and 390 px storyboards. At 960 px, stage labels, arrows,
+  physical axes, colorbars, and evidence labels are readable. At 390 px, the
+  primary local→NNLCI→field direction survives; the small scientific details
+  require the linked full-size image. No claim that every footer is phone-readable.
+- [x] Enlarged the actual contour panels after the first visual inspection;
+  the final plots occupy most of the figure instead of small centered squares.
+- [x] Glance test (author): first frame says coarse CFD → finer fields;
+  the adjacent still directly shows two local neighborhoods → NNLCI → HF-like goal.
+  This does not substitute for a new external reviewer test.
+- [x] HF supervision reaches only training loss. LF1/LF2 share physical location
+  and time. The schematic uses structured stencils and does not imply arbitrary-mesh support.
+- [x] Blue/green LF roles, teal prediction/map, red training supervision, and
+  unchanged Sod amber/teal/navy. Labels and arrows carry meaning beyond color.
+- [x] Every new result-like visual identifies its source/evidence class inside
+  the image; descriptive alt text and linked provenance accompany the README.
+- [x] Source/output hashes, PNG dimensions/DPI, complete GIF decoding/duration,
+  Markdown local targets, GitHub API Markdown rendering, and diff whitespace checked before commit.
+- [x] No fake metrics, training, CFD regeneration, email, visibility mutation,
+  or merge action. The repository was verified PRIVATE.
+
+## Repository state discovered
+
+The branch began clean at `3741986` and matched its remote after fetch.
+GitHub reported PR #2 **already merged** at `2026-09-28T21:31:46Z`, with head
+`3ebb24f5c983cbc23ffb03f5df13ddb245aefce2`, before this work. The requested
+branch is still the push destination. A push to that branch cannot reopen or
+update the merged PR's code review; no replacement PR or merge is performed.
+
+## Reproduce
+
+From the repository root with NumPy, Matplotlib, Pillow, and retrieved LFS data:
 
 ```bash
-python scripts/generate_concept_overview.py
-python scripts/generate_training_tokenization_diagram.py
-python scripts/annotate_local_stencil_diagram.py
-python scripts/add_lf_hf_arrow.py
+python scripts/render_gatech_promo.py
 ```
 
-The shared `scripts/promo_drawing.py` uses scalable DejaVu Sans fonts on Linux;
-there is no silent bitmap-font fallback. Opaque PNGs export at twice their
-960 px design width. The overview and field comparison reuse the unchanged
-`lf-field-sample.png` and `hf-field-sample.png` artwork, without a numerical
-colorbar. The local diagram redraws the alignment concept from the preserved
-`nnlci-local-stencil-base.png`, replacing its legacy HF-selection branch with
-LF-only target-grid alignment. The training-only HF branch is shown separately
-in the tokenization schematic.
-
-Result regeneration and saved-array replot commands are in the [gallery guide](README.md).
+The renderer reads packaged values, uses Agg/Pillow on CPU, closes Matplotlib
+figures, and writes the six new media assets and `gatech_provenance.json`.
+See the [gallery guide](README.md#2d-fields-and-the-motion-open) for LFS retrieval,
+source interpretation, and static-only operation. Existing Sod rendering
+commands and original inference provenance remain in the same guide.
