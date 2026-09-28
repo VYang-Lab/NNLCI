@@ -21,10 +21,44 @@ checkpoints, and evaluation scripts.
   field. This LF/HF illustration is not a benchmark of the packaged checkpoint.</em>
 </p>
 
+[Repository results](#results-from-this-repository) ·
 [Why fidelity lifting?](#why-fidelity-lifting) · [How it works](#how-it-works) ·
 [Choose a workflow](#choose-a-workflow) · [Installation](#installation) ·
 [Run the demos](#run-the-demos) · [Adapt NNLCI](#adapting-nnlci) ·
 [Repository map](#repository-layout) · [Citation](#citation)
+
+## Results from this repository
+
+These density fields come from the packaged Sod data and
+`best_model_sod_final.pth`, evaluated on CPU with the same preprocessing and
+inference logic as the repository's prediction script. This is **fidelity
+lift from the packaged demo, not a surrogate speedup claim**.
+
+![Sod P1.25 density: LF1, NNLCI prediction, and HF reference on a shared density scale](docs/assets/promo/sod_P1.25_fidelity_lift_triptych.png)
+
+*Sod P1.25 · checkpoint: `best_model_sod_final.pth` · LF | NNLCI | HF.
+The displayed LF baseline is LF1 (50 points), interpolated to the 800-point
+target grid. NNLCI uses both LF1 and LF2 (100 points); HF is the 800-point
+reference. The three panels share the same density limits.*
+
+<p align="center">
+  <img src="docs/assets/promo/sod_P1.25_fidelity_lift.gif"
+       alt="Sod P1.25 comparison sequence: LF1, NNLCI, then HF density"
+       width="640">
+  <br>
+  <em>Sod P1.25 · best_model_sod_final.pth · LF → NNLCI → HF.
+  Three comparison frames of the same case, not iterative solver steps or
+  a time evolution.</em>
+</p>
+
+Inspect the [P1.25 density overlay](docs/assets/promo/sod_P1.25_density_overlay.png),
+the [six-case density sweep](docs/assets/promo/sod_pred_density_sweep.png), or
+the [saved P1.25 arrays](docs/assets/promo/arrays/).
+Regenerate the gallery with
+`MPLBACKEND=Agg python scripts/promo_from_sod_results.py`.
+The script checks `free -m` before plotting; if available memory falls below
+2,500 MiB, it writes `sod_P1.25_fidelity_lift_strip.png` instead of the GIF.
+Use that strip as the image source above when regenerating under low memory.
 
 ## Why fidelity lifting?
 
