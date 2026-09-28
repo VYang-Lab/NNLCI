@@ -63,5 +63,28 @@
     "problems/1d_sod/data/raw/pred_P6.00_100.dat": "db0e881459c16a8b4c314919e905c7b34779295e18e4d37a2716383fabce6949",
     "problems/1d_sod/data/raw/pred_P6.00_800.dat": "f46f3b8cdccd831d8564ca62e1b13c1f312eef9988802e11550966ae654c67df",
     "problems/1d_sod/models/best_model_sod_final.pth": "3192b35de7abcad360ed81f2574d9773df691c0f52b2a76b2372d07a98acb0e2"
+  },
+  "presentation_replot": {
+    "operation": "Layout-only replot of saved P1.25 arrays; no inference, numerical changes, or smoothing",
+    "renderer": "scripts/replot_sod_promo.py",
+    "backend": "Agg",
+    "device": "CPU",
+    "versions": {
+      "numpy": "2.5.3",
+      "matplotlib": "3.11.2"
+    },
+    "array_sha256": {
+      "docs/assets/promo/arrays/x.npy": "cb0c6da3eeb20cdcae2d42e4bc56da359d5f61eacb47529d650ba0786040f6f5",
+      "docs/assets/promo/arrays/sod_P1.25_lf1_density.npy": "42fb11a241f1af4b9356dc6574caea9a3193c2c28ac151875fcf2f2cb34eed9a",
+      "docs/assets/promo/arrays/sod_P1.25_nnlci_density.npy": "9940a435fc7daa0bc28949ee0cb22690369b52ecfffa74f8c2c38de79fc0a069",
+      "docs/assets/promo/arrays/sod_P1.25_hf_density.npy": "c321ffcb28d0c6de85c13e1b5ec8aa79f8a4aade945f7cc2743994f71ab72137"
+    },
+    "outputs": [
+      "sod_P1.25_fidelity_lift_triptych.png",
+      "sod_P1.25_fidelity_lift_strip.png",
+      "sod_P1.25_density_overlay.png"
+    ],
+    "effective_available_memory_mib": 5432,
+    "animation": "This replot generates no animation; permanent PNG strip retained"
   }
 }

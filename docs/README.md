@@ -1,7 +1,7 @@
 # Documentation · from CFD inputs to refined fields
 
-[Start with the project overview](../README.md) for the fidelity-lift objective,
-real Sod gallery, installation, and workflow selection.
+[Start with the project overview](../README.md) for the animated local→HF concept,
+2D field imagery, Sod checkpoint evidence, installation, and workflow selection.
 
 ## Reproduce a packaged workflow
 
@@ -17,10 +17,12 @@ and optional regeneration/training separately from checkpoint inference.
 
 ## Understand the figures
 
-- [Sod gallery](assets/promo/README.md): checkpoint, data sources, density
+- [2D contours and motion open](assets/promo/README.md#2d-fields-and-the-motion-open):
+  packaged CFD bootstrap-source visualization, conceptual animation, and provenance.
+- [Sod gallery](assets/promo/README.md#sod--packaged-checkpoint-evidence): checkpoint, data sources, density
   arrays, error-profile interpretation, and memory-gated regeneration.
 - [Upload manifest](UPLOAD_MANIFEST.md): package provenance and LFS retrieval.
-- [Training-tokenization diagram](assets/nnlci-training-tokenization.png):
+- [Local stencil / tokenization diagram](assets/promo/nnlci_local_mechanism.png):
   conceptual input/label construction, not a numerical benchmark.
 - [LF/HF concept image](assets/nnlci-lf-to-hf.png): illustrative refinement
   objective, not output from the packaged checkpoint.
