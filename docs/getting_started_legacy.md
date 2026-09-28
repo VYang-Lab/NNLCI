@@ -1,3 +1,6 @@
+> **Archived documentation.** Paths and setup assumptions below are historical.
+> Use the [current installation and workflow guides](../README.md#installation).
+
 # NNLCI Documentation - How to get started?
 
 This documentation provides a comprehensive guide to using the **Neural Network with Local Converging Input (NNLCI)** framework, covering everything from generating high-fidelity CFD training data to training the deep learning model.

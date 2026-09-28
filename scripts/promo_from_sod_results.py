@@ -6,6 +6,9 @@ Preprocessing, feature order, architecture and boundaries mirror Sod predict.py.
 
 from pathlib import Path
 import glob
+import hashlib
+import json
+import argparse
 import subprocess
 
 import matplotlib
@@ -41,6 +44,14 @@ def memory_gate():
     print(report, flush=True)
     available = int(next(line for line in report.splitlines()
                          if line.startswith("Mem:")).split()[-1])
+    # Container limits can be tighter than the host value reported by free.
+    limit_path = Path("/sys/fs/cgroup/memory.max")
+    usage_path = Path("/sys/fs/cgroup/memory.current")
+    if limit_path.exists() and usage_path.exists():
+        limit = limit_path.read_text().strip()
+        if limit != "max":
+            available = min(available, (int(limit) - int(usage_path.read_text())) // 2**20)
+    print(f"Effective available memory: {available} MiB", flush=True)
     LOW_MEMORY |= available < 2500
     return not LOW_MEMORY
 
@@ -135,21 +146,29 @@ def triptych(fields, filename, hero=False):
 
 def overlay(fields):
     memory_gate()
-    fig, ax = plt.subplots(figsize=(8, 4.8), dpi=140)
+    fig, (ax, error_ax) = plt.subplots(
+        2, 1, figsize=(9, 6.4), dpi=140, sharex=True,
+        gridspec_kw={"height_ratios": [2, 1]})
     for values, color, label, ls in zip(fields, COLORS, LABELS, ("--", "-", ":")):
         ax.plot(X, values, color=color, label=label, ls=ls, lw=2)
     style_axis(ax, limits(fields))
-    ax.set(ylabel="Density", title="Sod P1.25 · density comparison")
+    ax.set(xlabel="", ylabel="Density", title="Sod P1.25 · field and reference error")
     ax.legend(frameon=False)
-    fig.text(.5, .025, "best_model_sod_final.pth · packaged demo · no speedup claim",
-             ha="center", fontsize=9)
+    for values, color, label in zip(fields[:2], COLORS[:2], LABELS[:2]):
+        error_ax.plot(X, values - fields[2], color=color, label=label, lw=1.5)
+    error_ax.axhline(0, color=COLORS[2], lw=.8)
+    errors = [values - fields[2] for values in fields[:2]]
+    extent = max(np.max(np.abs(errors)), 1e-12) * 1.1
+    style_axis(error_ax, (-extent, extent))
+    error_ax.set_ylabel("Density − HF")
+    fig.text(.5, .025, "Signed pointwise differences on the same 800-point grid · "
+             "boundary predictions copied from LF1", ha="center", fontsize=9)
     fig.tight_layout(rect=(0, .05, 1, 1))
     save(fig, "sod_P1.25_density_overlay.png")
 
 
 def sequence(fields):
     gif = OUT / "sod_P1.25_fidelity_lift.gif"
-    strip = OUT / "sod_P1.25_fidelity_lift_strip.png"
     frames = []
     for i, (values, color, label) in enumerate(zip(fields, COLORS, LABELS), 1):
         if not memory_gate():
@@ -169,15 +188,13 @@ def sequence(fields):
     if memory_gate() and len(frames) == 3:
         frames[0].save(gif, save_all=True, append_images=frames[1:],
                        duration=[1600, 1600, 1600], loop=0)
-        strip.unlink(missing_ok=True)
         print(f"Wrote {gif} (3 frames, 640 × 400)")
     else:
         for frame in frames:
             frame.close()
         frames.clear()
         gif.unlink(missing_ok=True)
-        triptych(fields, strip.name)
-        print("Memory below 2500 MiB: GIF skipped; use the three-frame strip.")
+        print("Memory below 2500 MiB: GIF skipped; permanent static strip is available.")
     for frame in frames:
         frame.close()
 
@@ -190,7 +207,8 @@ def sweep(results):
         for values, color, label, ls in zip(fields, COLORS, LABELS, ("--", "-", ":")):
             ax.plot(X, values, color=color, label=label, ls=ls, lw=1.7)
         style_axis(ax, ylim)
-        ax.set_title(f"Sod {case}", fontweight="bold")
+        status = "inside training pressure range" if float(case[1:]) <= 5 else "beyond training pressure range"
+        ax.set_title(f"Sod {case}\n{status}", fontweight="bold", fontsize=10)
     for ax in axes[:, 0]:
         ax.set_ylabel("Density")
     fig.suptitle("Packaged Sod prediction cases · density fidelity comparison",
@@ -203,7 +221,34 @@ def sweep(results):
     save(fig, "sod_pred_density_sweep.png")
 
 
+def write_provenance():
+    sources = sorted(DATA.glob("train_P*_50.dat")) + sorted(DATA.glob("train_P*_800.dat"))
+    sources += [DATA / f"pred_{case}_{grid}.dat" for case in CASES for grid in (50, 100, 800)]
+    sources += [CHECKPOINT]
+    def sha256(path):
+        return hashlib.sha256(path.read_bytes()).hexdigest()
+    metadata = {
+        "checkpoint": str(CHECKPOINT.relative_to(ROOT)),
+        "script": "scripts/promo_from_sod_results.py",
+        "cases": list(CASES),
+        "variables": ["density"],
+        "target_points": len(X),
+        "lf_points": [50, 100],
+        "boundary_rule": "First and last predictions copied from aligned LF1",
+        "normalization": "Training LF1 mean/std; epsilon 1e-6",
+        "interpretation": "Checkpoint inference comparisons; no timing benchmark",
+        "versions": {"numpy": np.__version__, "torch": torch.__version__,
+                     "matplotlib": matplotlib.__version__},
+        "source_sha256": {str(path.relative_to(ROOT)): sha256(path) for path in sources},
+    }
+    (OUT / "provenance.json").write_text(json.dumps(metadata, indent=2) + "\n")
+
+
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--static-only", action="store_true",
+                        help="Render PNGs and arrays; skip and remove any stale GIF")
+    args = parser.parse_args()
     memory_gate()
     torch.set_num_threads(2)
     OUT.mkdir(parents=True, exist_ok=True)
@@ -220,9 +265,15 @@ def main():
     plt.rcParams.update({"font.family": "DejaVu Sans", "axes.labelcolor": "#23334d",
                          "text.color": "#23334d", "figure.facecolor": "#fafcfe"})
     triptych(fields, "sod_P1.25_fidelity_lift_triptych.png", hero=True)
+    triptych(fields, "sod_P1.25_fidelity_lift_strip.png")
     overlay(fields)
     sweep(results)
-    sequence(fields)
+    if args.static_only:
+        (OUT / "sod_P1.25_fidelity_lift.gif").unlink(missing_ok=True)
+        print("Static-only requested: PNG strip available; GIF skipped.")
+    else:
+        sequence(fields)
+    write_provenance()
 
 
 if __name__ == "__main__":

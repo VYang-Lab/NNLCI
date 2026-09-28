@@ -1,0 +1,67 @@
+{
+  "checkpoint": "problems/1d_sod/models/best_model_sod_final.pth",
+  "script": "scripts/promo_from_sod_results.py",
+  "cases": [
+    "P1.25",
+    "P2.25",
+    "P3.75",
+    "P4.25",
+    "P5.50",
+    "P6.00"
+  ],
+  "variables": [
+    "density"
+  ],
+  "target_points": 800,
+  "lf_points": [
+    50,
+    100
+  ],
+  "boundary_rule": "First and last predictions copied from aligned LF1",
+  "normalization": "Training LF1 mean/std; epsilon 1e-6",
+  "interpretation": "Checkpoint inference comparisons; no timing benchmark",
+  "versions": {
+    "numpy": "2.5.3",
+    "torch": "2.14.0+cpu",
+    "matplotlib": "3.11.2"
+  },
+  "source_sha256": {
+    "problems/1d_sod/data/raw/train_P1.00_50.dat": "b24f90029d8c841b9bc90f13ce676e690ac48194ee6b8b6ce33e070eeea98857",
+    "problems/1d_sod/data/raw/train_P1.50_50.dat": "4b1c1f72c0aaa3a4bb3cd6a9532cd28aff319ad4d8cb2eafda54dc0ea59e66c3",
+    "problems/1d_sod/data/raw/train_P2.00_50.dat": "8f7cba994e925ce1128e8c90375fc932d22f5132880f8baa8c70bff83db6ef30",
+    "problems/1d_sod/data/raw/train_P2.50_50.dat": "b1d0204e97fe8070c7351a298e76ea5afafb2546589649913054c27a06715d7d",
+    "problems/1d_sod/data/raw/train_P3.00_50.dat": "fe54d91247ae7fe43f1a142cb9b41d7c400759bcd918b5462d719e7c28f71a4f",
+    "problems/1d_sod/data/raw/train_P3.50_50.dat": "25e4ab50968a3bb0f1869bb9addee01f26812ee349e4dcadfce8fb067d443077",
+    "problems/1d_sod/data/raw/train_P4.00_50.dat": "c151593593dac0c44c0b052d9195581a9cf35af63451bf05b7265609e476be9e",
+    "problems/1d_sod/data/raw/train_P4.50_50.dat": "6121d86d7c120606632123e9e800c6cbf464a04f93b7c74aaa56514ca50774f7",
+    "problems/1d_sod/data/raw/train_P5.00_50.dat": "404ac6a0c027bf2c71b0d8689ad3404e06ff0dac70a1de517148b82007d900ac",
+    "problems/1d_sod/data/raw/train_P1.00_800.dat": "dfa45a0d778a602766b8c6589be9aa72de5b2be53e696e980fd5c81819858184",
+    "problems/1d_sod/data/raw/train_P1.50_800.dat": "88a3f14cbef0d1e4cae2a5e35015166b457b3752aa6aaf96a31eac8eb28b66a6",
+    "problems/1d_sod/data/raw/train_P2.00_800.dat": "9ab0856ca2fcac139dbbe8f11276884bddbfd00da251a0a306a06b8ee3040f18",
+    "problems/1d_sod/data/raw/train_P2.50_800.dat": "6b4d5a8d8f37b0d376aa76a21953235e7ece780dcc05040e3227a991ffacb419",
+    "problems/1d_sod/data/raw/train_P3.00_800.dat": "d1a027f6a128acdebf5d86074f9ddebe7ed370f83e5a35eb9a3ad71a0a948d9e",
+    "problems/1d_sod/data/raw/train_P3.50_800.dat": "4f5411c745652c5810ebe3af4273545f568cf35759d2d3dfdfc305d6e999d0d2",
+    "problems/1d_sod/data/raw/train_P4.00_800.dat": "fd0d4d930d8a4fda74f3b006421a1a9cae672890297115f8b6d128b5f2cfafc9",
+    "problems/1d_sod/data/raw/train_P4.50_800.dat": "4738e9f0873ff5df134235f4cc126d2bee44d0626e79ddd60f60b4cd8fcefd10",
+    "problems/1d_sod/data/raw/train_P5.00_800.dat": "e4f257c5961c3d918abca90251af8e6232dfe0b3dea6e6c3b611e5218c5e70b7",
+    "problems/1d_sod/data/raw/pred_P1.25_50.dat": "6a5f107cddf48e6a9028400f8de6a4d9397347e190cec0e1861ee07b87c9a795",
+    "problems/1d_sod/data/raw/pred_P1.25_100.dat": "32d8867114ccb18298f05ec984436aee253147f653af4ffc7b8b5f778b33989f",
+    "problems/1d_sod/data/raw/pred_P1.25_800.dat": "da39b2fde623a997f101b8e54d9c8038518651e98eb2b942953f41df83882ad4",
+    "problems/1d_sod/data/raw/pred_P2.25_50.dat": "0b227264133b7bd8d101bc2b8797554522cdec96138245d5283ad6522b3d7ca4",
+    "problems/1d_sod/data/raw/pred_P2.25_100.dat": "ccb697fc7ab541eadf94119b8b46ccc098184d195d4ffd41ca4ef3acb8b5f76b",
+    "problems/1d_sod/data/raw/pred_P2.25_800.dat": "836089759fbf5c314e5adfd4e424216d340f9bb7bda9be4a1d60dbc4f1c5d2d2",
+    "problems/1d_sod/data/raw/pred_P3.75_50.dat": "61c1145c0f526928f245be77af1ff17ce5298a1408949d4d6678410c1735e235",
+    "problems/1d_sod/data/raw/pred_P3.75_100.dat": "e94378aeb300ea5f89a737936b871cc1a4f9a84bb9b51335471539a654922cc4",
+    "problems/1d_sod/data/raw/pred_P3.75_800.dat": "edd88d88c6c61be57040d352f5d95cb920be9db29b66afd3c8cf5a4c95dc2840",
+    "problems/1d_sod/data/raw/pred_P4.25_50.dat": "17504c8f6f391d9134f714e5e5075ce9755e4b7be1ef0d684d96601187d1786d",
+    "problems/1d_sod/data/raw/pred_P4.25_100.dat": "1256b6ea3295f240a79ef90ad10613901b3c81ad8ecf55a68fc9414d1b606f80",
+    "problems/1d_sod/data/raw/pred_P4.25_800.dat": "4863c2b071e9091aa577d9903df257146e85f63386ea53bccbb0afde85fa53c3",
+    "problems/1d_sod/data/raw/pred_P5.50_50.dat": "640d43b36ec95e7ba7411057ca06b804e5c4a1b1d65f3f08a64f7e58b8890c80",
+    "problems/1d_sod/data/raw/pred_P5.50_100.dat": "0a564fe68e5b73879aafdc851f12abf2d2ab4a82e9a024671910ff30413a5745",
+    "problems/1d_sod/data/raw/pred_P5.50_800.dat": "7a5fe1db026c74621142f5d0db9693736fbf63f8426cc28e175acdc90fe00c7c",
+    "problems/1d_sod/data/raw/pred_P6.00_50.dat": "4f5aa0056a40157db6e47e1e9a09eb77b00f957dda9f5c1d91cd1fd0ff96305c",
+    "problems/1d_sod/data/raw/pred_P6.00_100.dat": "db0e881459c16a8b4c314919e905c7b34779295e18e4d37a2716383fabce6949",
+    "problems/1d_sod/data/raw/pred_P6.00_800.dat": "f46f3b8cdccd831d8564ca62e1b13c1f312eef9988802e11550966ae654c67df",
+    "problems/1d_sod/models/best_model_sod_final.pth": "3192b35de7abcad360ed81f2574d9773df691c0f52b2a76b2372d07a98acb0e2"
+  }
+}

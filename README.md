@@ -12,15 +12,6 @@ This repository brings that idea into four Euler workflows: **Sod, Lax,
 Woodward–Colella, and 2D Riemann Config 3**, with source, data, model
 checkpoints, and evaluation scripts.
 
-<p align="center">
-  <img src="docs/assets/nnlci-lf-to-hf.png"
-       alt="Low-fidelity and high-fidelity field examples illustrating the refinement objective"
-       width="100%">
-  <br>
-  <em>The objective: lift a coarse physical representation toward a more resolved
-  field. This LF/HF illustration is not a benchmark of the packaged checkpoint.</em>
-</p>
-
 [Repository results](#results-from-this-repository) ·
 [Why fidelity lifting?](#why-fidelity-lifting) · [How it works](#how-it-works) ·
 [Choose a workflow](#choose-a-workflow) · [Installation](#installation) ·
@@ -41,26 +32,36 @@ The displayed LF baseline is LF1 (50 points), interpolated to the 800-point
 target grid. NNLCI uses both LF1 and LF2 (100 points); HF is the 800-point
 reference. The three panels share the same density limits.*
 
-<p align="center">
-  <img src="docs/assets/promo/sod_P1.25_fidelity_lift.gif"
-       alt="Sod P1.25 comparison sequence: LF1, NNLCI, then HF density"
-       width="640">
-  <br>
-  <em>Sod P1.25 · best_model_sod_final.pth · LF → NNLCI → HF.
-  Three comparison frames of the same case, not iterative solver steps or
-  a time evolution.</em>
-</p>
+**Read the result:** compare wave positions and transition widths against HF;
+inspect the [overlay and signed density error](docs/assets/promo/sod_P1.25_density_overlay.png)
+to see where agreement holds and where differences remain. A visual match in
+one variable is not evidence of conservation, stability, or generalization.
 
-Inspect the [P1.25 density overlay](docs/assets/promo/sod_P1.25_density_overlay.png),
-the [six-case density sweep](docs/assets/promo/sod_pred_density_sweep.png), or
-the [saved P1.25 arrays](docs/assets/promo/arrays/).
-Regenerate the gallery with
-`MPLBACKEND=Agg python scripts/promo_from_sod_results.py`.
-The script checks `free -m` before plotting; if available memory falls below
-2,500 MiB, it writes `sod_P1.25_fidelity_lift_strip.png` instead of the GIF.
-Use that strip as the image source above when regenerating under low memory.
+![Six packaged Sod prediction cases, comparing LF1, NNLCI, and HF density](docs/assets/promo/sod_pred_density_sweep.png)
+
+*All six shipped prediction cases, with shared axes. P1.25–P4.25 lie inside
+the generator's training pressure range (1.0–5.0); P5.50 and P6.00 lie beyond
+it. These are case comparisons, not an aggregate accuracy or speed benchmark.*
+
+[Gallery and regeneration guide](docs/assets/promo/README.md) ·
+[Saved density arrays](docs/assets/promo/arrays/) ·
+[Permanent static comparison strip](docs/assets/promo/sod_P1.25_fidelity_lift_strip.png)
+
+> **Evidence boundary.** The Sod gallery uses a packaged trained checkpoint.
+> Concept diagrams below are illustrative. The 2D Config 3 package is a
+> **two-epoch bootstrap software check**, and its default evaluator reads
+> **training arrays**, not held-out cases.
 
 ## Why fidelity lifting?
+
+<p align="center">
+  <img src="docs/assets/nnlci-lf-to-hf.png"
+       alt="Low-fidelity and high-fidelity field examples illustrating the refinement objective"
+       width="100%">
+  <br>
+  <em>The objective: lift a coarse physical representation toward a more resolved
+  field. This LF/HF illustration is not a benchmark of the packaged checkpoint.</em>
+</p>
 
 A coarse CFD solution already carries physical information: wave locations,
 jumps, and relationships among flow variables. It can also smear shocks or
@@ -149,6 +150,8 @@ See the [upload manifest](docs/UPLOAD_MANIFEST.md) for package provenance.
 Scientific validation requires independently solved multi-resolution cases
 and held-out physical conditions.
 
+For provenance and figure interpretation, see the [documentation index](docs/README.md).
+
 ## Installation
 
 Run all commands from the repository root. Linux or Ubuntu under WSL 2 fits
@@ -222,262 +225,35 @@ start with Sod prediction:
 python problems/1d_sod/src/prediction/predict.py
 ```
 
-This uses supplied raw data and weights, writes figures and metrics to
-`problems/1d_sod/results/predictions/`, and does not retrain the model.
-Full recipes follow. Training commands write to their named checkpoints;
-use the separate smoke-test filenames below when checking the code path.
+This uses supplied raw data and weights, writes figures to
+`problems/1d_sod/results/predictions/` and prints metrics; it does not retrain the model.
+Full recipes live in the problem guides below. Training commands can overwrite
+named checkpoints; use separate smoke-test filenames when checking a training path.
 
 ### 1D Sod
 
-The CFD script compiles `solver.cpp`, varies the left pressure, and generates
-45 synchronized solutions: 9 training cases and 6 prediction cases, each on
-50-, 100-, and 800-point grids.
-
-#### Step 1.1: Generate CFD Data
-
-```bash
-python problems/1d_sod/src/cfd/generate_data.py
-```
-
-- **Reads:** `problems/1d_sod/src/cfd/solver.cpp`
-- **Generates:** the executable under `src/cfd/bin/` and files such as
-  `train_P1.00_50.dat` and `pred_P1.25_800.dat` under
-  `problems/1d_sod/data/raw/`
-
-Optional data-quality check:
-
-```bash
-python problems/1d_sod/src/preprocessing/check_data_quality.py
-```
-
-#### Step 1.2: Train
-
-Preprocessing is performed inside the training script. The 50- and 100-point
-solutions are interpolated to the target coordinates, dual three-point
-stencils are extracted, and an 18-feature MLP is trained.
-
-```bash
-python problems/1d_sod/src/training/train.py
-```
-
-- **Reads:** `data/raw/train_P*_50.dat`, `train_P*_100.dat`, and
-  `train_P*_800.dat`
-- **Generates:** `problems/1d_sod/models/best_model_sod_final.pth`
-- **Default:** 4000 epochs. For a quick smoke test, run
-  `NNLCI_EPOCHS=1 NNLCI_MODEL_FILENAME=smoke_sod.pth python problems/1d_sod/src/training/train.py`.
-
-#### Step 1.3: Predict and Visualize
-
-```bash
-python problems/1d_sod/src/prediction/predict.py
-```
-
-- **Reads:** prediction `.dat` files and `models/best_model_sod_final.pth`
-- **Generates:** prediction figures and reported errors under
-  `problems/1d_sod/results/predictions/`
+**Start here for a packaged fidelity-lift example.** Predict density, velocity,
+and pressure with the supplied MLP. The [Sod guide](problems/1d_sod/README.md)
+contains the data contract, gallery, and optional CFD/training recipe.
 
 ### 1D Lax
 
-The Lax workflow has a primary MLP branch and an optional residual-learning
-ResNet branch. The CFD generator creates 48 files: 11 training cases and 5
-prediction cases at three resolutions.
-
-#### Step 2.1: Generate and Verify CFD Data
-
-```bash
-python problems/1d_lax/src/cfd/generate_data.py
-python problems/1d_lax/src/preprocessing/verify_data.py
-```
-
-- **Reads:** `problems/1d_lax/src/cfd/solver.cpp`
-- **Generates:** the compiled solver under `src/cfd/bin/` and
-  `train_P*_50.dat`, `train_P*_100.dat`, `train_P*_800.dat`, plus the
-  corresponding `pred_P*` files under `problems/1d_lax/data/raw/`
-
-#### Step 2.2: Train and Run the Primary MLP
-
-```bash
-python problems/1d_lax/src/training/train_mlp.py
-python problems/1d_lax/src/prediction/predict_mlp.py
-```
-
-- **Training reads:** synchronized training `.dat` files at 50, 100, and 800
-  points; preprocessing and dual five-point stencil extraction occur in the
-  training script
-- **Training generates:** `problems/1d_lax/models/best_model_lax_final.pth`
-- **Prediction reads:** prediction `.dat` files and the trained checkpoint
-- **Prediction generates:** figures and metrics under
-  `problems/1d_lax/results/mlp/`
-
-For a one-epoch check, prefix the training command with
-`NNLCI_EPOCHS=1 NNLCI_MODEL_FILENAME=smoke_lax.pth`.
-
-#### Step 2.3: Optional Residual-Learning Branch
-
-```bash
-python problems/1d_lax/src/training/train_resnet.py
-python problems/1d_lax/src/prediction/predict_resnet.py
-```
-
-This branch generates/reads `models/best_model_lax_resnet.pth` and writes its
-results to `problems/1d_lax/results/resnet/`.
+Use the [Lax guide](problems/1d_lax/README.md) for primary MLP inference and
+its five-point stencils. The optional residual branch requires its own
+weights; its default checkpoint is not packaged.
 
 ### 1D Woodward-Colella
 
-The repository includes precomputed 100-, 200-, and 1600-point NumPy arrays.
-The original CFD batch generator is not included, so this workflow begins
-with the supplied arrays. The 1600-point solution is subsampled to form the
-800-point target.
-
-#### Step 3.1: Check the Supplied Data
-
-The training script reads these files from
-`problems/1d_woodward_colella/data/raw/`:
-
-- `training_dataset_100.npy`
-- `training_dataset_200.npy`
-- `training_dataset_hf.npy`
-
-#### Step 3.2: Train
-
-```bash
-python problems/1d_woodward_colella/src/run.py train --epochs 10000 --model best_model_800.pth
-```
-
-Preprocessing and dual three-point stencil extraction occur inside the
-training code. The command generates
-`problems/1d_woodward_colella/models/best_model_800.pth`. Use `--epochs 1`
-and a different `--model` filename for a smoke test so the supplied checkpoint
-is not overwritten.
-
-#### Step 3.3: Predict
-
-```bash
-python problems/1d_woodward_colella/src/run.py predict --model best_model_800.pth
-```
-
-The prediction command reads the supplied arrays and checkpoint, reports
-relative errors, and writes prediction arrays/figures under
-`problems/1d_woodward_colella/results/`. A representative result figure is
-shown in the [Woodward-Colella problem README](problems/1d_woodward_colella/README.md).
+The [Woodward–Colella guide](problems/1d_woodward_colella/README.md) starts
+from supplied arrays and explains the shifted-log transforms, case-55
+figure, and unavailable original CFD batch generator.
 
 ### 2D Riemann Config 3
 
-The 2D CFD code is a CUDA-Fortran characteristic-wise WENO-5 solver for the
-Euler equations. The NNLCI pipeline aligns 100- and 200-resolution fields to
-an 800-resolution field, applies shock-aware sampling, extracts dual local
-stencils, and trains a deep MLP.
-
-The standard Config 3 initial states generated by the repository are:
-
-| Quadrant | Density | x velocity | y velocity | Pressure |
-| --- | ---: | ---: | ---: | ---: |
-| Q1 | 1.5000 | 0.000 | 0.000 | 1.500 |
-| Q2 | 0.5323 | 1.206 | 0.000 | 0.300 |
-| Q3 | 0.1380 | 1.206 | 1.206 | 0.029 |
-| Q4 | 0.5323 | 0.000 | 1.206 | 0.300 |
-
-#### Step 4.1: Generate the Fortran Configuration
-
-```bash
-python problems/2d_riemann/src/cfd/generate_configs.py
-```
-
-- **Generates:** `problems/2d_riemann/configs/input_Config3_std.nml`
-  and other standard configurations supported by the script
-
-#### Step 4.2: Compile and Run the CFD Solver
-
-```bash
-mkdir -p problems/2d_riemann/src/cfd/bin
-nvfortran -O3 -cuda problems/2d_riemann/src/cfd/weno_gpu_solver.f90 \
-  -o problems/2d_riemann/src/cfd/bin/weno_gpu_solver
-python problems/2d_riemann/src/cfd/run_solver.py
-```
-
-- **Reads:** the Config 3 `.nml` file
-- **Generates:** `problems/2d_riemann/data/raw/flow_standard_config3.dat`
-
-The runner above generates the single standard field, not a multi-case,
-multi-resolution training set. For scientific training, configure and solve
-each independently perturbed case at 100, 200, and 800 resolutions and arrange
-it as (case directories must match `case_*`):
-
-```text
-problems/2d_riemann/data/bootstrap/DATA_TRAIN/Config3/case_001/
-|-- flow_100x100.dat
-|-- flow_200x200.dat
-`-- flow_800x800.dat
-```
-
-Choose perturbations of initial pressure, density, or velocity appropriate to
-your experiment, and reserve independent cases for testing. Keep scientific
-data separate from the bootstrap case; `preprocess.py` reads `case_*` folders
-under its configured `DATA_ROOT`.
-
-#### Step 4.3: Build the Included Software-Validation Dataset
-
-To reproduce the code path using the supplied standard 801-by-801 node field:
-
-```bash
-python problems/2d_riemann/src/preprocessing/prepare_config3_bootstrap.py
-```
-
-This writes one aligned case under `data/bootstrap/DATA_TRAIN/Config3/` by
-subsampling the same high-resolution solution. It validates the software
-pipeline only; it is **not** a substitute for independently solved
-multi-resolution CFD data in a scientific experiment.
-
-#### Step 4.4: Preprocess and Sample Stencils
-
-```bash
-python problems/2d_riemann/src/preprocessing/preprocess.py
-```
-
-The script:
-
-1. reads the 100-, 200-, and 800-resolution Tecplot fields;
-2. bilinearly aligns the two low-fidelity fields to the target grid;
-3. uses HF gradients to prioritize shock regions for training samples;
-4. extracts two dilated 3 × 3 stencils (2 × 9 points × 4 variables = 72 features); and
-5. scales physical variables to the range used by the `Tanh` network.
-
-It generates:
-
-```text
-problems/2d_riemann/data/processed/NNLCI_Data/Config3_Stencils/
-|-- train_input_config3.npy
-|-- train_target_config3.npy
-`-- x_scaler_config3.npz
-```
-
-#### Step 4.5: Train the Deep MLP
-
-```bash
-NNLCI_EPOCHS=500 NNLCI_NUM_WORKERS=8 \
-python problems/2d_riemann/src/training/train.py
-```
-
-- **Reads:** `train_input_config3.npy` and `train_target_config3.npy` using
-  memory mapping
-- **Generates:**
-  `problems/2d_riemann/models/NNLCI_Models/nnlci_config3_deep_latest.pth`
-- **Defaults:** batch size 65536, AdamW learning rate `1e-4`, and 500 epochs
-
-For a quick check, use `NNLCI_EPOCHS=1 NNLCI_NUM_WORKERS=0`. Training uses
-CUDA automatically when available.
-
-#### Step 4.6: Evaluate
-
-```bash
-NNLCI_NUM_WORKERS=0 python problems/2d_riemann/src/prediction/evaluate.py
-```
-
-The evaluator reads `train_input_config3.npy`, `train_target_config3.npy`,
-and the Config 3 checkpoint. This evaluates the processed training samples,
-not held-out cases. It prints MAE, MSE, relative L1/L2 error, PSNR, and SSIM when the sample shape permits. It
-generates
-`problems/2d_riemann/results/NNLCI_Output/predictions_config3.npy`.
+The [2D guide](problems/2d_riemann/README.md) separates packaged software
+validation from the independent CFD data needed for scientific evaluation.
+The supplied two-epoch bootstrap model and training-array evaluator establish
+pipeline operation only.
 
 ## Adapting NNLCI
 
@@ -513,7 +289,7 @@ NNLCI/
 |   |-- 1d_woodward_colella/
 |   `-- 2d_riemann/
 |-- common/       optional reusable models, data processing, and metrics
-|-- docs/         assets, package manifest, intro draft, and legacy docs
+|-- docs/         gallery guide, package manifest, assets, and archived docs
 |-- scripts/      repository maintenance and asset-preparation scripts
 |-- CITATION.cff
 |-- README.md
