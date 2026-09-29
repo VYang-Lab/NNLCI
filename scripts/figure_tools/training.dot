@@ -1,0 +1,12 @@
+digraph Training {
+  graph [rankdir=LR, bgcolor="white", pad=.3];
+  node [shape=box, style="rounded,filled", fillcolor="#eff7f8", color="#b5d3d8", fontname="DejaVu Sans", margin=".2,.13"];
+  edge [color="#8596a5"];
+  LF [label="Training LF stencils"];
+  NNLCI [label="NNLCI"];
+  Prediction [label="Prediction"];
+  HF [label="Training HF labels", fillcolor="#fff1f2", color="#dfabb0"];
+  Loss [label="Training loss"];
+  LF -> NNLCI -> Prediction -> Loss;
+  HF -> Loss [style=dashed, color="#bf4c57"];
+}

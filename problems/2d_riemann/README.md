@@ -48,6 +48,40 @@ fit transforms on training data, and adapt the evaluator to independent test
 arrays before reporting generalization. The default evaluator does not make
 that split for you. See [package provenance](../../docs/UPLOAD_MANIFEST.md).
 
+## Independent LF CFD on CPU
+
+The promo fields in [data/promo_cfd/](data/promo_cfd/) are independently solved
+100- and 200-resolution Config 3 fields, separate from the bootstrap. They use
+the existing CUDA solver's numerical kernels through a serial CPU execution
+adapter: CUDA storage/dispatch becomes ordinary Fortran arrays/loops, and
+boundary sweeps run in order. The WENO5-JS characteristic reconstruction, flux,
+RK3 and inherited positivity-floor expressions are retained. The original
+solver source is unchanged and pinned by SHA-256 in the adapter.
+
+With `gfortran`, NumPy and Matplotlib installed, run from the repository root:
+
+```bash
+python3 scripts/regenerate_promo_lf.py
+```
+
+The runner first checks uniform-flow preservation, planar-wave transverse and
+axis-swap invariance, and debug/release agreement on planar and quadrant cases.
+Diagnostic builds enable array bounds checks and floating-point traps. Then it
+solves the standard case at 100 and 200 intervals per axis to t = 0.25 with
+dt = 0.0001. It records configurations, solver/compiler hashes, actual elapsed
+times, logs and finite/positive field checks in
+[provenance.json](data/promo_cfd/provenance.json). The LF solver processes receive
+only a namelist and output path; no HF field is an input. A post-run comparison
+checks that the outputs differ from HF subsamples.
+
+Both runs completed on this CPU-only box (about 22 and 87 seconds); these are
+single-run observations, not speedup benchmarks. The minimum memory gate is
+700 MiB effective available RAM. GPU/CPU parity remains untested because this
+box has no NVIDIA GPU or `nvfortran`. The supplied 800-resolution reference was
+reused; its original execution log is unavailable. A new multi-case training
+ensemble, HF regeneration and scientific model retraining were not performed.
+The two-epoch checkpoint and its bootstrap/training arrays remain unchanged.
+
 ## Rebuild the software pipeline
 
 The commands below include CFD generation, preprocessing, and training.
