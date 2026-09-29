@@ -1,0 +1,11 @@
+digraph NNLCI {
+  graph [rankdir=LR, bgcolor="white", pad=.3, nodesep=.4];
+  node [shape=box, style="rounded,filled", fillcolor="#eff7f8", color="#b5d3d8", fontname="DejaVu Sans", margin=".2,.13"];
+  edge [color="#8596a5"];
+  LF1 [fillcolor="#edf3ff", label="LF1 CFD"];
+  LF2 [fillcolor="#eff9f1", label="LF2 CFD"];
+  Align [label="Align + local stencils"];
+  Network [label="NNLCI"];
+  Value [label="Refined value"];
+  LF1 -> Align; LF2 -> Align; Align -> Network -> Value;
+}

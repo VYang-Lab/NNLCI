@@ -1,0 +1,28 @@
+ >>> Reading config:/workspace/NNLCI/problems/2d_riemann/data/promo_cfd/config3_200.nml
+ >>> Grid Size:         200 x         200
+ Step:   100  Time: 0.01000
+ Step:   200  Time: 0.02000
+ Step:   300  Time: 0.03000
+ Step:   400  Time: 0.04000
+ Step:   500  Time: 0.05000
+ Step:   600  Time: 0.06000
+ Step:   700  Time: 0.07000
+ Step:   800  Time: 0.08000
+ Step:   900  Time: 0.09000
+ Step:  1000  Time: 0.10000
+ Step:  1100  Time: 0.11000
+ Step:  1200  Time: 0.12000
+ Step:  1300  Time: 0.13000
+ Step:  1400  Time: 0.14000
+ Step:  1500  Time: 0.15000
+ Step:  1600  Time: 0.16000
+ Step:  1700  Time: 0.17000
+ Step:  1800  Time: 0.18000
+ Step:  1900  Time: 0.19000
+ Step:  2000  Time: 0.20000
+ Step:  2100  Time: 0.21000
+ Step:  2200  Time: 0.22000
+ Step:  2300  Time: 0.23000
+ Step:  2400  Time: 0.24000
+ Step:  2500  Time: 0.25000
+ >>> Finished. Saving to: /workspace/NNLCI/problems/2d_riemann/data/promo_cfd/flow_200x200.dat

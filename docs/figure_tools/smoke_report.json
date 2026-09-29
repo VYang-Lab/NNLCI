@@ -1,0 +1,589 @@
+{
+  "created_utc": "2026-09-29T03:20:42.439239+00:00",
+  "execution": "Sequential CPU/headless exports; no NVIDIA GPU",
+  "tests": [
+    {
+      "name": "openscad_layers_stl",
+      "command": [
+        "openscad",
+        "-o",
+        "/workspace/NNLCI/.smoke/figure-tools/openscad_layers.stl",
+        "/workspace/NNLCI/scripts/figure_tools/layers.scad"
+      ],
+      "returncode": 0,
+      "memory_before_mib": 2725,
+      "log_sha256": "9b9adcd92e0a55acb249ed05d4cd728dd9a7f573b031e026474bca606acf0894"
+    },
+    {
+      "name": "openscad_layers_svg",
+      "command": [
+        "openscad",
+        "-o",
+        "/workspace/NNLCI/.smoke/figure-tools/openscad_layers.svg",
+        "-D",
+        "flat=true",
+        "/workspace/NNLCI/scripts/figure_tools/layers.scad"
+      ],
+      "returncode": 0,
+      "memory_before_mib": 2726,
+      "log_sha256": "da1d2d436d3d3a8ba6b6b87bb8e5c02b89e09484e0b23543e5352569640c8f3b"
+    },
+    {
+      "name": "openscad_layers_png",
+      "command": [
+        "xvfb-run",
+        "-a",
+        "openscad",
+        "-o",
+        "/workspace/NNLCI/.smoke/figure-tools/openscad_layers.png",
+        "--imgsize=1600,1000",
+        "--viewall",
+        "--autocenter",
+        "--projection=o",
+        "/workspace/NNLCI/scripts/figure_tools/layers.scad"
+      ],
+      "returncode": 0,
+      "memory_before_mib": 2722,
+      "log_sha256": "d17f6111de2e820e427902bdf7a104eda66f158ddce8ae0417a881212f60ce88"
+    },
+    {
+      "name": "openscad_stencil_stl",
+      "command": [
+        "openscad",
+        "-o",
+        "/workspace/NNLCI/.smoke/figure-tools/openscad_stencil.stl",
+        "/workspace/NNLCI/scripts/figure_tools/stencil.scad"
+      ],
+      "returncode": 0,
+      "memory_before_mib": 2659,
+      "log_sha256": "bd13f24e364639db41b80660fa637d4d50db769df4435fccb51ca36ebadf172a"
+    },
+    {
+      "name": "openscad_stencil_svg",
+      "command": [
+        "openscad",
+        "-o",
+        "/workspace/NNLCI/.smoke/figure-tools/openscad_stencil.svg",
+        "-D",
+        "flat=true",
+        "/workspace/NNLCI/scripts/figure_tools/stencil.scad"
+      ],
+      "returncode": 0,
+      "memory_before_mib": 2653,
+      "log_sha256": "0d2fc03739cf072ef3b57780b5180c8e2c797bbe43e908a8bfeab9d96a66b233"
+    },
+    {
+      "name": "openscad_stencil_png",
+      "command": [
+        "xvfb-run",
+        "-a",
+        "openscad",
+        "-o",
+        "/workspace/NNLCI/.smoke/figure-tools/openscad_stencil.png",
+        "--imgsize=1600,1000",
+        "--viewall",
+        "--autocenter",
+        "--projection=o",
+        "/workspace/NNLCI/scripts/figure_tools/stencil.scad"
+      ],
+      "returncode": 0,
+      "memory_before_mib": 2666,
+      "log_sha256": "f04542215fd8d0242dbcf6176de994f86ff57b5d8b86bbd5ad865d8672b762f2"
+    },
+    {
+      "name": "graphviz_pipeline_svg",
+      "command": [
+        "dot",
+        "-Tsvg",
+        "-Gdpi=240",
+        "/workspace/NNLCI/scripts/figure_tools/pipeline.dot",
+        "-o",
+        "/workspace/NNLCI/.smoke/figure-tools/graphviz_pipeline.svg"
+      ],
+      "returncode": 0,
+      "memory_before_mib": 2615,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "graphviz_pipeline_pdf",
+      "command": [
+        "dot",
+        "-Tpdf",
+        "-Gdpi=240",
+        "/workspace/NNLCI/scripts/figure_tools/pipeline.dot",
+        "-o",
+        "/workspace/NNLCI/.smoke/figure-tools/graphviz_pipeline.pdf"
+      ],
+      "returncode": 0,
+      "memory_before_mib": 2631,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "graphviz_pipeline_png",
+      "command": [
+        "dot",
+        "-Tpng",
+        "-Gdpi=240",
+        "/workspace/NNLCI/scripts/figure_tools/pipeline.dot",
+        "-o",
+        "/workspace/NNLCI/.smoke/figure-tools/graphviz_pipeline.png"
+      ],
+      "returncode": 0,
+      "memory_before_mib": 2651,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "drawio_pipeline_svg",
+      "command": [
+        "xvfb-run",
+        "-a",
+        "drawio",
+        "--no-sandbox",
+        "--disable-gpu",
+        "--disable-dev-shm-usage",
+        "--disable-update",
+        "--user-data-dir=/tmp/nnlci-drawio-profile",
+        "--export",
+        "--format",
+        "svg",
+        "--scale",
+        "2",
+        "--output",
+        "/workspace/NNLCI/.smoke/figure-tools/drawio_pipeline.svg",
+        "/workspace/NNLCI/scripts/figure_tools/pipeline.drawio"
+      ],
+      "returncode": 0,
+      "memory_before_mib": 2651,
+      "log_sha256": "9db1e351950935a1eaf017c949bfde661f371431837a129ad9b8b29557728608"
+    },
+    {
+      "name": "drawio_pipeline_pdf",
+      "command": [
+        "xvfb-run",
+        "-a",
+        "drawio",
+        "--no-sandbox",
+        "--disable-gpu",
+        "--disable-dev-shm-usage",
+        "--disable-update",
+        "--user-data-dir=/tmp/nnlci-drawio-profile",
+        "--export",
+        "--format",
+        "pdf",
+        "--scale",
+        "2",
+        "--output",
+        "/workspace/NNLCI/.smoke/figure-tools/drawio_pipeline.pdf",
+        "/workspace/NNLCI/scripts/figure_tools/pipeline.drawio"
+      ],
+      "returncode": 0,
+      "memory_before_mib": 2658,
+      "log_sha256": "9f2a794cba146837b7b4b410363b0b98655971e78ed6c57d655035a3e553b072"
+    },
+    {
+      "name": "drawio_pipeline_png",
+      "command": [
+        "xvfb-run",
+        "-a",
+        "drawio",
+        "--no-sandbox",
+        "--disable-gpu",
+        "--disable-dev-shm-usage",
+        "--disable-update",
+        "--user-data-dir=/tmp/nnlci-drawio-profile",
+        "--export",
+        "--format",
+        "png",
+        "--scale",
+        "2",
+        "--output",
+        "/workspace/NNLCI/.smoke/figure-tools/drawio_pipeline.png",
+        "/workspace/NNLCI/scripts/figure_tools/pipeline.drawio"
+      ],
+      "returncode": 0,
+      "memory_before_mib": 2671,
+      "log_sha256": "60e22515c1a50f9d48824b9f437bc05b31ea56ae65186f1457ac082a087f9d8d"
+    },
+    {
+      "name": "graphviz_training_svg",
+      "command": [
+        "dot",
+        "-Tsvg",
+        "-Gdpi=240",
+        "/workspace/NNLCI/scripts/figure_tools/training.dot",
+        "-o",
+        "/workspace/NNLCI/.smoke/figure-tools/graphviz_training.svg"
+      ],
+      "returncode": 0,
+      "memory_before_mib": 2645,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "graphviz_training_pdf",
+      "command": [
+        "dot",
+        "-Tpdf",
+        "-Gdpi=240",
+        "/workspace/NNLCI/scripts/figure_tools/training.dot",
+        "-o",
+        "/workspace/NNLCI/.smoke/figure-tools/graphviz_training.pdf"
+      ],
+      "returncode": 0,
+      "memory_before_mib": 2648,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "graphviz_training_png",
+      "command": [
+        "dot",
+        "-Tpng",
+        "-Gdpi=240",
+        "/workspace/NNLCI/scripts/figure_tools/training.dot",
+        "-o",
+        "/workspace/NNLCI/.smoke/figure-tools/graphviz_training.png"
+      ],
+      "returncode": 0,
+      "memory_before_mib": 2651,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "drawio_training_svg",
+      "command": [
+        "xvfb-run",
+        "-a",
+        "drawio",
+        "--no-sandbox",
+        "--disable-gpu",
+        "--disable-dev-shm-usage",
+        "--disable-update",
+        "--user-data-dir=/tmp/nnlci-drawio-profile",
+        "--export",
+        "--format",
+        "svg",
+        "--scale",
+        "2",
+        "--output",
+        "/workspace/NNLCI/.smoke/figure-tools/drawio_training.svg",
+        "/workspace/NNLCI/scripts/figure_tools/training.drawio"
+      ],
+      "returncode": 0,
+      "memory_before_mib": 2643,
+      "log_sha256": "f030ad841b8b85174d2bf4db97dc9f21f32eff9b23eff442a3ebfd1d3d05edd0"
+    },
+    {
+      "name": "drawio_training_pdf",
+      "command": [
+        "xvfb-run",
+        "-a",
+        "drawio",
+        "--no-sandbox",
+        "--disable-gpu",
+        "--disable-dev-shm-usage",
+        "--disable-update",
+        "--user-data-dir=/tmp/nnlci-drawio-profile",
+        "--export",
+        "--format",
+        "pdf",
+        "--scale",
+        "2",
+        "--output",
+        "/workspace/NNLCI/.smoke/figure-tools/drawio_training.pdf",
+        "/workspace/NNLCI/scripts/figure_tools/training.drawio"
+      ],
+      "returncode": 0,
+      "memory_before_mib": 2618,
+      "log_sha256": "e5e29a3436066e76dcefbd756d424a00f85f8bca39df2488009b674af64f2258"
+    },
+    {
+      "name": "drawio_training_png",
+      "command": [
+        "xvfb-run",
+        "-a",
+        "drawio",
+        "--no-sandbox",
+        "--disable-gpu",
+        "--disable-dev-shm-usage",
+        "--disable-update",
+        "--user-data-dir=/tmp/nnlci-drawio-profile",
+        "--export",
+        "--format",
+        "png",
+        "--scale",
+        "2",
+        "--output",
+        "/workspace/NNLCI/.smoke/figure-tools/drawio_training.png",
+        "/workspace/NNLCI/scripts/figure_tools/training.drawio"
+      ],
+      "returncode": 0,
+      "memory_before_mib": 2608,
+      "log_sha256": "db4ca71ab0b8f27632864fc85a9a8ec39e7011be74ac1923b64bce38a8b99c12"
+    },
+    {
+      "name": "freecad",
+      "command": [
+        "/usr/bin/python3",
+        "/workspace/NNLCI/scripts/figure_tools/freecad_examples.py"
+      ],
+      "returncode": 0,
+      "memory_before_mib": 2609,
+      "log_sha256": "1c8167ba80e6b4b520e28a8c65f2c22ec44e95081059d02c2ecff22a26f278b6"
+    },
+    {
+      "name": "svg_python",
+      "command": [
+        "/usr/bin/python3",
+        "/workspace/NNLCI/scripts/render_promo_mechanism.py"
+      ],
+      "returncode": 0,
+      "memory_before_mib": 2594,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "blender",
+      "command": [
+        "blender",
+        "-b",
+        "-t",
+        "2",
+        "--python",
+        "/workspace/NNLCI/scripts/figure_tools/blender_examples.py"
+      ],
+      "returncode": 0,
+      "memory_before_mib": 2557,
+      "log_sha256": "3cb97ef906eea44f3babdfafc86bb62595a273a8882f12485f18cf3fcc86e5b5"
+    }
+  ],
+  "exports": [
+    {
+      "file": "blender_layers.blend",
+      "bytes": 426592,
+      "sha256": "9c9338cc7203ac7509f03eecbeaa9921eafda9cd3dc9c28382045de9bf97b619"
+    },
+    {
+      "file": "blender_layers.png",
+      "bytes": 339784,
+      "sha256": "9a02d45f5ecb22fe46ea45d53f5b68502b7dbf77e6b125f08966d522a75efe94",
+      "dimensions": [
+        640,
+        400
+      ]
+    },
+    {
+      "file": "blender_samples.blend",
+      "bytes": 460960,
+      "sha256": "e977fc0165f676e1abb30c0c6d92dd269364ec8d78ff9c2a7167e905940b1ccb"
+    },
+    {
+      "file": "blender_samples.png",
+      "bytes": 246690,
+      "sha256": "18e76759acb1d9bd4ea1e83e4bf308e09be40bfbf1c8ef5e379d7d7f3edb13bc",
+      "dimensions": [
+        640,
+        400
+      ]
+    },
+    {
+      "file": "drawio_pipeline.pdf",
+      "bytes": 14228,
+      "sha256": "fa1045b8436136004ed3c9d50405915130653428553c9aa5ee267dc72737067c"
+    },
+    {
+      "file": "drawio_pipeline.png",
+      "bytes": 42770,
+      "sha256": "f8df9204864bcfbda446ca02c0cc83e7d96e53d8cc922a8eb3f2311885a7b9de",
+      "dimensions": [
+        1665,
+        375
+      ]
+    },
+    {
+      "file": "drawio_pipeline.svg",
+      "bytes": 49445,
+      "sha256": "0856538cba03368bcc94c8acddd308eb4081d4f38891249d80e1e52a76ba59d8"
+    },
+    {
+      "file": "drawio_training.pdf",
+      "bytes": 18367,
+      "sha256": "8895544cdcb0ae1ccfc723f1f82985129b7d5798d3cf1441b01aa78bababa3aa"
+    },
+    {
+      "file": "drawio_training.png",
+      "bytes": 58681,
+      "sha256": "b62077e1554b7b3e4c62047cbf2370033741c9d8e0c54ac27a3dbdaaaa3f19cc",
+      "dimensions": [
+        1665,
+        595
+      ]
+    },
+    {
+      "file": "drawio_training.svg",
+      "bytes": 66335,
+      "sha256": "8dd86744d9e35f0f3898a3e85288ae00c08116db61a2b1409bbb8581b90b7916"
+    },
+    {
+      "file": "freecad_domain.FCStd",
+      "bytes": 4836,
+      "sha256": "70d81b0f737002ec7a2decbeea4195718c48c20b6393fec9b7c33bb686575b06"
+    },
+    {
+      "file": "freecad_domain.pdf",
+      "bytes": 1329,
+      "sha256": "eaeee6aa24944110e21e6dddf6e1df0639f070361de764a3a78d56743fcddb70"
+    },
+    {
+      "file": "freecad_domain.png",
+      "bytes": 25136,
+      "sha256": "a678fce111ada7fc01375e8c2fc2b1a53367eb04e29eee21366d649e1783a408",
+      "dimensions": [
+        2000,
+        1240
+      ]
+    },
+    {
+      "file": "freecad_domain.step",
+      "bytes": 8288,
+      "sha256": "3b3053cf16321b9c147a54855ba6974b37e185e12e054d2d2fb251cb2813a33a"
+    },
+    {
+      "file": "freecad_domain.svg",
+      "bytes": 837,
+      "sha256": "e132aee2af373f04180db3a1e930cf09f921a77c9e4522c9eaae1aac4bf8bb7c"
+    },
+    {
+      "file": "freecad_sampling.FCStd",
+      "bytes": 9037,
+      "sha256": "b9bd16ebea9a6a326b067b346b41a791f67a53fa0d04e6601dc2a108cab77158"
+    },
+    {
+      "file": "freecad_sampling.pdf",
+      "bytes": 1806,
+      "sha256": "3396be7b6cb71f2173374dd14f5b1dc8d1f223e6d89fd75aab8b890f44bf3890"
+    },
+    {
+      "file": "freecad_sampling.png",
+      "bytes": 22579,
+      "sha256": "68ef3cdfcd78c446f2bdac04d52826e77449e94094d9cc05d71a821f0b16cd96",
+      "dimensions": [
+        2000,
+        1240
+      ]
+    },
+    {
+      "file": "freecad_sampling.step",
+      "bytes": 16814,
+      "sha256": "5186892de4b714b775844558b251ca124145e2d8a376eb3317546f77ca29a80c"
+    },
+    {
+      "file": "freecad_sampling.svg",
+      "bytes": 2767,
+      "sha256": "88ff4037a5645e27a0ac4688d9d7aa0b03ef57ac6dc48b2fbcce19e64f00b330"
+    },
+    {
+      "file": "graphviz_pipeline.pdf",
+      "bytes": 11839,
+      "sha256": "ae04505a40af5af330cbaef2079b3d44c936ed40e5c725ed6cf39ccd300be2ea"
+    },
+    {
+      "file": "graphviz_pipeline.png",
+      "bytes": 45563,
+      "sha256": "4794b2f67ab5b678f9afc86188181cc93cfe7c4be6a9c05637a87c3eef34ed69",
+      "dimensions": [
+        2014,
+        481
+      ]
+    },
+    {
+      "file": "graphviz_pipeline.svg",
+      "bytes": 3826,
+      "sha256": "7a31c6136358fdeae9ef975312c22b0060e1fa61fe0655b6ee897cde5e5ae0db"
+    },
+    {
+      "file": "graphviz_training.pdf",
+      "bytes": 8016,
+      "sha256": "4c753d9d24b9d0f7b4f8cc457986f3c7c73b4c8d9e54c0e5730bea3d6555edce"
+    },
+    {
+      "file": "graphviz_training.png",
+      "bytes": 51305,
+      "sha256": "e3e8bd5e97da4c1441f4ea39ae47ff635d14782a849cbd8f7577eb1a59d4a942",
+      "dimensions": [
+        2171,
+        444
+      ]
+    },
+    {
+      "file": "graphviz_training.svg",
+      "bytes": 3964,
+      "sha256": "d2b8e447261104e5149b2495fe8e714d9a08f224039f5e5bbc1000a99dd97854"
+    },
+    {
+      "file": "openscad_layers.pdf",
+      "bytes": 1266,
+      "sha256": "33b249f5ea162005d04db54c6953b951a297ce95537717943eb22c2ee79021f7"
+    },
+    {
+      "file": "openscad_layers.png",
+      "bytes": 29571,
+      "sha256": "08065310dd37b86d416b7bd8f7c170f4e5f9d32f144b5e23469bfd2d2c058e6b",
+      "dimensions": [
+        1600,
+        1000
+      ]
+    },
+    {
+      "file": "openscad_layers.stl",
+      "bytes": 26999,
+      "sha256": "c4e260b4eb54cd64f2d055d8b251ae9a8f91fd331264b2022e4d79736a4306d5"
+    },
+    {
+      "file": "openscad_layers.svg",
+      "bytes": 766,
+      "sha256": "05e9d9ca57b5270a7fef599d7de591742371e0b2115fcd89c8df3cc1060641a3"
+    },
+    {
+      "file": "openscad_stencil.pdf",
+      "bytes": 1098,
+      "sha256": "4d80ed2296191f6948500c2ca36c4347d5f047d4aecb1f0aa779714e1ee6f7a2"
+    },
+    {
+      "file": "openscad_stencil.png",
+      "bytes": 47751,
+      "sha256": "896a51b1e723b54276720fc615151e217b6e2b06372556c254961c2e4212495c",
+      "dimensions": [
+        1600,
+        1000
+      ]
+    },
+    {
+      "file": "openscad_stencil.stl",
+      "bytes": 986573,
+      "sha256": "d3ab1a651e605d30c3b94e54f84bc037af4f46b606674cfcef3bf0ec4cbd6357"
+    },
+    {
+      "file": "openscad_stencil.svg",
+      "bytes": 383,
+      "sha256": "55fd743f5d677cbe6d926bef16ed3e7457290f68528b5689b8117ba4f1e4edd7"
+    }
+  ],
+  "versions": [
+    "blender 4.3.2+dfsg-2",
+    "draw.io 31.5.3",
+    "freecad 1.0.0+dfsg-8+deb13u3",
+    "graphviz 2.42.4-3",
+    "openscad 2021.01-8",
+    "python3-cairosvg 2.7.1-2",
+    "python3-matplotlib 3.10.1+dfsg1-4"
+  ],
+  "source_sha256": {
+    "scripts/figure_tools/blender_examples.py": "f44138924d614d49a2fac8b347ef56b09ee3c1e725afa0d1bab970e75fca671d",
+    "scripts/figure_tools/freecad_examples.py": "ba3f4ed08afb80195018e41cfe9f04789589b5fb98b4565c6bfcdf486b89cafb",
+    "scripts/figure_tools/layers.scad": "518fa6b1df4e57b0850f631f6b477a19e41c9f63cb4f19850a234add7be45979",
+    "scripts/figure_tools/pipeline.dot": "150a2272313a3920e5c55cc699779c70ebaa4579f4531bf95b00a637d47b5eb0",
+    "scripts/figure_tools/pipeline.drawio": "8e1eea65131ce01c07549dda7cce510aa2a98015c7d6da7a44345ffe76e959f8",
+    "scripts/figure_tools/smoke.py": "9e6e1bd53933b27b18da52642d7b83c118f00abf8b0ffed8cbd970cde1a24ab7",
+    "scripts/figure_tools/stencil.scad": "b1a3db4a43e565d4897c2a9db9881f0151fe720fa85d3fdeb4a90c2b1be8f972",
+    "scripts/figure_tools/training.dot": "74cedef5f0204e8d44b63648add0e4704597e815faff10bc2d8194e6e8889483",
+    "scripts/figure_tools/training.drawio": "0296903e28f149acb8fe586a29f3e673cf8b05dc6dcdca6c8540adc88ccbf242"
+  },
+  "godot": "Not installed: optional, no interactive visualization requested"
+}

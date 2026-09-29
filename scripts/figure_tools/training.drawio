@@ -1,0 +1,50 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net">
+  <diagram id="nnlci" name="Training">
+    <mxGraphModel page="1" pageWidth="1000" pageHeight="500">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="lf1" value="LF1 CFD" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#edf3ff;strokeColor=#9caeba;fontSize=18;">
+          <mxGeometry as="geometry" x="30" y="60" width="170" height="65" />
+        </mxCell>
+        <mxCell id="lf2" value="LF2 CFD" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#eff9f1;strokeColor=#9caeba;fontSize=18;">
+          <mxGeometry as="geometry" x="30" y="180" width="170" height="65" />
+        </mxCell>
+        <mxCell id="align" value="Align + stencils" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#eff7f8;strokeColor=#9caeba;fontSize=18;">
+          <mxGeometry as="geometry" x="250" y="120" width="170" height="65" />
+        </mxCell>
+        <mxCell id="net" value="NNLCI" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#eff7f8;strokeColor=#9caeba;fontSize=18;">
+          <mxGeometry as="geometry" x="470" y="120" width="170" height="65" />
+        </mxCell>
+        <mxCell id="out" value="Prediction" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#eff7f8;strokeColor=#9caeba;fontSize=18;">
+          <mxGeometry as="geometry" x="690" y="120" width="170" height="65" />
+        </mxCell>
+        <mxCell id="hf" value="Training HF" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#fff1f2;strokeColor=#9caeba;fontSize=18;">
+          <mxGeometry as="geometry" x="470" y="290" width="170" height="65" />
+        </mxCell>
+        <mxCell id="loss" value="Loss" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#fff1f2;strokeColor=#9caeba;fontSize=18;">
+          <mxGeometry as="geometry" x="690" y="290" width="170" height="65" />
+        </mxCell>
+        <mxCell id="e0" edge="1" parent="1" source="lf1" target="align" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;strokeColor=#8799a8;">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="lf2" target="align" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;strokeColor=#8799a8;">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="align" target="net" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;strokeColor=#8799a8;">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="net" target="out" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;strokeColor=#8799a8;">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="hf" target="loss" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;strokeColor=#8799a8;">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="out" target="loss" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;strokeColor=#8799a8;">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

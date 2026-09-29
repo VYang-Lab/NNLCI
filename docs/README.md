@@ -18,7 +18,9 @@ and optional regeneration/training separately from checkpoint inference.
 ## Understand the figures
 
 - [2D contours and motion open](assets/promo/README.md#2d-fields-and-the-motion-open):
-  packaged CFD bootstrap-source visualization, conceptual animation, and provenance.
+  independent LF CFD solves, packaged HF reference, workflow animation, and provenance.
+- [Scriptable figure tools](figure_tools/README.md): installed tools, editable examples,
+  tested export formats and CPU-only smoke checks.
 - [Sod gallery](assets/promo/README.md#sod--packaged-checkpoint-evidence): checkpoint, data sources, density
   arrays, error-profile interpretation, and memory-gated regeneration.
 - [Upload manifest](UPLOAD_MANIFEST.md): package provenance and LFS retrieval.

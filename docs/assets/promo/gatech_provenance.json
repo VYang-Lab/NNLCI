@@ -1,124 +1,138 @@
 {
-  "operation": "Read-only rendering of packaged CFD values and explicitly conceptual workflow artwork. No training, CFD solve, or inference.",
-  "renderer": "scripts/render_gatech_promo.py",
-  "renderer_sha256": "db60aed52281ebb1312d930fc728d8c1bcf0ae482503316efb6266446993364e",
+  "operation": "Render independent LF CFD solves and packaged HF reference; animate workflow highlights only",
+  "renderers": {
+    "render_gatech_promo.py": "b564fc792c48780bd01cabdb4f77fcbb639ce41e771c0155972a38821b255f86",
+    "render_promo_mechanism.py": "a01928fd654deeacf226b70d24c21038ef7d08628ad16ba47cbb7acf61127907",
+    "render_config3_contours.py": "ddc3004a1a7325840b2cdcbee18f1481e3e5874970b5c3a95fe32c97c158aa1c",
+    "cfd_io.py": "00d3fb0733c9a66ab417c44367e02c49a9373bf12a061ab919c2c323779737fa"
+  },
   "versions": {
     "python": "3.13.5",
-    "numpy": "2.5.3",
-    "matplotlib": "3.11.2",
-    "pillow": "12.3.0"
+    "numpy": "2.2.4",
+    "matplotlib": "3.10.1+dfsg1",
+    "pillow": "11.1.0"
   },
-  "backend": "Agg / Pillow, CPU",
-  "source": {
-    "path": "problems/2d_riemann/data/raw/flow_standard_config3.dat",
-    "sha256": "02037fbc38dab8d9bef879d7ab4184a50f9e9d9a7b7f0f1c6d98d2d91dc02d3c",
-    "shape": [
-      801,
-      801,
-      6
-    ],
-    "columns": [
-      "x",
-      "y",
-      "density",
-      "u",
-      "v",
-      "pressure"
-    ],
-    "coordinate_check": "X varies along columns; Y along rows; uniform 0..1, 801 nodes; increasing Y plotted upward",
-    "identity": "Packaged standard Config 3 CFD field from which bootstrap grids were subsampled; not NNLCI output"
+  "backend": "CPU: Agg, Pillow, CairoSVG",
+  "cfd_provenance": {
+    "path": "problems/2d_riemann/data/promo_cfd/provenance.json",
+    "sha256": "416f56ceb1be3618e7a404573a13b9335b047754a7bdaf521a87ca26dbcdd4ef"
   },
-  "scientific_panels": {
-    "classification": "Illustrative field visualization / bootstrap source",
-    "detail_window_xy": [
+  "sources": [
+    {
+      "path": "problems/2d_riemann/data/promo_cfd/flow_100x100.dat",
+      "sha256": "d0982997c3a2705079ea6cf70167a504c40c3d88fe04cfce1429277c528e94cf",
+      "shape": [
+        101,
+        101,
+        6
+      ]
+    },
+    {
+      "path": "problems/2d_riemann/data/promo_cfd/flow_200x200.dat",
+      "sha256": "24938b20160dc9808ae18715fb4e42e7174dccea6e1e77f0b377580af29e033a",
+      "shape": [
+        201,
+        201,
+        6
+      ]
+    },
+    {
+      "path": "problems/2d_riemann/data/raw/flow_standard_config3.dat",
+      "sha256": "02037fbc38dab8d9bef879d7ab4184a50f9e9d9a7b7f0f1c6d98d2d91dc02d3c",
+      "shape": [
+        801,
+        801,
+        6
+      ]
+    }
+  ],
+  "opening_and_comparison": {
+    "window_xy": [
+      0.3,
+      0.5,
+      0.3,
+      0.5
+    ],
+    "density_scale": [
+      0.138,
+      1.7528
+    ],
+    "display": "Identical tile dimensions, crop and global linear color scale. Nearest native node; no HF downsampling to create LF, no smoothing/sharpening.",
+    "resolution": "100/200/800 intervals per axis; 101/201/801 nodes",
+    "hf": "Packaged CFD target, not prediction"
+  },
+  "hf_contours": {
+    "window_xy": [
       0.24,
       0.54,
       0.22,
       0.52
     ],
-    "full_domain_export": "config3_full_domain.png",
-    "density": {
-      "range": [
-        0.138,
-        1.7528
-      ],
-      "colormap": "inferno"
-    },
-    "pressure": {
-      "range": [
-        0.029,
-        1.67326
-      ],
-      "colormap": "viridis"
-    },
-    "normalization": "Linear, complete source min/max per variable; same scales in detail and full domain",
-    "rendering": "80 filled contour intervals and 15 isolines; standard contour interpolation only; no smoothing, field fabrication, or numerical modification",
-    "dimensions": [
-      2400,
-      1680
-    ],
-    "dpi": 240
+    "source": "Packaged HF/bootstrap source only",
+    "rendering": "80 filled intervals, 15 isolines; standard contour interpolation; full-domain min/max for each variable"
   },
-  "concept_assets": {
-    "classification": "Schematic / Conceptual",
-    "field_imagery": "Same source density detail; LF1/LF2 artwork subsamples rows and columns with strides 8/4 (matching bootstrap sampling); goal uses stride 1. Nearest-neighbor display. This is not an LF/prediction/HF scientific comparison.",
-    "colorbar": "None on concept artwork; numerical colorbars only on scientific panels",
-    "mechanism": "Two aligned 3x3 neighborhoods depicted schematically, concatenated LF token, local map, refined value. HF supervisor connects only to training loss; inference uses LF and fixed transforms."
-  },
-  "excluded_prediction_array": {
-    "used_for_contours": false,
-    "reason": "Sampled training rows have no saved spatial coordinates; do not reshape or interpolate into a purported prediction field.",
-    "path": "problems/2d_riemann/results/NNLCI_Output/predictions_config3.npy",
-    "sha256": "747791a539bbd381dd4cac2872ecb825b47ea72e6291daf6bf551012233fdad7",
-    "shape": [
-      291195,
-      4
-    ],
-    "density_range": [
-      -1.7526588439941406,
-      1.5741369724273682
-    ]
-  },
-  "evidence_boundary": "Two-epoch Config 3 bootstrap uses subsamples of one CFD solution; default evaluation reads training arrays. Neither these figures nor the animation establish held-out reconstruction, conservation, stability, generalization, or speedup.",
+  "evidence_boundary": "LF1/LF2 now come from independent CPU executions of repository CFD kernels. One case, no retraining, no inference, no GPU parity test. Packaged HF execution log unavailable; nominal setup from standard config. Existing bootstrap and two-epoch checkpoint unchanged.",
   "memory": {
-    "before_render_mib": 5718,
-    "before_animation_mib": 5558,
-    "animation_threshold_mib": 2500
+    "before_render_mib": 2704,
+    "before_animation_mib": 2470,
+    "static_threshold_mib": 700,
+    "animation_threshold_mib": 1500,
+    "animation_storage": "40 indexed 1080x430 frames; about 18 MiB raw index storage, no high-resolution frame stack"
   },
   "animation": {
     "file": "nnlci_local_to_hf.gif",
+    "frames": 40,
     "dimensions": [
-      960,
+      1080,
       430
     ],
-    "frames": 21,
-    "duration_ms": 7520,
-    "meaning": "Conceptual presentation sequence; highlight inputs, map, and goal. No physical time or iterative solver steps."
+    "duration_ms": 4410,
+    "meaning": "Sampling and signal highlights only; no physical time evolution, solver iterations or NNLCI predictions"
   },
   "outputs": {
-    "config3_contour_hero.png": {
-      "sha256": "d615d0e41582add000d5a7d586ccbf67e5899f8cdcc218e613b2caa8f53e3638",
-      "bytes": 503899
+    "config3_independent_resolution.png": {
+      "sha256": "33534869d2205d5eeee60a40cc9d6d0d2a7902657757c7bbae63da3ea8427dee",
+      "bytes": 152795
     },
-    "config3_full_domain.png": {
-      "sha256": "d8e717b179c7643a8bb7a94bcbff15a7525032d6e1f9b6a3db833e82ad9fc56d",
-      "bytes": 234248
+    "config3_independent_resolution.svg": {
+      "sha256": "3feb036df8541182c15db649811fa08c5a56691d59bc1b3773d69767f5b36af2",
+      "bytes": 82060
     },
-    "nnlci_motion_poster.png": {
-      "sha256": "09ee0032489b10f1fa527582dfd9e2eaf910499ad5271cf4707248da8d8ee7f3",
-      "bytes": 114862
+    "config3_independent_resolution.pdf": {
+      "sha256": "38138ebe76ecf0fd01cc18b5f11786ff7823f76f12ef14423a2114dc9f928711",
+      "bytes": 58533
     },
-    "nnlci_local_to_hf_concept.png": {
-      "sha256": "68ccbb9850d6ba152cece3fbc837a07afff6ad2d67a534937d08e8abea51bf8d",
-      "bytes": 131996
+    "nnlci_local_mechanism.svg": {
+      "sha256": "34edc1b20ecc880878f1adb445d5ea0b9f1b2e868c66946546ad8ccce2f0d65a",
+      "bytes": 18932
     },
     "nnlci_local_mechanism.png": {
-      "sha256": "054666816e14d7014321b7f10690ed7199f791efb06fb7825999ba081471287a",
-      "bytes": 75202
+      "sha256": "e5cb155ef0b3c65d5ac7308ea2084b2a82e30bcf05b5b2ee8c791495e1bd1eae",
+      "bytes": 150965
+    },
+    "nnlci_local_mechanism.pdf": {
+      "sha256": "ab67c027673dea747b25799c635c68a8a7985b1d304cfdf88bcd66684c89ba87",
+      "bytes": 31340
+    },
+    "nnlci_motion_poster.png": {
+      "sha256": "977a4d0ee9130373368014815f7e00823f068621b5b775434195e6ceb49be0f9",
+      "bytes": 66797
+    },
+    "nnlci_local_to_hf_concept.png": {
+      "sha256": "977a4d0ee9130373368014815f7e00823f068621b5b775434195e6ceb49be0f9",
+      "bytes": 66797
+    },
+    "config3_contour_hero.png": {
+      "sha256": "5fd7aa116fa0dc29b2ae5fbca2996b8f3f17bf80f37bcabb78c9a7a040ff291c",
+      "bytes": 526130
+    },
+    "config3_full_domain.png": {
+      "sha256": "2b0e40dd132c2dd0d1dee15a01ac888f8d3038acc737271a96c7423b2035d449",
+      "bytes": 257705
     },
     "nnlci_local_to_hf.gif": {
-      "sha256": "d120e7e9e5661d0b8051f111fbb3d63112f48ef99fc1d0a2f3b098bb827ac3f1",
-      "bytes": 500866
+      "sha256": "ffe9838b8edf4e842de3ad3f6d265fd017653ec78bfd8a0ed0e5b6df25124fbd",
+      "bytes": 128810
     }
   }
 }

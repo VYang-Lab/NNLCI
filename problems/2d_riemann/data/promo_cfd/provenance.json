@@ -1,0 +1,115 @@
+{
+  "created_utc": "2026-09-29T03:07:23.998191+00:00",
+  "operation": "Independent CPU CFD solves from Config 3 initial conditions; no HF input",
+  "solver_source": {
+    "path": "problems/2d_riemann/src/cfd/weno_gpu_solver.f90",
+    "sha256": "c4d3fa6d278133bddcb2159c904277f3c968df9367c17794ca0b2fa79bf2dfd2"
+  },
+  "adapter": {
+    "path": "scripts/build_cpu_cfd.py",
+    "sha256": "5c144bf719fae9887cc0eb37e7acb5b0073d9671fea2521f06b8f72b624ddfea",
+    "generated_source_sha256": "cbf2659e1a3c734dc248c0431f76b051ba96ac4028c2c414aa73bce5f4aac041",
+    "changes": "CPU loops replace CUDA thread dispatch; host arrays replace device allocation; ordered boundary sweeps; unused storage initialization; input checks. Numerical flux, WENO5-JS, RK3 and positivity floor expressions retained."
+  },
+  "compiler": "GNU Fortran (Debian 14.2.0-19) 14.2.0",
+  "compile_command": [
+    "gfortran",
+    "-O3",
+    "-ffree-line-length-none",
+    "-ffp-contract=off",
+    "-ffpe-trap=invalid,zero,overflow",
+    "/workspace/NNLCI/.smoke/cpu-cfd/weno_cpu.f90",
+    "-o",
+    "/workspace/NNLCI/.smoke/cpu-cfd/weno_cpu"
+  ],
+  "config_source": {
+    "path": "problems/2d_riemann/configs/input_Config3_std.nml",
+    "sha256": "d87695a3d236874d566febbb5094b342cc28113d37260ffc59740576b3c3ac2b"
+  },
+  "physics": {
+    "case": "Riemann Config 3",
+    "gamma": 1.4,
+    "domain": [
+      0,
+      1,
+      0,
+      1
+    ],
+    "t_end": 0.25,
+    "dt": 0.0001,
+    "boundary": "transmissive",
+    "lower_fidelity_setup": "100 and 200 intervals per axis versus packaged 800; same equations and numerical kernels"
+  },
+  "effective_available_memory_mib": 2752,
+  "checks": {
+    "uniform_flow": "passed",
+    "planar_transpose_and_transverse_invariance": "passed",
+    "debug_release_planar_and_quadrants": "passed",
+    "bounds_and_floating_point_traps": "passed",
+    "gpu_cpu_parity": "not tested: no NVIDIA GPU/nvfortran"
+  },
+  "runs": [
+    {
+      "resolution_intervals": 100,
+      "shape": [
+        101,
+        101,
+        6
+      ],
+      "field": "flow_100x100.dat",
+      "field_sha256": "d0982997c3a2705079ea6cf70167a504c40c3d88fe04cfce1429277c528e94cf",
+      "config": "config3_100.nml",
+      "config_sha256": "b8b891ae82bc310501952eb7ac580b80eedd2daa425f25d7e2311793bbd40c0d",
+      "log": "solve_100.log",
+      "elapsed_seconds_this_host": 22.328,
+      "density_range": [
+        0.138,
+        1.50542
+      ],
+      "pressure_range": [
+        0.029,
+        1.50744
+      ],
+      "finite_positive_and_coordinates": "passed",
+      "not_hf_subsamples": {
+        "passed": true,
+        "max_absolute_primitive_difference": 1.676278,
+        "meaning": "Provenance guard only; not an NNLCI error metric"
+      }
+    },
+    {
+      "resolution_intervals": 200,
+      "shape": [
+        201,
+        201,
+        6
+      ],
+      "field": "flow_200x200.dat",
+      "field_sha256": "24938b20160dc9808ae18715fb4e42e7174dccea6e1e77f0b377580af29e033a",
+      "config": "config3_200.nml",
+      "config_sha256": "7a2068d736a6902239d34bb6755ae00fae291eb17a31341944fc99af977b4b6c",
+      "log": "solve_200.log",
+      "elapsed_seconds_this_host": 87.154,
+      "density_range": [
+        0.138,
+        1.69172
+      ],
+      "pressure_range": [
+        0.029,
+        1.64978
+      ],
+      "finite_positive_and_coordinates": "passed",
+      "not_hf_subsamples": {
+        "passed": true,
+        "max_absolute_primitive_difference": 1.627158,
+        "meaning": "Provenance guard only; not an NNLCI error metric"
+      }
+    }
+  ],
+  "limitations": "One standard physical case for figure provenance, not a training ensemble. No new NNLCI training/inference or HF solve; GPU/CPU parity untested. Positivity floor inherited from original solver; no conservation or generalization claim.",
+  "packaged_hf_reference": {
+    "path": "problems/2d_riemann/data/raw/flow_standard_config3.dat",
+    "sha256": "02037fbc38dab8d9bef879d7ab4184a50f9e9d9a7b7f0f1c6d98d2d91dc02d3c",
+    "identity": "Existing 801 x 801 CFD field; not regenerated, not a prediction. Nominal case/time matched to repository standard config; original execution log unavailable."
+  }
+}

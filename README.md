@@ -1,26 +1,33 @@
-![Conceptual animation: coarse CFD local neighborhoods feed NNLCI toward an HF-like field; packaged CFD imagery illustrates the goal](docs/assets/promo/nnlci_local_to_hf.gif)
+![Workflow schematic: independently solved LF1 and LF2 density fields feed a conceptual NNLCI map toward the packaged HF target](docs/assets/promo/nnlci_local_to_hf.gif)
 
-[Motion-free opening](docs/assets/promo/nnlci_motion_poster.png)
-
-![Schematic / Conceptual: local LF1 and LF2 stencils at the same location flow through NNLCI toward high-fidelity-like field reconstruction](docs/assets/promo/nnlci_local_to_hf_concept.png)
-
-> **Evidence boundary.** Opening imagery is conceptual. Config 3 is a two-epoch bootstrap software check evaluated on training arrays; the contours below show its packaged CFD source, not held-out NNLCI accuracy. Sod below is packaged checkpoint evidence.
-
-![Illustrative field visualization: vibrant density and pressure contours of the packaged Config 3 CFD bootstrap source, with physical coordinates and full-domain color scales](docs/assets/promo/config3_contour_hero.png)
-
-*Illustrative field visualization · Config 3 interaction detail.
-[Full domain](docs/assets/promo/config3_full_domain.png) · [Source & rendering](docs/assets/promo/README.md#2d-fields-and-the-motion-open)*
+[Motion-free opening](docs/assets/promo/nnlci_motion_poster.png) · [CFD runs & figure sources](docs/assets/promo/README.md#2d-fields-and-the-motion-open)
 
 # NNLCI: CFD-informed fidelity lift
 
 Learn from local coarse-CFD neighborhoods to reconstruct high-fidelity-like fields.
 
+![Config 3 CFD density: independently solved LF1 at 100 resolution and LF2 at 200 versus the packaged 800-resolution HF reference, on identical axes and color scales](docs/assets/promo/config3_independent_resolution.png)
+
+*LF1 and LF2 now come from separate CFD solves. HF is the packaged reference;
+the animation illustrates the workflow. [Run provenance](problems/2d_riemann/data/promo_cfd/provenance.json).
+The packaged 2D checkpoint remains a two-epoch bootstrap software check.*
+
 ## How it works
 
 ![Schematic / Conceptual: two aligned LF stencils form a token, NNLCI predicts a refined value, and HF supervision connects only to training loss](docs/assets/promo/nnlci_local_mechanism.png)
 
-*Local inputs at the same physical time; HF supervises training.
-[Alignment close-up](#local-alignment)*
+*Aligned local inputs; HF supervises training.
+[Editable SVG](docs/assets/promo/nnlci_local_mechanism.svg) · [PDF](docs/assets/promo/nnlci_local_mechanism.pdf) · [Alignment close-up](#local-alignment)*
+
+<details>
+<summary>Explore the packaged HF density and pressure fields</summary>
+
+![Packaged Config 3 CFD density and pressure detail with physical axes and full-domain color scales](docs/assets/promo/config3_contour_hero.png)
+
+*CFD reference imagery. [Full domain](docs/assets/promo/config3_full_domain.png) ·
+[Source & rendering](docs/assets/promo/README.md#2d-fields-and-the-motion-open)*
+
+</details>
 
 ## Results from this repository
 
@@ -84,7 +91,7 @@ coordinates. See the [problem guides](#choose-a-workflow) for preprocessing cont
 - **Woodward–Colella:** supplied arrays and checkpoints; the original CFD
   batch generator is not included. See its
   [existing prediction figure and metrics](problems/1d_woodward_colella/README.md#representative-result).
-- **2D Config 3:** a CUDA-Fortran solver and a bootstrap dataset formed by
+- **2D Config 3:** a CUDA-Fortran solver, a [CPU adapter with independent LF demo solves](problems/2d_riemann/README.md#independent-lf-cfd-on-cpu), and a bootstrap dataset formed by
   subsampling one HF solution. **This bootstrap validates software, not
   scientific multi-resolution reconstruction.** The packaged model is a
   **two-epoch pipeline-validation checkpoint**, not a publication-quality
@@ -101,9 +108,10 @@ For provenance and figure interpretation, see the [documentation index](docs/REA
 
 Run all commands from the repository root. Linux or Ubuntu under WSL 2 fits
 the supplied CFD build scripts. Python prediction can run on CPU; regenerating
-Sod/Lax data needs `g++`. Regenerating 2D CFD additionally needs an NVIDIA GPU,
-a working driver, and NVIDIA HPC SDK (`nvfortran`). The SDK is unnecessary
-when using the supplied 2D data.
+Sod/Lax data needs `g++`. The independent 2D LF demo uses `gfortran` on CPU;
+see the [CPU recipe](problems/2d_riemann/README.md#independent-lf-cfd-on-cpu).
+The original 2D GPU solver needs an NVIDIA GPU, a working driver, and NVIDIA
+HPC SDK (`nvfortran`). Supplied 2D data needs neither compiler.
 
 <details>
 <summary>Ubuntu / WSL system packages</summary>
