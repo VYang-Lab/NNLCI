@@ -1,8 +1,18 @@
 # Scriptable research figures
 
-Use the smallest tool that expresses the figure. The promo mechanism is an
-editable SVG generated with Python; actual CFD arrays supply the field plots.
-No generated raster artwork or Blender rendering is used in the promo figures.
+Use the smallest tool that expresses the figure. The promo opening now uses
+**OpenSCAD meshes and a Graphviz diagram directly in the delivered animation**;
+Python projects the geometry, paints native CFD values, and assembles the GIF.
+The mechanism remains an editable SVG generated with Python. No Blender render
+is needed for these figures.
+
+The production sources are [poi_planes.scad](../../scripts/figure_tools/poi_planes.scad),
+[poi_pipeline.dot](../../scripts/figure_tools/poi_pipeline.dot), and the
+[CPU compositor](../../scripts/promo_poi.py). Both LF planes share the same CAD
+slab and patch frame. OpenSCAD OFF meshes and the Graphviz SVG are committed in
+the [promo gallery](../assets/promo/); they are inputs to the compositor, not
+separate tool demos. The [render provenance](../assets/promo/gatech_provenance.json)
+records their commands, versions, hashes and memory gates.
 
 | Figure | First tool | Editable source | Tested exports |
 | --- | --- | --- | --- |
@@ -18,7 +28,7 @@ use high-resolution PNG for GitHub and slide compatibility. A projected CAD SVG
 is a 2D drawing, not an editable 3D model. Preserve SCAD/FCStd/STEP for geometry.
 Blender's test renders are 640 × 400 smoke checks, not publication exports.
 
-## Installed and tested on this box
+## Earlier installation smoke checks
 
 The [machine-readable report](smoke_report.json) records exact package versions,
 commands, memory readings, successful exit codes and hashes of the generated
@@ -33,7 +43,7 @@ The examples are conceptual geometry/diagrams, not CFD simulation results.
 - SVG/Python: the actual NNLCI mechanism and numerical resolution comparison.
 - Blender: layers and sample markers, Cycles on CPU with two threads and eight samples.
 
-The [sources](../../scripts/figure_tools/) are checked in. Build products stay
+The [example sources](../../scripts/figure_tools/) are checked in. Smoke-check build products stay
 under `.smoke/figure-tools/` and are intentionally ignored; rerun to obtain the
 native CAD/Blender documents, vector exports and PNGs. Installation is separate
 from rendering, so normal figure regeneration never requires administrator access.

@@ -1,6 +1,6 @@
-![Workflow schematic: independently solved LF1 and LF2 density fields feed a conceptual NNLCI map toward the packaged HF target](docs/assets/promo/nnlci_local_to_hf.gif)
+![POI workflow: equal physical LF patches with denser LF2 samples, sharp and smooth regions, a turn to 2D, and schematic prediction assembly](docs/assets/promo/nnlci_local_to_hf.gif)
 
-[Motion-free opening](docs/assets/promo/nnlci_motion_poster.png) · [CFD runs & figure sources](docs/assets/promo/README.md#2d-fields-and-the-motion-open)
+[Motion-free storyboard](docs/assets/promo/nnlci_local_to_hf_concept.png) · [CFD runs & figure sources](docs/assets/promo/README.md#2d-fields-and-the-motion-open)
 
 # NNLCI: CFD-informed fidelity lift
 
@@ -8,8 +8,11 @@ Learn from local coarse-CFD neighborhoods to reconstruct high-fidelity-like fiel
 
 ![Config 3 CFD density: independently solved LF1 at 100 resolution and LF2 at 200 versus the packaged 800-resolution HF reference, on identical axes and color scales](docs/assets/promo/config3_independent_resolution.png)
 
-*LF1 and LF2 now come from separate CFD solves. HF is the packaged reference;
-the animation illustrates the workflow. [Run provenance](problems/2d_riemann/data/promo_cfd/provenance.json).
+*Equal physical patches reveal denser LF2 information. The animation drops a POI
+onto both LF planes, visits sharp and smooth regions, then turns to 2D and assembles
+a schematic HF-like prediction. LF imagery comes from separate CFD solves; the
+teal prediction mosaic uses illustrative colors. HF in this comparison is the
+packaged reference. [Run provenance](problems/2d_riemann/data/promo_cfd/provenance.json).
 The packaged 2D checkpoint remains a two-epoch bootstrap software check.*
 
 ## How it works

@@ -1,13 +1,12 @@
 """Render independently solved LF fields, an HF target, and the NNLCI workflow.
 
-The animation moves sampling highlights, never field values. HF is a reference,
-not a model prediction. All three tiles use the same physical crop, color scale,
-display size and nearest-node display rule; LF fields are never derived from HF.
+The POI animation uses actual OpenSCAD meshes and a Graphviz route. Equal physical
+LF patches reveal different native sample densities, then turn to a 2D schematic
+prediction mosaic. HF appears only in the separate scientific comparison.
 """
 from __future__ import annotations
 import argparse
 import json
-import math
 import os
 from pathlib import Path
 import re
@@ -16,114 +15,20 @@ os.environ.setdefault("MPLCONFIGDIR", "/tmp/nnlci-matplotlib")
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from matplotlib import colormaps
 from matplotlib.colors import Normalize
 import numpy as np
-from PIL import Image, ImageDraw, ImageFont, __version__ as pillow_version
+from PIL import __version__ as pillow_version
 from cfd_io import read_field, sha
 from replot_sod_promo import memory_gate
 from render_config3_contours import scientific_panels
 from render_promo_mechanism import render as mechanism
+from promo_poi import Scene, prepare_tools, render_static, animate, semantics, WIDTH, HEIGHT, FRAME_COUNT, WINDOW
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "docs/assets/promo"
 LF = ROOT / "problems/2d_riemann/data/promo_cfd"
 HF = ROOT / "problems/2d_riemann/data/raw/flow_standard_config3.dat"
-WINDOW = (.30, .50, .30, .50)
 INK, MUTED, BLUE, GREEN, TEAL = "#162536", "#596879", "#2563eb", "#159947", "#087f8c"
-WIDTH, HEIGHT = 1080, 430
-
-
-class Canvas:
-    def __init__(self, scale=1):
-        self.scale = scale
-        self.im = Image.new("RGB", (round(WIDTH*scale), round(HEIGHT*scale)), "white")
-        self.d = ImageDraw.Draw(self.im)
-
-    def xy(self, values):
-        return tuple(round(v*self.scale) for v in values)
-
-    def text(self, x, y, label, size=18, color=INK, bold=False, anchor="lt"):
-        font = ImageFont.truetype("DejaVuSans-Bold.ttf" if bold else "DejaVuSans.ttf", round(size*self.scale))
-        self.d.text(self.xy((x, y)), label, font=font, fill=color, anchor=anchor)
-
-    def line(self, points, color="#b9c5d1", width=1):
-        self.d.line([self.xy(p) for p in points], fill=color, width=max(1, round(width*self.scale)))
-
-    def rect(self, box, fill=None, outline=None, width=1, radius=0):
-        self.d.rounded_rectangle(self.xy(box), radius=round(radius*self.scale), fill=fill,
-                                outline=outline, width=max(1, round(width*self.scale)))
-
-    def dot(self, x, y, color, r=4):
-        self.d.ellipse(self.xy((x-r, y-r, x+r, y+r)), fill=color)
-
-    def arrow(self, start, end, color=INK, dashed=False):
-        if dashed:
-            for t in np.arange(0, 1, .16):
-                self.line([(start[0]+t*(end[0]-start[0]), start[1]),
-                           (start[0]+min(t+.08, 1)*(end[0]-start[0]), end[1])], color, 2)
-        else:
-            self.line([start, end], color, 2)
-        x, y = end
-        self.d.polygon([self.xy(p) for p in [(x, y), (x-8, y-5), (x-8, y+5)]], fill=color)
-
-    def save(self, name):
-        self.im.save(OUT / name, dpi=(240, 240), optimize=True)
-
-
-def field_tile(field, norm, pixels):
-    # Sample display-pixel centers at the nearest original node. Every source is
-    # treated identically; no decimation, blur, sharpening or field interpolation.
-    n = field.shape[0]-1
-    xx = WINDOW[0]+(np.arange(pixels)+.5)/pixels*(WINDOW[1]-WINDOW[0])
-    yy = WINDOW[3]-(np.arange(pixels)+.5)/pixels*(WINDOW[3]-WINDOW[2])
-    values = field[np.ix_(np.rint(yy*n).astype(int), np.rint(xx*n).astype(int))][:, :, 2]
-    return Image.fromarray((colormaps["inferno"](norm(values))[:, :, :3]*255).astype(np.uint8))
-
-
-def workflow(fields, norm, phase=0, scale=1):
-    c = Canvas(scale)
-    c.text(28, 26, "LF1", 25, BLUE, True)
-    c.text(272, 26, "LF2", 25, GREEN, True)
-    c.text(828, 26, "HF target", 25, TEAL, True)
-    c.text(1048, 402, "Workflow schematic", 14, MUTED, anchor="rt")
-    for x, field, label in zip((28, 272, 828), fields, ("100 × 100", "200 × 200", "800 × 800")):
-        c.im.paste(field_tile(field, norm, round(220*scale)), c.xy((x, 84)))
-        c.text(x+110, 321, label, 17, MUTED, anchor="mt")
-    c.rect((555, 168, 737, 253), fill="#eaf5f5", outline="#a5cfd1", radius=12)
-    c.text(646, 194, "NNLCI", 29, TEAL, True, "mt")
-    c.arrow((751, 210), (813, 210), TEAL, dashed=True)
-    routes = [[(138, 350), (138, 380), (526, 380), (526, 222), (549, 222)],
-              [(382, 350), (382, 358), (504, 358), (504, 199), (549, 199)]]
-    for points, color in zip(routes, (BLUE, GREEN)):
-        c.line(points, "#d4dfe7", 2)
-        c.arrow((points[-1][0]-12, points[-1][1]), points[-1], color)
-        # A moving pair of local samples makes the route legible without captions.
-        segments = [math.dist(a, b) for a, b in zip(points, points[1:])]
-        distance = (phase % 1)*sum(segments)
-        for a, b, length in zip(points, points[1:], segments):
-            if distance <= length:
-                t = distance / length
-                c.dot(a[0]+t*(b[0]-a[0]), a[1]+t*(b[1]-a[1]), color, 5)
-                break
-            distance -= length
-    # The same physical location is highlighted on both native LF grids.
-    # Stencils in this opening are visual sampling cues; the mechanism explains alignment.
-    px = .40 + .02*math.sin(2*math.pi*phase)
-    py = .40 + .02*math.cos(2*math.pi*phase)
-    for x, n, color in ((28, 100, BLUE), (272, 200, GREEN)):
-        cx = x+(px-WINDOW[0])/(WINDOW[1]-WINDOW[0])*220
-        cy = 84+(WINDOW[3]-py)/(WINDOW[3]-WINDOW[2])*220
-        step = 220/(WINDOW[1]-WINDOW[0])/n
-        c.rect((cx-step*1.5, cy-step*1.5, cx+step*1.5, cy+step*1.5), outline="white", width=2)
-        for i in (-1, 0, 1):
-            for j in (-1, 0, 1):
-                c.dot(cx+i*step, cy+j*step, "white", 1.8)
-        c.dot(cx, cy, color, 3.2)
-    # Network activation is a presentation cue, not a predicted field value.
-    c.line([(606, 237), (686, 237)], "#c5dedf", 2)
-    c.dot(606+80*(phase % 1), 237, TEAL, 3)
-    return c
 
 
 def comparison(fields, norm):
@@ -160,20 +65,6 @@ def comparison(fields, norm):
     return names
 
 
-def animate(fields, norm):
-    palette = workflow(fields, norm).im.quantize(colors=256, method=Image.Quantize.MEDIANCUT)
-    frames = []
-    for index in range(40):
-        frame = workflow(fields, norm, phase=index/40).im
-        frames.append(frame.quantize(palette=palette, dither=Image.Dither.NONE))
-    duration = [90]*40
-    duration[0] = 900
-    frames[0].save(OUT / "nnlci_local_to_hf.gif", save_all=True, append_images=frames[1:],
-                   duration=duration, loop=0, optimize=True, disposal=1)
-    return {"file": "nnlci_local_to_hf.gif", "frames": len(frames), "dimensions": [WIDTH, HEIGHT],
-            "duration_ms": sum(duration), "meaning": "Sampling and signal highlights only; no physical time evolution, solver iterations or NNLCI predictions"}
-
-
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--static-only", action="store_true")
@@ -194,13 +85,14 @@ def main():
     norm = Normalize(min(f[:, :, 2].min() for f in fields), max(f[:, :, 2].max() for f in fields))
     OUT.mkdir(parents=True, exist_ok=True)
     names = comparison(fields, norm) + mechanism()
-    for name in ("nnlci_motion_poster.png", "nnlci_local_to_hf_concept.png"):
-        workflow(fields, norm, scale=2).save(name)
-        names.append(name)
+    tool_report = prepare_tools()
+    names += list(tool_report["exports"])
+    scene = Scene(fields, norm)
+    names += render_static(scene)
     names += [scientific_panels(fields[-1], True), scientific_panels(fields[-1], False)]
     animation_available = memory_gate()
     if not args.static_only and animation_available >= 1500:
-        motion = animate(fields, norm)
+        motion = animate(scene)
         names.append(motion["file"])
         opening = motion["file"]
     else:
@@ -211,11 +103,13 @@ def main():
     readme.write_text(re.sub(r"(\]\(docs/assets/promo/)nnlci_(?:local_to_hf\.gif|motion_poster\.png)(\))",
                             lambda m: m[1]+opening+m[2], readme.read_text(), count=1))
     metadata = {
-        "operation": "Render independent LF CFD solves and packaged HF reference; animate workflow highlights only",
+        "operation": "Render independent LF CFD planes, equal-area POI sampling and a schematic prediction assembly; HF is comparison-only",
         "renderers": {name: sha(ROOT / "scripts" / name) for name in
-                      ("render_gatech_promo.py", "render_promo_mechanism.py", "render_config3_contours.py", "cfd_io.py")},
+                      ("render_gatech_promo.py", "promo_poi.py", "render_promo_mechanism.py", "render_config3_contours.py", "cfd_io.py")},
         "versions": {"python": sys.version.split()[0], "numpy": np.__version__, "matplotlib": matplotlib.__version__, "pillow": pillow_version},
-        "backend": "CPU: Agg, Pillow, CairoSVG",
+        "backend": "CPU: OpenSCAD, Graphviz, Agg, Pillow, CairoSVG",
+        "production_tools": tool_report,
+        "poi_workflow": semantics(),
         "cfd_provenance": {"path": str((LF / "provenance.json").relative_to(ROOT)), "sha256": sha(LF / "provenance.json")},
         "sources": [{"path": str(path.relative_to(ROOT)), "sha256": sha(path), "shape": list(field.shape)} for path, field in zip(paths, fields)],
         "opening_and_comparison": {"window_xy": list(WINDOW), "density_scale": [float(norm.vmin), float(norm.vmax)],
@@ -225,7 +119,7 @@ def main():
         "evidence_boundary": "LF1/LF2 now come from independent CPU executions of repository CFD kernels. One case, no retraining, no inference, no GPU parity test. Packaged HF execution log unavailable; nominal setup from standard config. Existing bootstrap and two-epoch checkpoint unchanged.",
         "memory": {"before_render_mib": available, "before_animation_mib": animation_available,
                    "static_threshold_mib": 700, "animation_threshold_mib": 1500,
-                   "animation_storage": "40 indexed 1080x430 frames; about 18 MiB raw index storage, no high-resolution frame stack"},
+                   "animation_storage": f"{FRAME_COUNT} indexed {WIDTH}x{HEIGHT} frames; {FRAME_COUNT*WIDTH*HEIGHT/2**20:.1f} MiB raw index storage; one RGB frame at a time"},
         "animation": motion,
         "outputs": {name: {"sha256": sha(OUT / name), "bytes": (OUT / name).stat().st_size} for name in names},
     }
