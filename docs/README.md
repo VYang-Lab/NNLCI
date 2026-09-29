@@ -5,6 +5,10 @@
 
 ## Reproduce a packaged workflow
 
+**New here? [Train and predict step by step](first_training_run.md).**
+Use supplied Sod data, inspect the input/target arrays, train a separate
+one-epoch checkpoint, and predict with it before starting a longer run.
+
 | Guide | First action | Evidence boundary |
 | --- | --- | --- |
 | [Sod](../problems/1d_sod/README.md) | Predict with the supplied MLP | Six packaged pressure cases; density gallery is reproducible |
@@ -24,8 +28,9 @@ and optional regeneration/training separately from checkpoint inference.
 - [Sod gallery](assets/promo/README.md#sod--packaged-checkpoint-evidence): checkpoint, data sources, density
   arrays, error-profile interpretation, and memory-gated regeneration.
 - [Upload manifest](UPLOAD_MANIFEST.md): package provenance and LFS retrieval.
-- [Local stencil / tokenization diagram](assets/promo/nnlci_local_mechanism.png):
-  conceptual input/label construction, not a numerical benchmark.
+- [Paced method animation](../README.md#how-it-works) and
+  [motion-free chapters](assets/promo/nnlci_method_storyboard.png):
+  local patches, four variables, feature assembly, point prediction and training.
 - [LF/HF concept image](assets/nnlci-lf-to-hf.png): illustrative refinement
   objective, not output from the packaged checkpoint.
 - [Common utilities](../common/README.md): reusable components and compatibility

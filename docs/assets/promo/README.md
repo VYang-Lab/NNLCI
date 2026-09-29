@@ -24,126 +24,111 @@ The CPU adapter preserves numerical expressions and changes execution/storage;
 GPU/CPU parity could not be tested without NVIDIA hardware. This is one CFD case
 for the figures, not a new training ensemble or held-out NNLCI validation.
 
-### Presentation and motion
+### Two animations
 
-The [POI opening](nnlci_local_to_hf.gif) drops the same point of interest onto
-both LF planes, first at a sharp transition (0.34, 0.44), then in a smooth region
-(0.46, 0.48). Both planes show x/y = 0.30–0.50 with the same projection and a
-shared linear density scale. Native nearest-node colors expose the actual CFD
-sampling; no blur, artificial sharpening or HF-derived LF data is used.
+The landing page separates a **12-second visual comparison** from a
+**35-second method lesson**. Both use CPU-rendered SVG/Python artwork with
+consistent colors, typography and real CFD sources. No Blender render or GPU
+is needed. [Current render provenance](followup_provenance.json) records input,
+renderer and output hashes, memory readings, versions and exact durations.
 
-**LF1 and LF2 each supply a 3 × 3 patch: exactly nine input locations.**
-The white markers are those nine locations on both planes and in both insets;
-the center ring marks the POI. LF2's finer mesh provides denser spatial
-information in the field beneath the markers. It does not increase the number
-of input locations. With four variables per location, the two patches form
-**2 × 9 × 4 = 72 scalar features** for the MLP.
+The [opening comparison](nnlci_comparison_poster.png) has only three columns:
+LF1 with its nine-point patch, LF2 with its nine-point patch, and the **HF
+output target**. The latter is a reconstruction objective, not a measured
+NNLCI prediction. The density views share x/y = 0.26–0.52 and one global linear
+scale. They use 160 common contour levels interpolated from native CFD values;
+there is no blur, sharpening, filtering or HF downsampling to create LF.
+The small reference overview locates the comparison window in the full domain.
+[Permanent still](nnlci_comparison_poster.png) · [Editable SVG](nnlci_comparison_poster.svg).
 
-Both insets use the same display size and a 0.04 × 0.04 context window. Their
-nine highlighted locations span 0.02 × 0.02 and align in physical space; the
-background textures retain the native mesh spacing of 0.01 (LF1) and 0.005
-(LF2). These coordinates explain the input count and mesh distinction. They
-are not a literal rendering of the packaged bootstrap's preprocessing, which
-bilinearly upsamples both fields, then extracts aligned dilation-4 3 × 3
-stencils. That implementation and the 72-feature contract are unchanged.
+Both LF insets contain exactly nine locations at the same physical offsets,
+±0.01 around the point of interest. Colors are the nearest native density
+samples. The nearest node can change as the point moves; the CFD solution is
+stationary. These patches illustrate local alignment. They are not a literal
+rendering of the bootstrap preprocessing, which bilinearly upsamples trimmed
+fields and extracts dilation-4 stencils. That implementation is unchanged.
 
-### Dense POI assembly and final HF frame
+The [method animation](../../../README.md#how-it-works) teaches one step at a time. Each
+chapter has 4.2–5 seconds to read; the values fill the input vector in groups
+of nine, and the final full field holds for 4.5 seconds.
 
-The **MLP → one POI** contract is unchanged: its four outputs belong to one
-spatial location. The animation now spans **801 × 801 nodes (641,601 POIs)**,
-including the domain endpoints, matching the packaged 800-interval HF grid.
-After the local sampling introduction, both LF panels and the reference reveal
-switch to the full domain, x/y = 0–1.
+| Chapter | What to watch | Editable SVG |
+| --- | --- | --- |
+| 1. Align | Two 3 × 3 neighborhoods at the same point | [Step 1](nnlci_method_step_1.svg) |
+| 2. Collect | Each of nine locations holds density, x/y velocity and pressure | [Step 2](nnlci_method_step_2.svg) |
+| 3. Assemble | 36 values from each LF become 72 inputs | [Step 3](nnlci_method_step_3.svg) |
+| 4. Predict | Fixed training transforms and an MLP produce four variables at one point | [Step 4](nnlci_method_step_4.svg) |
+| 5. Train | HF labels and predicted values meet at the loss; the loss updates weights | [Step 5](nnlci_method_step_5.svg) |
+| 6. Repeat | Place outputs at their coordinates; illustrate full-field assembly | [Step 6](nnlci_method_step_6.svg) |
 
-The sweep reveals every native target location in row-major order. It starts
-with the empty field, the first corner and the first boundary row, then uses
-88 temporally skipped steps to complete the full field quickly. Each displayed
-step includes every intervening POI; it is not a spatial subsample or a coarse
-puzzle. Previously revealed values stay fixed. The on-screen counter ends at
-**641,601 / 641,601**. Batched model execution can evaluate independent POIs
-together; this illustration makes no serial-execution or measured-speed claim.
+[Motion-free storyboard](nnlci_method_storyboard.png) ·
+[Final full field and interaction detail](nnlci_method_final.png).
 
-**Assembly colors are the packaged HF reference, not model predictions.**
-That label stays visible throughout the sweep. The reference serves as a
-visual stand-in for the target field; no inference is run and no reference
-values enter model inputs. The final image explicitly identifies the source as
-CFD reference data. Motion shows assembly, not physical time evolution.
+The illustrated feature order is LF1 then LF2, with four variable blocks of
+nine locations each. **2 × 9 × 4 = 72** appears once, in the assembly chapter.
+HF supervision reaches only the training loss; it does not feed the input
+vector. The final sweep reveals all **801 × 801 = 641,601** native reference
+locations, retaining all previous values between temporally skipped frames.
+It is a schematic reveal of reference values, not inference or physical time.
+Both LF patches stay blank near boundaries where a complete stencil is
+unavailable; displaying boundary reference values makes no neural boundary
+prediction claim. The final frame retains the complete HF field and enlarged
+interaction detail accepted in the earlier presentation.
 
-At corners and near boundaries where any of the nine illustrative stencil
-locations lies outside the domain, **both lower patch panels remain blank**.
-No clipped, padded, wrapped or fabricated patch is presented as a complete
-input, and no boundary prediction is claimed. Interior inputs retain nine
-markers each and the unchanged 72-feature contract.
-
-The **last GIF frame is the finished high-fidelity flow field**, held for
-4.5 seconds. It shows the complete density field and a clearly located,
-enlarged interaction detail on the same global color scale. The full view
-uses native node colors; the detail uses standard contour interpolation
-(80 filled intervals and 15 isolines), with no altered CFD values.
-The lossless [final frame](nnlci_hf_final.png) is also the motion-free
-[poster](nnlci_motion_poster.png). The [storyboard](nnlci_local_to_hf_concept.png)
-retains the inputs, partial assembly and finished field.
-
-The [mechanism](nnlci_local_mechanism.png) uses the same dense reference
-illustration and labels, with HF supervision reaching only the training loss.
-[SVG](nnlci_local_mechanism.svg) is the editable master;
-[PDF](nnlci_local_mechanism.pdf) and PNG are exports.
-
-**Installed tools are used in the delivered artwork.**
-[OpenSCAD](../../../scripts/figure_tools/poi_planes.scad) exports the plane,
-patch frame, sample marker and POI meshes in [OFF format](poi_geometry/).
-The CPU compositor projects those actual meshes during the sampling introduction
-and overlays native CFD colors. [Graphviz](../../../scripts/figure_tools/poi_pipeline.dot)
-produces the [workflow strip](poi_pipeline.svg) used in the sampling and assembly
-scenes. The finished-field frame gives its space to the scientific image.
-[Python source](../../../scripts/promo_poi.py) controls the camera, POIs and
-assembly. Commands, versions, memory readings and source/export hashes are in
-the provenance. No Blender or GPU rendering is required.
-
-The resolution comparison also has [SVG](config3_independent_resolution.svg) and
-[PDF](config3_independent_resolution.pdf) exports; axes/text are vector, dense fields rasterized.
-
-The [density/pressure hero](config3_contour_hero.png) still shows the packaged
-HF/bootstrap source, in x = 0.24–0.54, y = 0.22–0.52. The
-[full-domain view](config3_full_domain.png) locates that window. These contour
-views use unchanged CFD values and each variable's full-domain min/max; standard
-contour interpolation is only a display operation. They are labeled as source
-visualizations inside each image.
-
-The packaged Config 3 model remains a two-epoch software check whose evaluator
-reads training arrays. Its coordinate-free prediction table is not used for dense
-field artwork. No new inference, training, accuracy or speedup claim is made.
-The [review record](VISUAL_REVIEW.md) and [render provenance](gatech_provenance.json)
-record the delivered assets and their limits.
+The packaged Config 3 checkpoint remains a two-epoch software check whose
+evaluator reads training arrays. Its bootstrap data remains separate from the
+independent LF solves. No new scientific training ensemble or validated 2D
+model output is claimed. For a real train-to-predict path, use the
+[new-user Sod walkthrough](../../first_training_run.md).
 
 ### Reproduce
 
-After retrieving LFS data and installing NumPy, Matplotlib, Pillow, CairoSVG,
-OpenSCAD and Graphviz (see [tool setup](../../figure_tools/README.md)), run from
-the repo root. Rerunning CFD also requires gfortran.
+With NumPy, Matplotlib, Pillow and CairoSVG installed and LFS fields retrieved,
+run from the repository root:
 
 ```bash
-# Optional: independently regenerate both LF fields (~2 minutes on this host).
-# Runs compiler diagnostics + physical-invariant checks before the full solves.
-python3 scripts/regenerate_promo_lf.py
+python3 scripts/render_promo_followup.py
+python3 scripts/check_promo_followup.py
 
-# Render from saved LF/HF fields; this does not rerun the solver.
-python3 scripts/render_gatech_promo.py
-# Or explicitly choose the permanent PNG opening:
-python3 scripts/render_gatech_promo.py --static-only
-
-# Validate dense-grid coverage, boundary blanks, decoded GIF and provenance.
-python3 scripts/check_promo_poi.py
+# Permanent PNG alternatives; removes stale GIFs and updates README embeds.
+python3 scripts/render_promo_followup.py --static-only
 ```
 
-The solver and static renderer require at least 700 MiB effective available RAM;
-the GIF gate is 1,500 MiB. Host and ancestor-cgroup availability are checked.
-Animation is bounded to 136 indexed 1200 × 840 frames (about 131 MiB of index
-data), with only one transient RGB animation frame at a time. Identical hold
-frames may be coalesced by the GIF encoder. Tool exports run sequentially and
-recheck the 700 MiB gate before each process. If GIF generation is deferred, the
-renderer removes the outdated GIF and points the first README image at the PNG.
-No NVIDIA GPU is used. The original solver and bootstrap remain available.
+The static gate is 700 MiB effective available RAM. GIFs require **2,500 MiB**,
+checking host memory and ancestor cgroup limits before encoding each animation.
+The two GIFs are encoded sequentially at 960 × 540, retaining at most 51 indexed
+frames (~26 MiB) and one transient raster frame. Static SVG/PNG artifacts are
+always produced. An isolated `--output-dir .smoke/promo-static` render does not
+change the README or published assets.
+
+To independently rerun LF CFD without overwriting the saved sources:
+
+```bash
+python3 scripts/regenerate_promo_lf.py --output-dir .smoke/followup-cfd
+python3 scripts/check_promo_followup.py --rerun-cfd-dir .smoke/followup-cfd
+```
+
+This needs gfortran and first runs the CPU solver's existing physical-invariant,
+bounds and floating-point checks. In this follow-up both full solves reproduced
+the saved LF fields **byte-for-byte**. The rerun is provenance verification,
+not a model benchmark. [Verification record](FOLLOWUP_REVIEW.md).
+
+### Earlier presentation and scientific views
+
+PR #7's [OpenSCAD/Graphviz animation](nnlci_local_to_hf.gif),
+[mechanism SVG](nnlci_local_mechanism.svg), and
+[provenance](gatech_provenance.json) are retained as historical artifacts.
+Their original renderer is `scripts/render_gatech_promo.py`; it does not
+produce the current two-animation presentation. The earlier
+`check_promo_poi.py` checks PR #7's archived assets;
+use `check_promo_followup.py` for the current page.
+
+The [resolution comparison](config3_independent_resolution.png) retains physical
+axes and a colorbar ([SVG](config3_independent_resolution.svg),
+[PDF](config3_independent_resolution.pdf)). The
+[density/pressure view](config3_contour_hero.png) and
+[full-domain reference](config3_full_domain.png) retain unchanged source data.
+The [earlier review record](VISUAL_REVIEW.md) documents their original rendering.
 
 ## Sod · packaged checkpoint evidence
 

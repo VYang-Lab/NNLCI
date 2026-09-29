@@ -1,35 +1,23 @@
-![Dense POI assembly: two 3×3 LF patches map to one point; a labeled temporal skip reveals all 801×801 reference locations and finishes on the complete high-fidelity CFD field](docs/assets/promo/nnlci_local_to_hf.gif)
+![Conceptual comparison: independent LF1 and LF2 CFD with nine-point patches, alongside the packaged HF reference as the output target](docs/assets/promo/nnlci_comparison.gif)
 
-[Final HF frame](docs/assets/promo/nnlci_hf_final.png) · [Motion-free storyboard](docs/assets/promo/nnlci_local_to_hf_concept.png) · [CFD runs & figure sources](docs/assets/promo/README.md#2d-fields-and-the-motion-open)
+*Independent LF CFD → HF-like reconstruction objective. The third column is the **HF reference target**, not model output.*
+[Still image](docs/assets/promo/nnlci_comparison_poster.png) · [CFD sources & provenance](docs/assets/promo/README.md#2d-fields-and-the-motion-open)
 
 # NNLCI: CFD-informed fidelity lift
 
 Learn from local coarse-CFD neighborhoods to reconstruct high-fidelity-like fields.
 
-![Config 3 CFD density: independently solved LF1 at 100 resolution and LF2 at 200 versus the packaged 800-resolution HF reference, on identical axes and color scales](docs/assets/promo/config3_independent_resolution.png)
-
-*Both LF inputs use a **3×3 patch: nine locations each**. LF2 carries information
-from a finer source mesh. For each POI, the two patches feed the MLP, which
-predicts **only that point**. The animation illustrates assembly across
-**801 × 801 POIs (641,601 locations)** with an explicitly labeled temporal skip.
-LF imagery comes from separate CFD solves; assembly colors and the final frame
-show the **packaged HF reference, not model output**. The final frame holds the
-full field and an enlarged interaction detail. Boundary patch panels stay blank
-where the complete 3×3 stencil is unavailable.
-[Run provenance](problems/2d_riemann/data/promo_cfd/provenance.json).
-The packaged 2D checkpoint remains a two-epoch bootstrap software check.*
-
 ## How it works
 
-![Schematic: two aligned 3×3 LF patches supply 72 features to an MLP; four variables belong to one POI, repeated over 801×801 locations. The field illustration uses labeled HF reference colors. HF labels connect only to training loss.](docs/assets/promo/nnlci_local_mechanism.png)
+![Slow schematic lesson: aligned 3×3 patches, four variables at each location, 72 input features, an MLP predicting one point, training-only HF supervision, and full-field assembly with labeled reference colors](docs/assets/promo/nnlci_method.gif)
 
-*2 × 9 locations × 4 variables → 72 inputs → 4 variables at one POI.
-One output cell represents one point; repeat over the 801×801 target grid.
-HF supervises training.
-[Editable SVG](docs/assets/promo/nnlci_local_mechanism.svg) · [PDF](docs/assets/promo/nnlci_local_mechanism.pdf) · [Alignment close-up](#local-alignment)*
+*Follow one point from its two neighborhoods to a prediction, then assemble the field. HF labels supervise training only.*
+[Motion-free steps](docs/assets/promo/nnlci_method_storyboard.png) · [Editable chapters & timing](docs/assets/promo/README.md#two-animations) · [Alignment close-up](#local-alignment)
 
 <details>
 <summary>Explore the packaged HF density and pressure fields</summary>
+
+![Config 3 independently solved LF1 and LF2 versus packaged HF, with identical physical axes and color scales](docs/assets/promo/config3_independent_resolution.png)
 
 ![Packaged Config 3 CFD density and pressure detail with physical axes and full-domain color scales](docs/assets/promo/config3_contour_hero.png)
 
@@ -44,6 +32,10 @@ HF supervises training.
 
 *Checkpoint result · Sod P1.25 density: compare transition widths and wave positions.
 [Gallery: overlay, arrays & provenance](docs/assets/promo/README.md)*
+
+Sod shows packaged checkpoint predictions. The 2D animations explain the method
+using CFD reference imagery; the packaged 2D checkpoint is a two-epoch bootstrap
+software check. No measured speedup is claimed.
 
 <details id="local-alignment">
 <summary>Local alignment: a closer look</summary>
@@ -66,6 +58,29 @@ python problems/1d_sod/src/prediction/predict.py
 Uses supplied data and weights; writes `problems/1d_sod/results/predictions/` without training.
 [Sod guide](problems/1d_sod/README.md) · [Four workflows](#choose-a-workflow) ·
 [Package provenance](docs/UPLOAD_MANIFEST.md) · [Citation](#citation)
+
+## Train your first model
+
+Start with supplied Sod data after [installation](#installation). Run a short
+CPU training check, then predict with **that same checkpoint**:
+
+```bash
+CUDA_VISIBLE_DEVICES="" OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 \
+NNLCI_EPOCHS=1 NNLCI_MODEL_FILENAME=smoke_model_first_sod.pth \
+python problems/1d_sod/src/training/train.py
+
+CUDA_VISIBLE_DEVICES="" OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 MPLBACKEND=Agg \
+NNLCI_MODEL_FILENAME=smoke_model_first_sod.pth \
+NNLCI_RESULTS_DIR=.smoke/first-sod/predictions \
+python problems/1d_sod/src/prediction/predict.py
+```
+
+The checkpoint is written under `problems/1d_sod/models/`; six prediction plots
+go to `.smoke/first-sod/predictions/`. One epoch checks the workflow, not accuracy.
+The supplied model and figures are preserved.
+
+**[Hands-on guide: inspect data → train → predict → compare → add cases](docs/first_training_run.md)**
+includes expected array shapes, longer training, CFD generation and troubleshooting.
 
 <details>
 <summary>Input contract and deployment</summary>

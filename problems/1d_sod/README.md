@@ -6,6 +6,10 @@ Lift two inexpensive Euler solutions toward an 800-point reference with the
 packaged GELU MLP. This is the entry workflow for reproducing the repository's
 CFD-informed fidelity-lift gallery.
 
+**First time training?** Follow the [hands-on walkthrough](../../docs/first_training_run.md)
+for data checks, a separate smoke checkpoint, prediction with your new weights,
+and comparison with the supplied model.
+
 ## Data contract
 
 | Stage | Packaged recipe |
@@ -84,7 +88,8 @@ python problems/1d_sod/src/training/train.py
   `train_P*_800.dat`
 - **Generates:** `problems/1d_sod/models/best_model_sod_final.pth`
 - **Default:** 4000 epochs. For a quick smoke test, run
-  `NNLCI_EPOCHS=1 NNLCI_MODEL_FILENAME=smoke_sod.pth python problems/1d_sod/src/training/train.py`.
+  `NNLCI_EPOCHS=1 NNLCI_MODEL_FILENAME=smoke_model_first_sod.pth python problems/1d_sod/src/training/train.py`.
+  Pass that same `NNLCI_MODEL_FILENAME` to prediction to evaluate the new weights.
 
 ### Step 1.3: Predict and Visualize
 
@@ -95,3 +100,5 @@ python problems/1d_sod/src/prediction/predict.py
 - **Reads:** prediction `.dat` files and `models/best_model_sod_final.pth`
 - **Generates:** prediction figures under
   `problems/1d_sod/results/predictions/`
+- **Custom outputs:** set `NNLCI_RESULTS_DIR=.smoke/first-sod/predictions` to
+  preserve supplied figures. Relative paths resolve from the working directory.

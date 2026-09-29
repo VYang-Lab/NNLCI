@@ -103,7 +103,6 @@ def main():
     motion = report["animation"]
     if motion.get("deferred"):
         assert not (OUT / "nnlci_local_to_hf.gif").exists()
-        assert "nnlci_motion_poster.png" in (ROOT / "README.md").read_text().splitlines()[0]
     else:
         with Image.open(OUT / motion["file"]) as gif:
             palette = gif.copy()
@@ -119,7 +118,12 @@ def main():
             # with only the GIF's expected shared-palette quantization.
             quantized_final = final.quantize(palette=palette, dither=Image.Dither.NONE).convert("RGB")
             np.testing.assert_array_equal(gif.convert("RGB"), quantized_final)
-        assert "nnlci_local_to_hf.gif" in (ROOT / "README.md").read_text().splitlines()[0]
+    # PR #7 remains an archived renderer; only check its README choice when
+    # that presentation is active. The follow-up has its own asset checker.
+    opening = (ROOT / "README.md").read_text().splitlines()[0]
+    if "nnlci_local_to_hf.gif" in opening or "nnlci_motion_poster.png" in opening:
+        expected_opening = "nnlci_motion_poster.png" if motion.get("deferred") else "nnlci_local_to_hf.gif"
+        assert expected_opening in opening
     print(json.dumps({
         "checked": ["all source, renderer and output hashes", "PNG/SVG/PDF/OFF decoding",
                     "641601 native reference colors and complete coverage",
