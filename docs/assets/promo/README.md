@@ -47,42 +47,55 @@ are not a literal rendering of the packaged bootstrap's preprocessing, which
 bilinearly upsamples both fields, then extracts aligned dilation-4 3 × 3
 stencils. That implementation and the 72-feature contract are unchanged.
 
-### The HF reconstruction puzzle
+### Dense POI assembly and final HF frame
 
-The visible **MLP → one POI → one grid cell** route is the core of the animation.
-The MLP output has four components (density, x/y velocity and pressure), all
-at **one spatial point**. Each small square is a display cell for that point,
-not an output patch. The camera turns to 2D, then all 81 illustrative target
-locations are visited separately. Each pass selects the two local 3 × 3 inputs,
-shows one output, moves that single cell to its coordinate, and places it.
-The completed field is the assembly of these pointwise predictions. Previously
-placed values remain fixed; no group of points appears in one placement.
-Batched numerical execution can evaluate many such independent inputs together;
-the animation explains the per-input mapping, not a serial runtime requirement.
+The **MLP → one POI** contract is unchanged: its four outputs belong to one
+spatial location. The animation now spans **801 × 801 nodes (641,601 POIs)**,
+including the domain endpoints, matching the packaged 800-interval HF grid.
+After the local sampling introduction, both LF panels and the reference reveal
+switch to the full domain, x/y = 0–1.
 
-The puzzle is labeled **“Schematic · illustrative colors”** and **“no model
-output”**. Its documented analytic color motif illustrates a sharp interface
-and a smooth region; it uses neither HF values nor checkpoint predictions.
-The 9 × 9 display grid is deliberately small and makes no HF-resolution or
-accuracy claim. Field values remain fixed at the final CFD time; motion
-explains the workflow, not time evolution. Packaged HF remains in the separate
-scientific comparison above.
+The sweep reveals every native target location in row-major order. It starts
+with the empty field, the first corner and the first boundary row, then uses
+88 temporally skipped steps to complete the full field quickly. Each displayed
+step includes every intervening POI; it is not a spatial subsample or a coarse
+puzzle. Previously revealed values stay fixed. The on-screen counter ends at
+**641,601 / 641,601**. Batched model execution can evaluate independent POIs
+together; this illustration makes no serial-execution or measured-speed claim.
 
-The first GIF frame and [poster](nnlci_motion_poster.png) preview a single cell
-in flight toward a partly assembled puzzle. The animation then starts the full
-empty-to-complete sequence. The [three-scene storyboard](nnlci_local_to_hf_concept.png)
-retains the nine-point inputs, a cell in flight, and the completed field.
-The redesigned [mechanism](nnlci_local_mechanism.png) also shows the full
-pointwise reconstruction in one static diagram, with HF labels reaching only
-the training loss. [SVG](nnlci_local_mechanism.svg) is the editable master;
+**Assembly colors are the packaged HF reference, not model predictions.**
+That label stays visible throughout the sweep. The reference serves as a
+visual stand-in for the target field; no inference is run and no reference
+values enter model inputs. The final image explicitly identifies the source as
+CFD reference data. Motion shows assembly, not physical time evolution.
+
+At corners and near boundaries where any of the nine illustrative stencil
+locations lies outside the domain, **both lower patch panels remain blank**.
+No clipped, padded, wrapped or fabricated patch is presented as a complete
+input, and no boundary prediction is claimed. Interior inputs retain nine
+markers each and the unchanged 72-feature contract.
+
+The **last GIF frame is the finished high-fidelity flow field**, held for
+4.5 seconds. It shows the complete density field and a clearly located,
+enlarged interaction detail on the same global color scale. The full view
+uses native node colors; the detail uses standard contour interpolation
+(80 filled intervals and 15 isolines), with no altered CFD values.
+The lossless [final frame](nnlci_hf_final.png) is also the motion-free
+[poster](nnlci_motion_poster.png). The [storyboard](nnlci_local_to_hf_concept.png)
+retains the inputs, partial assembly and finished field.
+
+The [mechanism](nnlci_local_mechanism.png) uses the same dense reference
+illustration and labels, with HF supervision reaching only the training loss.
+[SVG](nnlci_local_mechanism.svg) is the editable master;
 [PDF](nnlci_local_mechanism.pdf) and PNG are exports.
 
 **Installed tools are used in the delivered artwork.**
 [OpenSCAD](../../../scripts/figure_tools/poi_planes.scad) exports the plane,
 patch frame, sample marker and POI meshes in [OFF format](poi_geometry/).
-The CPU compositor projects those actual meshes in every scene and overlays the
-native CFD colors. [Graphviz](../../../scripts/figure_tools/poi_pipeline.dot)
-produces the [workflow strip](poi_pipeline.svg) composited into every frame.
+The CPU compositor projects those actual meshes during the sampling introduction
+and overlays native CFD colors. [Graphviz](../../../scripts/figure_tools/poi_pipeline.dot)
+produces the [workflow strip](poi_pipeline.svg) used in the sampling and assembly
+scenes. The finished-field frame gives its space to the scientific image.
 [Python source](../../../scripts/promo_poi.py) controls the camera, POIs and
 assembly. Commands, versions, memory readings and source/export hashes are in
 the provenance. No Blender or GPU rendering is required.
@@ -118,11 +131,14 @@ python3 scripts/regenerate_promo_lf.py
 python3 scripts/render_gatech_promo.py
 # Or explicitly choose the permanent PNG opening:
 python3 scripts/render_gatech_promo.py --static-only
+
+# Validate dense-grid coverage, boundary blanks, decoded GIF and provenance.
+python3 scripts/check_promo_poi.py
 ```
 
 The solver and static renderer require at least 700 MiB effective available RAM;
 the GIF gate is 1,500 MiB. Host and ancestor-cgroup availability are checked.
-Animation is bounded to 401 indexed 1200 × 840 frames (about 386 MiB of index
+Animation is bounded to 136 indexed 1200 × 840 frames (about 131 MiB of index
 data), with only one transient RGB animation frame at a time. Identical hold
 frames may be coalesced by the GIF encoder. Tool exports run sequentially and
 recheck the 700 MiB gate before each process. If GIF generation is deferred, the

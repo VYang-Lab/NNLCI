@@ -1,4 +1,4 @@
-// Production route composited beneath the LF planes and prediction mosaic.
+// Production route composited beneath the LF planes and reference assembly.
 digraph POI {
   graph [rankdir=LR, bgcolor="transparent", pad=0.12, nodesep=0.16, ranksep=0.38];
   node [shape=box, style="rounded,filled", fontname="DejaVu Sans", fontsize=18,
@@ -8,6 +8,6 @@ digraph POI {
   align [label="3 × 3 each\n72 scalar features", fontsize=15];
   net [label="MLP", fillcolor="#e8f5f3", color="#99c9c4", fontcolor="#087f8c"];
   point [label="One POI\n4 variables", fontcolor="#087f8c", fontsize=15];
-  field [label="Place one cell · repeat", fontcolor="#087f8c"];
+  field [label="Repeat · 801 × 801 POIs", fontcolor="#087f8c"];
   lf -> align -> net -> point -> field;
 }

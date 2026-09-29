@@ -1,18 +1,18 @@
 """Editable SVG master plus PDF/PNG exports for pointwise NNLCI reconstruction."""
 from pathlib import Path
 from html import escape
+import base64
+import io
 import cairosvg
-
-from promo_poi import prediction_color
 
 OUT = Path(__file__).resolve().parents[1] / "docs/assets/promo"
 INK, MUTED, BLUE, GREEN, TEAL, RED = "#162536", "#596879", "#2563eb", "#159947", "#087f8c", "#c5444d"
 
 
-def render():
+def render(scene):
     parts = ['<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680" viewBox="0 0 1200 680" role="img" aria-labelledby="title desc">',
              '<title id="title">NNLCI: two 3 by 3 patches, one POI, a field assembled point by point</title>',
-             '<desc id="desc">Schematic. LF1 and LF2 each contribute nine aligned sample locations with four variables. LF2 has a finer underlying mesh, not more input points. The 72 features enter an MLP, which predicts four variables only at the center POI. One output is placed in one grid cell; repeat at every target location to reconstruct the field. Puzzle colors are illustrative, not model results. HF labels reach only the training loss.</desc>',
+             '<desc id="desc">Schematic. LF1 and LF2 each contribute nine aligned sample locations with four variables. LF2 has a finer underlying mesh, not more input points. The 72 features enter an MLP, which predicts four variables only at the center POI. Repeat at all 801 by 801 grid locations. Field colors show the packaged HF reference as a visual stand-in, not model results. HF labels reach only the training loss.</desc>',
              '<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#82929f"/></marker></defs>',
              '<rect width="1200" height="680" fill="white"/>']
 
@@ -29,8 +29,8 @@ def render():
         parts.append(f'<circle cx="{x}" cy="{y}" r="{r}" fill="{color}"/>')
 
     text(36, 35, "NNLCI  /  LOCAL TO GLOBAL", 14, TEAL, 700)
-    text(1164, 35, "SCHEMATIC · ILLUSTRATIVE COLORS", 13, MUTED, 500, "end")
-    text(36, 83, "3 × 3 in. One point out. Assemble the field.", 32, INK, 700)
+    text(1164, 35, "SCHEMATIC · HF REFERENCE COLORS", 13, MUTED, 500, "end")
+    text(36, 83, "3 × 3 in. One point out. Repeat over 801 × 801.", 32, INK, 700)
     text(36, 118, "LF2 has a finer source mesh; both LF inputs still contain exactly nine locations.", 19, MUTED)
     for x, n, title in [(36, "01", "Two local patches"), (418, "02", "MLP"), (648, "03", "One POI"), (900, "04", "Reconstruct")]:
         text(x, 175, n, 15, TEAL, 700)
@@ -66,34 +66,30 @@ def render():
     path("M 586 306 H 645", TEAL, 2, True)
 
     # One small square is the display cell for ONE output coordinate.
-    color = "#%02x%02x%02x" % prediction_color(40)
+    color = "#087f8c"
     rect(662, 286, 40, 40, color, TEAL, 0)
     dot(682, 306, 3, "white")
     text(713, 313, "ρ̂, û, v̂, p̂", 22, TEAL, 500)
     text(730, 395, "Only the center point", 18, INK, 700, "middle")
     text(730, 428, "One cell = one POI", 17, MUTED, anchor="middle")
 
-    # A partly filled puzzle makes insertion visible in a motion-free diagram.
-    left, top, step, filled = 900, 219, 26, 40
-    for row in range(9):
-        for col in range(9):
-            rank = row*9+col
-            tint = "#%02x%02x%02x" % prediction_color(rank) if rank < filled else "#eef4f5"
-            rect(left+col*step+1, top+row*step+1, step-2, step-2, tint, radius=0)
-            if rank < filled:
-                dot(left+(col+.5)*step, top+(row+.5)*step, 1.5, "#eefaf7")
-    tx, ty = left+4*step, top+4*step
-    rect(tx, ty, step, step, "none", TEAL, 0, "4 3", 2)
-    # The carried cell has the same color and one center marker as the output.
-    path(f"M 682 335 V 369 H 864 V {ty+13} H {tx-6}", TEAL, 2, True)
-    rect(846, ty+2, 22, 22, color, TEAL, 0)
-    dot(857, ty+13, 2, "white")
-    text(1017, 484, "HF-like field", 22, TEAL, 700, "middle")
-    text(1017, 511, "Illustration · no model output", 15, MUTED, anchor="middle")
-    path("M 1050 532 V 550 H 376 V 471", TEAL, 1.5, True, "5 5")
+    # Embed the actual dense reference reveal, never a coarse analytic puzzle.
+    buffer = io.BytesIO()
+    scene.assembly_image(801*560+400).save(buffer, format="PNG")
+    encoded = base64.b64encode(buffer.getvalue()).decode()
+    parts.append(f'<image x="900" y="219" width="234" height="234" href="data:image/png;base64,{encoded}"/>')
+    tx, ty = 1017, 383
+    # The visible ring locates a subpixel POI; it is not an output patch.
+    parts.append(f'<circle cx="{tx}" cy="{ty}" r="5" fill="none" stroke="{TEAL}" stroke-width="2"/>')
+    path(f"M 682 335 V 369 H 864 V {ty} H {tx-8}", TEAL, 2, True)
+    dot(857, ty, 3, TEAL)
+    text(1017, 484, "641,601 POIs", 22, TEAL, 700, "middle")
+    text(1017, 509, "HF reference · visual stand-in", 14, MUTED, anchor="middle")
+    text(1017, 529, "No model output", 14, MUTED, anchor="middle")
+    path("M 1050 536 V 557 H 376 V 471", TEAL, 1.5, True, "5 5")
     text(700, 540, "Place at its coordinate; repeat for every target point", 15, TEAL, anchor="middle")
 
-    # Separate training lane. HF never feeds inference or the colored puzzle.
+    # HF supervises training; the reference artwork is not an inference input.
     path("M 36 573 H 1164", "#e2e8ef", 1)
     text(36, 611, "INFERENCE", 13, TEAL, 700)
     text(36, 643, "LF patches → MLP → one POI → field", 17, INK)
@@ -115,4 +111,4 @@ def render():
 
 
 if __name__ == "__main__":
-    render()
+    raise SystemExit("Run scripts/render_gatech_promo.py to load verified reference data")

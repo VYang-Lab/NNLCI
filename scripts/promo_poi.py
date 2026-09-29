@@ -1,8 +1,8 @@
-"""CPU projection of OpenSCAD geometry, CFD textures and a conceptual POI mosaic.
+"""CPU projection of OpenSCAD geometry and a dense, accelerated POI assembly.
 
-OpenSCAD builds the actual meshes used in every frame; Graphviz lays out the
-inference route. LF color values are native CFD samples. The teal output is an
-explicitly synthetic workflow illustration, never the packaged HF reference.
+OpenSCAD builds the meshes used in the sampling introduction; Graphviz lays out the
+inference route. LF color values are native CFD samples. Assembly uses the
+packaged HF reference as a labeled visual stand-in, never as model predictions.
 """
 from __future__ import annotations
 from dataclasses import dataclass
@@ -29,10 +29,17 @@ PATCH_SIDE = .04
 SHARP, SMOOTH = (.34, .44), (.46, .48)
 INK, MUTED = "#162536", "#596879"
 BLUE, GREEN, TEAL = "#2563eb", "#159947", "#087f8c"
-GRID_SIZE = 9
-INTRO_FRAMES, FRAMES_PER_POINT = 64, 4
-ASSEMBLY_END = INTRO_FRAMES + FRAMES_PER_POINT * GRID_SIZE**2
-FRAME_COUNT = ASSEMBLY_END + 12
+GRID_SIZE = 801  # Packaged 800-interval grid includes both domain endpoints.
+POINT_COUNT = GRID_SIZE**2
+INTRO_FRAMES, SWEEP_FRAMES = 44, 88
+# First show the empty domain and the upper boundary, then skip temporal steps.
+# Each interval represents every row-major POI between two displayed counts.
+ASSEMBLY_COUNTS = (0, 1, GRID_SIZE) + tuple(
+    GRID_SIZE + (POINT_COUNT-GRID_SIZE)*k//SWEEP_FRAMES
+    for k in range(1, SWEEP_FRAMES+1))
+ASSEMBLY_END = INTRO_FRAMES + len(ASSEMBLY_COUNTS)
+FRAME_COUNT = ASSEMBLY_END + 1
+TARGET_BOX = (724, 246, 430)
 
 
 def read_off(path):
@@ -106,20 +113,30 @@ class State:
     phase: int = 0
 
 
-def state_at(frame):
-    if frame < 22:
-        return State(SHARP, 29*(1-ease(frame/13)), 52, 0, 0)
-    if frame < 42:
-        return State(SMOOTH, 29*(1-ease((frame-22)/12)), 52, 1, 0)
-    if frame < INTRO_FRAMES:
-        return State(SMOOTH, 0, 52*(1-ease((frame-42)/21)), 2, 0)
-    index = min(GRID_SIZE**2-1, (frame-INTRO_FRAMES)//FRAMES_PER_POINT)
-    phase = (frame-INTRO_FRAMES) % FRAMES_PER_POINT if frame < ASSEMBLY_END else 3
-    filled = index + (phase == 3)
+def point_at(index):
+    """Row-major order in display space, including all four boundaries."""
     row, col = divmod(index, GRID_SIZE)
-    # One coordinate, one prediction, one display cell. No grouped/skipped POIs.
-    point = (.32+.02*col, .48-.02*row)
-    return State(point, 0, 0, 3, filled, index, phase)
+    return col/(GRID_SIZE-1), 1-row/(GRID_SIZE-1)
+
+
+def complete_stencil(point):
+    samples = stencil(point)
+    return bool(np.all((samples >= 0) & (samples <= 1)))
+
+
+def state_at(frame):
+    if not 0 <= frame < FRAME_COUNT:
+        raise ValueError(f"Frame outside animation: {frame}")
+    if frame < 14:
+        return State(SHARP, 29*(1-ease(frame/10)), 52, 0, 0)
+    if frame < 28:
+        return State(SMOOTH, 29*(1-ease((frame-14)/10)), 52, 1, 0)
+    if frame < INTRO_FRAMES:
+        return State(SMOOTH, 0, 52*(1-ease((frame-28)/15)), 2, 0)
+    filled = ASSEMBLY_COUNTS[min(frame-INTRO_FRAMES, len(ASSEMBLY_COUNTS)-1)]
+    active = max(0, filled-1)
+    return State(point_at(active), 0, 0, 4 if frame == ASSEMBLY_END else 3,
+                 filled, active, 3)
 
 
 def native_patch(field, point):
@@ -141,15 +158,6 @@ def stencil(point):
                      for j in (-1, 0, 1) for i in (-1, 0, 1)])
 
 
-def prediction_color(index):
-    """Illustrative scalar color at one POI; never HF data or MLP inference."""
-    row, col = divmod(index, GRID_SIZE)
-    u, v = (col+.5)/GRID_SIZE, 1-(row+.5)/GRID_SIZE
-    value = .16+.32*math.exp(-9*((u-.68)**2+(v-.7)**2))+.42*(v > .20+.50*u)
-    base, light = np.array([8,112,125]), np.array([219,244,230])
-    return tuple((base*(1-value)+light*value).astype(int))
-
-
 @lru_cache(maxsize=64)
 def font(size, bold=False):
     return ImageFont.truetype("DejaVuSans-Bold.ttf" if bold else "DejaVuSans.ttf", size)
@@ -158,6 +166,16 @@ def font(size, bold=False):
 class Scene:
     def __init__(self, fields, norm):
         self.fields, self.norm = fields[:2], norm
+        self.hf = fields[2]
+        if self.hf.shape != (GRID_SIZE, GRID_SIZE, 6):
+            raise ValueError("Assembly requires the complete 801 × 801 packaged field")
+        # Native HF colors, with y increasing upward. This is a REFERENCE reveal.
+        self.reference = Image.fromarray(colormaps["inferno"](
+            norm(self.hf[::-1, :, 2]), bytes=True)[:, :, :3])
+        self.full_lf = [Image.fromarray(colormaps["inferno"](
+            norm(field[::-1, :, 2]), bytes=True)[:, :, :3]).resize(
+                (250, 250), Image.Resampling.NEAREST) for field in self.fields]
+        self._hero = None
         self.meshes = {name: read_off(OUT / "poi_geometry" / f"{name}.off")
                        for name in ("plane", "patch", "sample", "pin")}
         # Actual native cell footprints, clipped to the shared physical crop.
@@ -200,6 +218,10 @@ class Scene:
 
     def frame(self, number):
         state = state_at(number)
+        if state.stage == 4:
+            return self.hero().copy()
+        if state.stage == 3:
+            return self.assembly_frame(state)
         im = Image.new("RGB", (WIDTH, HEIGHT), "white")
         d = ImageDraw.Draw(im)
 
@@ -278,50 +300,154 @@ class Scene:
         arrow([(940,254),(1048,254)])
         text(1081, 167, "One POI", 24, TEAL, True, "mt")
         text(1081, 205, "ρ̂, û, v̂, p̂", 20, MUTED, anchor="mt")
-        color = prediction_color(state.active)
-        show_value = state.stage == 3 and state.phase >= 1
-        d.rectangle((1065,238,1097,270), fill=color if show_value else "#eff5f5", outline=TEAL, width=2)
-        d.ellipse((1078,251,1084,257), fill="white" if show_value else TEAL)
+        d.rectangle((1065,238,1097,270), fill="#eff5f5", outline=TEAL, width=2)
+        d.ellipse((1078,251,1084,257), fill=TEAL)
         text(1081, 289, "Only this point", 16, TEAL, anchor="mt")
-
-        text(714, 331, "HF-like reconstruction puzzle", 25, TEAL, True)
-        text(714, 365, "Schematic · illustrative colors", 16, MUTED)
-        side, left, top = 288, 826, 404
-        tile = side/GRID_SIZE
-        for row in range(GRID_SIZE):
-            for col in range(GRID_SIZE):
-                rank = row*GRID_SIZE+col
-                xa, ya = left+col*tile, top+row*tile
-                tint = prediction_color(rank) if rank < state.filled else "#f1f6f7"
-                d.rectangle((xa+1,ya+1,xa+tile-1,ya+tile-1), fill=tint)
-                # A dot is the POI; its small grid square is just a display cell.
-                if rank < state.filled:
-                    d.ellipse((xa+tile/2-1.5,ya+tile/2-1.5,xa+tile/2+1.5,ya+tile/2+1.5), fill="#eefaf7")
-        row, col = divmod(state.active, GRID_SIZE)
-        tx, ty = left+(col+.5)*tile, top+(row+.5)*tile
-        if state.stage == 3:
-            d.rectangle((tx-tile/2,ty-tile/2,tx+tile/2,ty+tile/2), outline=TEAL, width=3)
-            if state.phase in (1,2):
-                # Visible correspondence: the same output cell travels to its
-                # coordinate; no patch-sized block is predicted or placed.
-                arrow([(1110,254),(1152,254),(1152,ty),(tx+tile/2+4,ty)], "#8ebeba")
-            if state.phase == 2:
-                fx, fy = 1152, (254+ty)/2
-                d.rectangle((fx-15,fy-15,fx+15,fy+15), fill=color, outline=TEAL, width=2)
-                d.ellipse((fx-2,fy-2,fx+2,fy+2), fill="white")
-        text(714, 430, "1 cell", 20, TEAL, True)
-        text(714, 460, "= 1 POI", 18, TEAL)
-        text(714, 522, f"{state.filled} / 81", 21, TEAL, True)
-        text(714, 554, "placed", 16, MUTED)
-        text(714, 611, "Repeat", 18, TEAL, True)
-        text(714, 640, "at every x", 16, MUTED)
-        if state.filled == GRID_SIZE**2:
-            d.rectangle((left-2,top-2,left+side+2,top+side+2), outline=TEAL, width=2)
+        text(714, 331, "Next: assemble the full field", 24, TEAL, True)
+        text(714, 365, "801 × 801 POIs · temporal skip", 18, MUTED)
+        # Preview the target geometry without inventing a low-resolution puzzle.
+        d.rectangle((826,404,1114,692), fill="#f1f6f7")
+        text(970, 523, "641,601", 34, TEAL, True, "mt")
+        text(970, 572, "target locations", 18, MUTED, anchor="mt")
+        text(714, 710, "Reveal colors: packaged HF reference", 16, MUTED)
         # Actual Graphviz output, not a hand-drawn substitute.
         im.paste(self.route, ((WIDTH-self.route.width)//2, 725), self.route)
         text(34, 822, "LF density: independent CFD · fixed time · same crop & scale", 12, MUTED)
-        text(1166, 822, "Puzzle: workflow illustration, no model output", 12, MUTED, anchor="rt")
+        text(1166, 822, "Assembly schematic · no model output", 12, MUTED, anchor="rt")
         return im
+
+
+    def assembly_image(self, filled):
+        """Reveal exactly `filled` native HF nodes before display downsampling."""
+        if not 0 <= filled <= POINT_COUNT:
+            raise ValueError("Invalid POI count")
+        result = Image.new("RGB", self.reference.size, "#f1f6f7")
+        rows, cols = divmod(filled, GRID_SIZE)
+        if rows:
+            result.paste(self.reference.crop((0, 0, GRID_SIZE, rows)), (0, 0))
+        if cols:
+            result.paste(self.reference.crop((0, rows, cols, rows+1)), (0, rows))
+        return result
+
+    def patch_inset(self, im, field, point, left, top, side, color):
+        """No clamping, padding, wrapping or feature markers at missing patches."""
+        if not complete_stencil(point):
+            return
+        d = ImageDraw.Draw(im)
+        xx, yy, values = native_patch(field, point)
+        half = PATCH_SIDE/2
+        for j, sy in enumerate(yy):
+            for i, sx in enumerate(xx):
+                n = field.shape[0]-1
+                xa, xb = max(point[0]-half,sx-.5/n), min(point[0]+half,sx+.5/n)
+                ya, yb = max(point[1]-half,sy-.5/n), min(point[1]+half,sy+.5/n)
+                box = (left+(xa-point[0]+half)/PATCH_SIDE*side,
+                       top+(point[1]+half-yb)/PATCH_SIDE*side,
+                       left+(xb-point[0]+half)/PATCH_SIDE*side,
+                       top+(point[1]+half-ya)/PATCH_SIDE*side)
+                tint = tuple(int(v*255) for v in colormaps["inferno"](self.norm(values[j,i]))[:3])
+                d.rectangle(box, fill=tint)
+        d.rectangle((left,top,left+side,top+side), outline=color, width=2)
+        for sx, sy in stencil(point):
+            dx = left+(sx-point[0]+half)/PATCH_SIDE*side
+            dy = top+(point[1]+half-sy)/PATCH_SIDE*side
+            d.ellipse((dx-4,dy-4,dx+4,dy+4), fill="white", outline=INK, width=1)
+        cx, cy = left+side/2, top+side/2
+        d.ellipse((cx-8,cy-8,cx+8,cy+8), outline="white", width=2)
+
+    def assembly_frame(self, state):
+        im = Image.new("RGB", (WIDTH, HEIGHT), "white")
+        d = ImageDraw.Draw(im)
+
+        def text(x, y, value, size=18, color=INK, bold=False, anchor="lt"):
+            d.text((x, y), value, font=font(size, bold), fill=color, anchor=anchor)
+
+        valid = complete_stencil(state.point)
+        text(34, 23, "801 × 801 POIs. The full field, fast.", 31, INK, True)
+        text(34, 65, "Assembly schematic · temporal skip · HF reference colors, not predictions", 19, MUTED)
+        d.rounded_rectangle((34,105,1166,140), radius=8, fill="#e8f5f3")
+        text(50, 114, "Two 3 × 3 patches → MLP → one POI → repeat over the entire domain", 18, TEAL, True)
+        d.line([(674,162),(674,700)], fill="#dfe7ee", width=1)
+        for index, (field, cx, color) in enumerate(zip(self.fields, (177,482), (BLUE,GREEN))):
+            left, top = cx-125, 203
+            text(left, 164, f"LF{index+1}", 27, color, True)
+            text(left+74, 173, f"{field.shape[0]-1}² mesh", 17, MUTED)
+            im.paste(self.full_lf[index], (left,top))
+            dx, dy = left+250*state.point[0], top+250*(1-state.point[1])
+            d.ellipse((dx-6,dy-6,dx+6,dy+6), fill=color, outline="white", width=2)
+            text(cx, 470, "3 × 3 inputs", 21, color, True, "mt")
+            self.patch_inset(im, field, state.point, cx-68, 503, 136, color)
+            text(cx, 651, "9 locations · 4 variables" if valid else "Boundary: no full patch",
+                 16, MUTED, anchor="mt")
+        text(329, 690, f"Full domain · POI ({state.point[0]:.4f}, {state.point[1]:.4f})",
+             16, MUTED, anchor="mt")
+        text(724, 168, "NNLCI MLP → one POI" if valid else "Boundary · patch panels blank",
+             22, TEAL if valid else MUTED, True)
+        text(724, 205, "72 features → 4 variables at one location" if valid else "Reference reveal continues across the boundary",
+             16, MUTED)
+        left, top, side = TARGET_BOX
+        im.paste(self.assembly_image(state.filled).resize((side,side), Image.Resampling.NEAREST), (left,top))
+        d.rectangle((left-1,top-1,left+side,top+side), outline="#bdccd5")
+        if 0 < state.filled < POINT_COUNT:
+            x, y = left+side*state.point[0], top+side*(1-state.point[1])
+            d.line((left,y,left+side,y), fill="white", width=1)
+            d.ellipse((x-4,y-4,x+4,y+4), fill=TEAL, outline="white", width=1)
+        text(724, 690, f"{state.filled:,} / {POINT_COUNT:,} POIs", 24, TEAL, True)
+        im.paste(self.route, ((WIDTH-self.route.width)//2, 735), self.route)
+        text(34, 822, "LF density: independent CFD · full domain · fixed physical time", 12, MUTED)
+        text(1166, 822, "Temporal skip illustrates assembly, not measured speed", 12, MUTED, anchor="rt")
+        return im
+
+    def hero(self):
+        """Final full-domain reference plus a clearly located, enlarged detail."""
+        if self._hero is not None:
+            return self._hero
+        import matplotlib.pyplot as plt
+        from matplotlib.patches import Rectangle, ConnectionPatch
+        plt.rcParams.update({"font.family": "DejaVu Sans", "font.size": 10,
+                             "text.color": INK, "axes.labelcolor": MUTED,
+                             "xtick.color": MUTED, "ytick.color": MUTED})
+        fig = plt.figure(figsize=(12, 8.4), dpi=100, facecolor="white")
+        fig.text(.035,.956,"The complete high-fidelity field.",fontsize=27,weight="bold")
+        fig.text(.035,.913,"Config 3 · packaged CFD reference · density ρ",fontsize=14,color=MUTED)
+        fig.text(.968,.915,"801 × 801 POIs",fontsize=16,color=TEAL,weight="bold",ha="right")
+        full = fig.add_axes((.067,.157,.505,.72143))
+        detail = fig.add_axes((.665,.34,.30,.42857))
+        x, y, z = self.hf[0,:,0], self.hf[:,0,1], self.hf[:,:,2]
+        full.imshow(z, origin="lower", extent=(-.5/800,1+.5/800,-.5/800,1+.5/800),
+                    cmap="inferno", norm=self.norm, interpolation="nearest")
+        full.set(xlim=(0,1),ylim=(0,1),xlabel="x",ylabel="y",xticks=[0,.5,1],yticks=[0,.5,1])
+        window = (.24,.54,.22,.52)
+        ix, iy = (x>=window[0]) & (x<=window[1]), (y>=window[2]) & (y<=window[3])
+        zz = z[np.ix_(iy,ix)]
+        levels = np.linspace(self.norm.vmin,self.norm.vmax,81)
+        detail.contourf(x[ix],y[iy],zz,levels=levels,cmap="inferno",norm=self.norm,antialiased=False)
+        detail.contour(x[ix],y[iy],zz,levels=np.linspace(self.norm.vmin,self.norm.vmax,17)[1:-1],
+                       colors=INK,linewidths=.35,alpha=.30)
+        detail.set(xlim=window[:2],ylim=window[2:],aspect="equal",xlabel="x",ylabel="y",
+                   xticks=[.25,.4,.5],yticks=[.25,.4,.5])
+        detail.set_title("Interaction detail",loc="left",fontsize=15,weight="bold",pad=14)
+        full.add_patch(Rectangle((window[0],window[2]),.30,.30,fill=False,edgecolor="white",linewidth=1.4))
+        fig.add_artist(ConnectionPatch((.54,.52),(.24,.52),coordsA="data",coordsB="data",
+                                      axesA=full,axesB=detail,color="#aebcc5",linewidth=.8))
+        for ax in (full,detail):
+            ax.tick_params(length=3,pad=4)
+            for spine in ax.spines.values():
+                spine.set_color("#aebcc5")
+        fig.text(.665,.247,"641,601 locations · 800 intervals / axis",fontsize=11,color=TEAL)
+        fig.text(.665,.215,"Detail: contour display of the same HF values",fontsize=10,color=MUTED)
+        cbax = fig.add_axes((.665,.165,.30,.018))
+        cb = fig.colorbar(plt.cm.ScalarMappable(norm=self.norm,cmap="inferno"),cax=cbax,
+                         orientation="horizontal",ticks=[self.norm.vmin,(self.norm.vmin+self.norm.vmax)/2,self.norm.vmax],format="%.3f")
+        cb.outline.set_visible(False)
+        cb.ax.tick_params(labelsize=10,length=2)
+        fig.text(.665,.108,"Density ρ · shared global scale",fontsize=10,color=MUTED)
+        fig.text(.035,.064,"All grid locations revealed. Assembly timing is schematic.",fontsize=13,color=TEAL,weight="bold")
+        fig.text(.035,.025,"HF reference, not NNLCI output · fixed physical time · no new inference or speedup measurement",fontsize=11,color=MUTED)
+        fig.canvas.draw()
+        self._hero = Image.fromarray(np.asarray(fig.canvas.buffer_rgba())[:,:,:3].copy())
+        plt.close(fig)
+        return self._hero
 
 
 def hex_rgb(color):
@@ -329,64 +455,79 @@ def hex_rgb(color):
 
 
 def render_static(scene):
-    # A partially assembled puzzle keeps the pointwise mechanism visible even
-    # if motion is disabled. The first GIF frame uses this same opening image.
-    scene.frame(INTRO_FRAMES + 40*FRAMES_PER_POINT + 2).save(OUT / "nnlci_motion_poster.png", optimize=True)
-    # Permanent storyboard: fixed-size inputs, one point in flight, full field.
+    # Use the final high-fidelity field as the motion-free opening, too.
+    scene.hero().save(OUT / "nnlci_motion_poster.png", optimize=True)
+    scene.hero().save(OUT / "nnlci_hf_final.png", optimize=True)
     sheet = Image.new("RGB", (WIDTH, HEIGHT*3), "white")
-    for index, frame in enumerate((18, INTRO_FRAMES + 40*FRAMES_PER_POINT + 2, FRAME_COUNT-1)):
-        sheet.paste(scene.frame(frame), (0, index*HEIGHT))
+    for index, frame in enumerate((13, INTRO_FRAMES+len(ASSEMBLY_COUNTS)*2//3, FRAME_COUNT-1)):
+        sheet.paste(scene.frame(frame), (0,index*HEIGHT))
     sheet.save(OUT / "nnlci_local_to_hf_concept.png", optimize=True)
-    return ["nnlci_motion_poster.png", "nnlci_local_to_hf_concept.png"]
+    return ["nnlci_motion_poster.png", "nnlci_hf_final.png", "nnlci_local_to_hf_concept.png"]
 
 
 def animate(scene):
     available = memory_gate()
     if available < 1500:
         raise RuntimeError("Animation deferred below 1500 MiB effective available RAM")
-    # Palette samples include both actual LF textures and the synthetic output.
-    palette = scene.frame(FRAME_COUNT-1).quantize(colors=256, method=Image.Quantize.MEDIANCUT)
-    frames = [scene.frame(INTRO_FRAMES + 40*FRAMES_PER_POINT + 2).quantize(palette=palette, dither=Image.Dither.NONE)]
+    # Sample the finished scientific image and the input scene for one palette.
+    samples = Image.new("RGB", (WIDTH,HEIGHT*2))
+    samples.paste(scene.hero(),(0,0))
+    samples.paste(scene.frame(13),(0,HEIGHT))
+    # Reserve most colors for the scientific scale. Unweighted quantization of
+    # these mostly white layouts otherwise produces visible bands in the HF.
+    accents = samples.quantize(colors=64,method=Image.Quantize.MEDIANCUT)
+    density_colors = colormaps["inferno"](np.linspace(0,1,192),bytes=True)[:,:3]
+    palette = Image.new("P", (1,1))
+    palette.putpalette(density_colors.ravel().tolist()+accents.getpalette()[:64*3])
+    del samples
+    frames = []
     for index in range(FRAME_COUNT):
         if index % 24 == 0:
             print(f"POI animation: {index}/{FRAME_COUNT}", flush=True)
-        frames.append(scene.frame(index).quantize(palette=palette, dither=Image.Dither.NONE))
-    durations = [1200] + [60]*FRAME_COUNT
-    for index in (0, 21, 41, 63):
-        durations[index+1] = 400
-    # Slow the first two complete passes so sample / predict / move / place
-    # can be followed; every later point still gets all four phases.
-    for index in range(INTRO_FRAMES, INTRO_FRAMES+2*FRAMES_PER_POINT):
-        durations[index+1] = 350
-    durations[-1] = 1600
-    frames[0].save(OUT / "nnlci_local_to_hf.gif", save_all=True, append_images=frames[1:],
-                   duration=durations, loop=0, optimize=False, disposal=1)
-    # Pillow may coalesce identical holds; record the decoded deliverable.
+        frames.append(scene.frame(index).quantize(palette=palette,dither=Image.Dither.NONE))
+    durations = [40]*FRAME_COUNT
+    for index in (13,27,43):
+        durations[index] = 300
+    for index in range(INTRO_FRAMES,INTRO_FRAMES+3):
+        durations[index] = 180
+    durations[-2] = 350
+    durations[-1] = 4500
+    frames[0].save(OUT / "nnlci_local_to_hf.gif",save_all=True,append_images=frames[1:],
+                   duration=durations,loop=0,optimize=False,disposal=1)
     with Image.open(OUT / "nnlci_local_to_hf.gif") as gif:
-        actual_frames, total_ms = gif.n_frames, 0
+        actual_frames,total_ms = gif.n_frames,0
         for i in range(actual_frames):
             gif.seek(i)
             total_ms += gif.info["duration"]
-    return {"file": "nnlci_local_to_hf.gif", "frames": actual_frames, "rendered_frames": FRAME_COUNT+1,
-            "dimensions": [WIDTH, HEIGHT], "duration_ms": total_ms,
-            "meaning": "Two nine-point LF stencils feed the MLP; one output POI moves into one puzzle cell. All 81 POIs are shown separately; no physical evolution or inferred field",
-            "memory_before_mib": available}
+    return {"file":"nnlci_local_to_hf.gif","frames":actual_frames,"rendered_frames":FRAME_COUNT,
+            "dimensions":[WIDTH,HEIGHT],"duration_ms":total_ms,"final_hold_ms":durations[-1],
+            "palette":"192 inferno scale colors + 64 adaptive annotation colors; no dithering",
+            "meaning":"801x801 reference locations revealed in row-major order with temporal skips; schematic assembly, not inference, physical evolution or measured speed",
+            "memory_before_mib":available}
 
 
 def semantics():
     return {
-        "patch": {"context_physical_side": PATCH_SIDE, "stencil_physical_span": .02,
-                  "lf1_input_locations": [3,3], "lf2_input_locations": [3,3],
-                  "native_mesh_spacing": {"lf1": .01, "lf2": .005},
-                  "interpretation": "Exactly nine white feature markers per LF input at aligned physical positions. Finer LF2 texture is background context, not more features.",
-                  "display_contract": "Illustrative common stencil coordinates; the packaged bootstrap instead upsamples both LF arrays and extracts dilation-4 3x3 stencils. No preprocessing or input contract changes."},
-        "pois": {"sharp_transition": list(SHARP), "smooth_region": list(SMOOTH),
-                 "selection": "Fixed illustrative coordinates in LF fields; no HF-dependent selection"},
-        "model_contract": "Two aligned 3x3 stencils, four variables each, 72 scalar features; unchanged",
-        "prediction_mosaic": {"kind": "Synthetic workflow illustration, not NNLCI output or HF reference",
-                              "expression": "0.16 + 0.32*exp(-9*((u-0.68)^2+(v-0.7)^2)) + 0.42*(v>0.20+0.50*u)",
-                              "display": "9x9 illustrative target grid; one display cell represents exactly one POI, with four output variables at that location. No physical HF-resolution claim.",
-                              "assembly": "81 unique coordinates in row-major order, four phases each: sample/MLP, one output, travel, place. Each placement adds exactly one cell; existing cells remain fixed.",
-                              "preview": "First GIF frame previews partial reconstruction; then the complete empty-to-full sequence starts."},
-        "camera": "Orthographic; both planes share geometry, projection, crop and scale; tilt 52 to 0 degrees",
+        "patch":{"context_physical_side":PATCH_SIDE,"stencil_physical_span":.02,
+                 "lf1_input_locations":[3,3],"lf2_input_locations":[3,3],
+                 "native_mesh_spacing":{"lf1":.01,"lf2":.005},
+                 "interpretation":"Nine aligned feature locations on each LF source; native LF2 mesh is finer",
+                 "boundary":"Both lower panels blank when any of the 3x3 display locations lies outside [0,1]^2; no padding, clamping, or boundary prediction invented",
+                 "display_contract":"Illustrative aligned coordinates; packaged bootstrap upsamples then extracts dilation-4 3x3 stencils. Preprocessing unchanged."},
+        "pois":{"sharp_transition":list(SHARP),"smooth_region":list(SMOOTH),
+                "selection":"Fixed LF display examples, then all target coordinates in deterministic row-major order; no HF-dependent selection"},
+        "model_contract":"Two 3x3 stencils, four variables each, 72 features to four variables at ONE POI; unchanged; no inference performed",
+        "reference_assembly":{"kind":"Packaged HF density, explicitly labeled as reference colors; not NNLCI predictions",
+                              "grid_nodes":[GRID_SIZE,GRID_SIZE],"intervals_per_axis":800,"point_count":POINT_COUNT,
+                              "domain_xy":[0,1,0,1],"order":"Top-left to bottom-right in display space, including every boundary node",
+                              "displayed_counts":list(ASSEMBLY_COUNTS),
+                              "assembly":"Every node between successive counts is revealed in the native 801x801 image; only temporal steps are skipped. Existing values stay fixed.",
+                              "timing":"Short accelerated assembly, explicitly labeled temporal skip; not a measured NNLCI speedup",
+                              "final":"Full-domain HF density with enlarged interaction detail, held 4500 ms; also saved as a lossless PNG",
+                              "final_rendering":"Full field: native node colors, nearest display resampling. Detail: 80 contour intervals and 15 isolines, shared global linear density scale."},
+        "camera":"Intro uses OpenSCAD meshes, shared crop, tilt 52 to 0 degrees. Sweep switches both LF panels and the target to full domain.",
     }
+
+
+if __name__ == "__main__":
+    raise SystemExit("Run scripts/render_gatech_promo.py to validate sources and render")

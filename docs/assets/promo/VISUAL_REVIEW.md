@@ -1,4 +1,85 @@
-# Promo review · fixed 3 × 3 inputs and pointwise reconstruction
+# Promo review · dense POI assembly and final HF field
+
+2026-09-29 · Airphonse correction following merged [PR #6](https://github.com/LADDER-Net/NNLCI/pull/6)
+(head `60995c4`, merge `fb94d0d`) · branch `promo/readme-redesign`.
+This is the implementation author's review, not independent scientific validation.
+The historical records below describe superseded artifacts.
+
+## Correction delivered
+
+- Replaced the 9 × 9 illustrative puzzle with **801 × 801 native grid locations**:
+  **641,601 POIs**, including every boundary node of the packaged 800-interval grid.
+- A short sweep reveals all intervening locations between displayed counts.
+  The animation explicitly labels **temporal skip** and **HF reference colors,
+  not predictions**. There is no spatially sparse substitute for the target grid.
+- Both lower LF patch panels stay entirely blank when the active point lacks
+  a complete 3 × 3 display stencil. Interior inputs still have nine locations
+  each; the 72-feature / four-output model contract is unchanged.
+- The last frame is the **complete high-fidelity CFD reference field**, with an
+  enlarged interaction detail and a **4.5-second hold**. The same final image is
+  saved as a lossless [PNG](nnlci_hf_final.png) and the static fallback poster.
+- Updated the editable mechanism, storyboard, Graphviz route, README captions,
+  tool guide and provenance to match the dense-grid assembly and data source.
+
+## Source and rendering limits
+
+The LF fields remain the independently solved 100/200-interval CFD inputs.
+The assembly uses the existing 801 × 801 packaged HF density as an explicitly
+labeled visual stand-in for the reconstruction target. It is **not NNLCI output**,
+uses no newly inferred values, and does not imply held-out accuracy or measured
+speedup. No source CFD arrays, weights, training or preprocessing changed.
+Full-field display uses native node colors; the enlarged detail uses standard
+contour interpolation (80 filled intervals and 15 isolines). Both share the
+global linear density scale. GIF colors reserve 192 entries for the inferno
+scale and 64 for annotations; the PNG retains full RGB color.
+
+OpenSCAD meshes and Graphviz exports are used by the CPU compositor. No NVIDIA
+GPU, new CFD solve, model inference or training was used. The static/tool gate
+is 700 MiB, and the GIF gate is 1,500 MiB. The last GIF gate passed with
+**5,301 MiB** effective available RAM. Storage is bounded to
+136 indexed 1200 × 840 frames (**130.7 MiB** raw index data), with one transient
+RGB animation frame at a time. This replaces the previous 401-frame allocation.
+
+The delivered GIF is **130 encoded frames, 11,410 ms,
+2,726,602 bytes**, versus 374 frames, 30,420 ms and 13,117,500 bytes previously.
+These are artifact properties, not NNLCI performance measurements.
+
+## Validation
+
+`python3 scripts/check_promo_poi.py` passed for static-only and animated output:
+
+- All 91 displayed native assembly states match the HF source at every revealed
+  POI. Every unrevealed location stays blank, and every previous value stays fixed.
+  Coordinate checks include all four corners and the full 641,601-node coverage.
+- Pixel checks confirm both insets are blank at corners, edge midpoints and an
+  incomplete near-edge stencil, and populated at complete interior stencils.
+  The mechanism SVG contains exactly nine feature markers per LF input.
+- Every delivered GIF frame decodes. The last decoded frame equals the final
+  scientific PNG under the GIF palette; dimensions, duration and final hold agree
+  with provenance. The static poster equals the final PNG exactly.
+- Renderer/source/output hashes and CFD provenance agree. PNGs, SVGs, PDFs and
+  OpenSCAD OFF geometry decode or parse successfully.
+- Static-only rendering removed the GIF and switched the README opening to the
+  permanent final PNG. Animated rendering then restored the GIF and its link.
+- Visually inspected the sampling scene, blank boundary panels, partial sweep,
+  full counter, finished field, magnified interaction detail and static mechanism.
+  Corrected an overlapping detail-axis label and improved the GIF density palette.
+
+PR #6 was already merged when this task began. The branch was fast-forwarded to
+that merge before the correction; a follow-up PR carries this revision. Repository
+visibility is unchanged. No email was sent and no PR was merged by this task.
+
+## Reproduce
+
+```bash
+python3 scripts/render_gatech_promo.py
+python3 scripts/check_promo_poi.py
+```
+
+---
+
+## Historical PR #6 record · superseded 81-POI illustration
+
 
 2026-09-29 · response to lyao76's raw email on [PR #5](https://github.com/LADDER-Net/NNLCI/pull/5)
 (`6fcbe86`, already merged as `9a2157a`) · branch `promo/readme-redesign`.
