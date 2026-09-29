@@ -27,9 +27,10 @@ for the figures, not a new training ensemble or held-out NNLCI validation.
 ### Two animations
 
 The landing page separates a **12-second visual comparison** from a
-**35-second method lesson**. Both use CPU-rendered SVG/Python artwork with
-consistent colors, typography and real CFD sources. No Blender render or GPU
-is needed. [Current render provenance](followup_provenance.json) records input,
+**42-second method lesson**. The lesson uses a Graphviz neural-network layout
+and OpenSCAD water-drop meshes, composed with SVG/Python on CPU. Both animations
+retain consistent colors, typography and real CFD sources. No GPU is needed.
+[Current render provenance](followup_provenance.json) records input,
 renderer and output hashes, memory readings, versions and exact durations.
 
 The [opening comparison](nnlci_comparison_poster.png) has only three columns:
@@ -48,21 +49,40 @@ stationary. These patches illustrate local alignment. They are not a literal
 rendering of the bootstrap preprocessing, which bilinearly upsamples trimmed
 fields and extracts dilation-4 stencils. That implementation is unchanged.
 
-The [method animation](../../../README.md#how-it-works) teaches one step at a time. Each
-chapter has 4.2–5 seconds to read; the values fill the input vector in groups
-of nine, and the final full field holds for 4.5 seconds.
+The [method animation](../../../README.md#how-it-works) teaches one step at a time.
+The first five chapters hold for 4.2–9 seconds each. Water drops descend onto the tilted LF planes,
+lift and move to a second point, then land again. The values fill the input vector
+in groups of nine. Current-like pulses cross the neural layers, gather four
+variables, and place a single point on the target grid. The final full field holds
+for 4.5 seconds.
 
 | Chapter | What to watch | Editable SVG |
 | --- | --- | --- |
-| 1. Align | Two 3 × 3 neighborhoods at the same point | [Step 1](nnlci_method_step_1.svg) |
+| 1. Align | Lit 3D water drops select two aligned 3 × 3 neighborhoods | [Step 1](nnlci_method_step_1.svg) |
 | 2. Collect | Each of nine locations holds density, x/y velocity and pressure | [Step 2](nnlci_method_step_2.svg) |
 | 3. Assemble | 36 values from each LF become 72 inputs | [Step 3](nnlci_method_step_3.svg) |
-| 4. Predict | Fixed training transforms and an MLP produce four variables at one point | [Step 4](nnlci_method_step_4.svg) |
+| 4. Predict | Electric pulses traverse the MLP, then place four variables at one point | [Step 4](nnlci_method_step_4.svg) |
 | 5. Train | HF labels and predicted values meet at the loss; the loss updates weights | [Step 5](nnlci_method_step_5.svg) |
 | 6. Repeat | Place outputs at their coordinates; illustrate full-field assembly | [Step 6](nnlci_method_step_6.svg) |
 
 [Motion-free storyboard](nnlci_method_storyboard.png) ·
-[Final full field and interaction detail](nnlci_method_final.png).
+[Final full field and interaction detail](nnlci_method_final.png) ·
+[Motion and verification review](SIGNAL_REVIEW.md).
+
+The network uses the installed **Graphviz** tool: its exported node layout drives
+the animated connections. Node/layer counts are
+reduced for teaching; this is not a plot of learned activations or the literal
+10 × 600 hidden-layer architecture in the Config 3 training script.
+[Editable graph](../../../scripts/figure_tools/neural_signal.dot) ·
+[Graphviz SVG](signal_geometry/neural_signal.svg).
+
+The water drops are closed **OpenSCAD** meshes with real x/y/z displacement and
+a changing camera angle. They mark sampling locations, not simulated liquid.
+Diffuse, specular and rim shading give the drops volume; soft contact shadows
+change with height, and the field slabs cast shadows. Lighting affects display
+geometry, while the CFD surface textures retain their original density colors.
+[Editable drop](../../../scripts/figure_tools/water_drop.scad) ·
+[Exported 3D mesh](signal_geometry/water_drop.off).
 
 The illustrated feature order is LF1 then LF2, with four variable blocks of
 nine locations each. **2 × 9 × 4 = 72** appears once, in the assembly chapter.
@@ -83,7 +103,8 @@ model output is claimed. For a real train-to-predict path, use the
 
 ### Reproduce
 
-With NumPy, Matplotlib, Pillow and CairoSVG installed and LFS fields retrieved,
+With Graphviz, OpenSCAD, NumPy, Matplotlib, Pillow and CairoSVG installed
+([setup](../../figure_tools/README.md#setup-on-debian--ubuntu)) and LFS fields retrieved,
 run from the repository root:
 
 ```bash
@@ -96,8 +117,8 @@ python3 scripts/render_promo_followup.py --static-only
 
 The static gate is 700 MiB effective available RAM. GIFs require **2,500 MiB**,
 checking host memory and ancestor cgroup limits before encoding each animation.
-The two GIFs are encoded sequentially at 960 × 540, retaining at most 51 indexed
-frames (~26 MiB) and one transient raster frame. Static SVG/PNG artifacts are
+The two GIFs are encoded sequentially at 960 × 540, retaining at most 190 indexed
+frames (<94 MiB) and one transient raster frame. Static SVG/PNG artifacts are
 always produced. An isolated `--output-dir .smoke/promo-static` render does not
 change the README or published assets.
 
@@ -108,8 +129,9 @@ python3 scripts/regenerate_promo_lf.py --output-dir .smoke/followup-cfd
 python3 scripts/check_promo_followup.py --rerun-cfd-dir .smoke/followup-cfd
 ```
 
-This needs gfortran and first runs the CPU solver's existing physical-invariant,
-bounds and floating-point checks. In this follow-up both full solves reproduced
+This optional source-verification step needs gfortran and first runs the CPU
+solver's existing physical-invariant, bounds and floating-point checks. In the
+preceding PR #8 verification, both full solves reproduced
 the saved LF fields **byte-for-byte**. The rerun is provenance verification,
 not a model benchmark. [Verification record](FOLLOWUP_REVIEW.md).
 

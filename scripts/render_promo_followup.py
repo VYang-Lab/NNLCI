@@ -27,6 +27,7 @@ from PIL import Image, __version__ as pillow_version
 
 from cfd_io import read_field, sha
 from replot_sod_promo import memory_gate
+from promo_signal import SignalArtwork, prepare_tools
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "docs/assets/promo"
@@ -46,7 +47,7 @@ COUNTS = (0, 1, GRID) + tuple(GRID + (TOTAL-GRID)*k//24 for k in range(1, 25))
 TITLES = ("Choose the same point", "Four variables at each location",
           "Assemble the input vector", "Predict one point", "Learn from HF labels",
           "Place the point. Repeat.")
-HOLDS = (4200, 4200, 5000, 5000, 5000)
+HOLDS = (6400, 4200, 5000, 9000, 6200)
 
 
 class SVG:
@@ -110,8 +111,9 @@ def complete(point):
 
 
 class Artwork:
-    def __init__(self, fields):
+    def __init__(self, fields, signal=None):
         self.fields = fields
+        self.signal = signal
         self.norm = Normalize(min(f[:, :, 2].min() for f in fields),
                               max(f[:, :, 2].max() for f in fields))
         self.reference = Image.fromarray(colormaps["inferno"](
@@ -185,23 +187,17 @@ class Artwork:
                          (WINDOW[3]-WINDOW[2])*144, stroke="white", width=1)
         return svg
 
-    def method(self, stage, count=TOTAL, active=4, collected=72):
+    def method(self, stage, count=TOTAL, active=4, collected=72, phase=1., drop=.60):
         svg = SVG("Schematic: "+TITLES[stage])
         svg.text(32, 42, f"0{stage+1}", 19, TEAL, True)
         svg.text(79, 42, TITLES[stage], 28, INK, True)
         for k in range(6):
             svg.rect(32+k*151, 66, 140, 4, TEAL if k == stage else "#e8eef2", radius=2)
         svg.text(32, 520, "Schematic · Config 3 · field artwork is CFD reference, not model output", 16, MUTED)
+        if self.signal is None:
+            self.signal = SignalArtwork(OUT / "signal_geometry")
         if stage == 0:
-            for level, x in enumerate((95, 545)):
-                svg.text(x+105, 113, ("LF1", "LF2")[level], 24, ROLES[level], True, "middle")
-                svg.image(self.details[level], x, 135, 210)
-                px, py = self.locate(POINTS[0], x, 135, 210)
-                svg.rect(px-9, py-9, 18, 18, stroke="white")
-                svg.line(f"M {px} {py+9} L {x+255} 367", ROLES[level])
-                self.patch(svg, level, POINTS[0], x+210, 337, 114)
-                svg.text(x+105, 388, "3 × 3 locations", 20, ROLES[level], True, "middle")
-            svg.text(480, 477, "Same physical point, case and time", 23, INK, False, "middle")
+            self.signal.sampling(svg, self, drop)
         elif stage == 1:
             for level, x in enumerate((65, 300)):
                 svg.text(x+81, 164, ("LF1", "LF2")[level], 23, ROLES[level], True, "middle")
@@ -232,35 +228,7 @@ class Artwork:
             svg.text(773, 383, "LF1, then LF2", 20, TEAL, True, "middle")
             svg.text(480, 463, "2 × 9 × 4 = 72 features", 29, INK, True, "middle")
         elif stage in (3, 4):
-            svg.text(112, 213, "72 inputs", 22, BLUE, True, "middle")
-            for row in range(6):
-                for col in range(12):
-                    svg.rect(49+col*11, 236+row*12, 7, 8, BLUE if row < 3 else GREEN, radius=1)
-            svg.line("M 196 272 H 263", arrow=True)
-            svg.rect(280, 224, 158, 96, "#f4f7fa", "#d6e0e8", 12)
-            svg.text(359, 262, "Fixed training", 18, anchor="middle")
-            svg.text(359, 290, "transforms", 19, bold=True, anchor="middle")
-            svg.line("M 452 272 H 501", arrow=True)
-            svg.rect(518, 209, 143, 126, "#eaf5f5", "#abd2d5", 12)
-            svg.text(590, 265, "NNLCI", 27, TEAL, True, "middle")
-            svg.text(590, 301, "MLP", 20, TEAL, anchor="middle")
-            svg.line("M 676 272 H 728", TEAL, arrow=True)
-            svg.rect(746, 238, 35, 35, TEAL)
-            svg.dot(763.5, 255.5, 3, "white", "white")
-            svg.text(806, 249, "ρ̂, û, v̂, p̂", 24, TEAL)
-            svg.text(832, 302, "One point", 21, TEAL, True, "middle")
-            if stage == 3:
-                svg.text(480, 432, "Four predicted variables at the center point", 24, anchor="middle")
-            else:
-                svg.rect(30, 378, 466, 100, "#fff5f5", radius=10)
-                svg.text(48, 406, "TRAINING ONLY", 16, RED, True)
-                svg.text(51, 448, "HF label at this point", 20, RED)
-                svg.line("M 275 443 H 350", RED, arrow=True)
-                svg.rect(366, 419, 96, 45, "white", RED, 6)
-                svg.text(414, 449, "Loss", 21, RED, True, "middle")
-                svg.line("M 832 327 V 443 H 476", TEAL, arrow=True)
-                svg.line("M 414 417 V 356 H 590 V 341", RED, arrow=True, dash=True)
-                svg.text(657, 384, "Update weights", 18, RED)
+            self.signal.prediction(svg, phase, training=stage == 4)
         else:
             # This explicitly labeled illustration includes boundary reference
             # values; no neural boundary prediction is claimed.
@@ -296,10 +264,9 @@ class Artwork:
         return svg
 
 
-def save_gif(path, frames):
+def save_gif(path, frames, palette=None):
     """Only indexed frames retained; one SVG raster is live at a time."""
     images, durations = [], []
-    palette = None
     for svg, duration in frames:
         raster = svg.raster()
         if palette is None:
@@ -332,7 +299,8 @@ def main():
     out = args.output_dir.resolve()
     out.mkdir(parents=True, exist_ok=True)
     fields, sources = load_sources()
-    art = Artwork(fields)
+    signal, drawing_tools = prepare_tools(out)
+    art = Artwork(fields, signal)
     names = []
     poster = art.opening(POINTS[0])
     for ext, data in (("svg", poster.bytes()), ("png", cairosvg.svg2png(bytestring=poster.bytes()))):
@@ -349,6 +317,18 @@ def main():
     name = "nnlci_method_storyboard.png"
     storyboard.save(out / name)
     names.append(name)
+    # Keep smooth marker highlights and electric trails in the GIF palette,
+    # together with 144 explicitly reserved scientific density colors.
+    swatches = storyboard.resize((480, 405)).quantize(colors=96)
+    colors = colormaps["inferno"](np.linspace(0, 1, 144), bytes=True)[:, :3].ravel().tolist()
+    colors += swatches.getpalette()[:96*3]
+    from PIL import ImageColor
+    for color in ("white", INK, MUTED, BLUE, GREEN, TEAL, RED, "#effff6", "#8fffe3",
+                  "#f1f6f7", "#f4f7fa", "#fff5f5", *VARIABLE_COLORS):
+        colors.extend(ImageColor.getrgb(color))
+    method_palette = Image.new("P", (1, 1))
+    method_palette.putpalette(colors)
+    del storyboard
     name = "nnlci_method_final.png"
     art.finished().raster().save(out / name)
     names.append(name)
@@ -365,10 +345,24 @@ def main():
 
         def method_frames():
             for stage, duration in enumerate(HOLDS):
-                if stage == 1:
+                if stage == 0:
+                    for drop in np.linspace(0, 1, 42):
+                        yield art.method(stage, drop=float(drop)), 100
+                        if drop == 1 or .33 < drop < .35:
+                            yield art.method(stage, drop=float(drop)), 1100
+                elif stage == 1:
                     for active in range(9):
                         yield art.method(stage, active=active), 300
                     yield art.method(stage), duration-2700
+                elif stage == 3:
+                    for _ in range(2):
+                        for phase in np.linspace(0, 1, 38):
+                            yield art.method(stage, phase=float(phase)), 100
+                        yield art.method(stage), 700
+                elif stage == 4:
+                    for phase in np.linspace(0, 1, 18):
+                        yield art.method(stage, phase=float(phase)), 200
+                    yield art.method(stage), duration-3600
                 elif stage == 2:
                     yield art.method(stage, collected=0), 700
                     for collected in range(9, 73, 9):
@@ -388,7 +382,7 @@ def main():
                 (out / f"nnlci_{key}.gif").unlink(missing_ok=True)
                 continue
             path = out / f"nnlci_{key}.gif"
-            motion[key] = save_gif(path, frames)
+            motion[key] = save_gif(path, frames, method_palette if key == "method" else None)
             names.append(path.name)
     else:
         for key in ("comparison", "method"):
@@ -406,11 +400,12 @@ def main():
         readme.write_text(content)
     report = {
         "operation": "Re-render independent CFD comparison and a paced conceptual lesson; no inference or training",
-        "backend": "CPU: Matplotlib contours + editable SVG + CairoSVG + Pillow",
+        "backend": "CPU: Graphviz + OpenSCAD + lit mesh projection + Matplotlib contours + SVG/CairoSVG/Pillow",
+        "drawing_tools": drawing_tools,
         "sources": sources,
         "cfd_provenance": {"path": str(CFD.relative_to(ROOT)), "sha256": sha(CFD)},
         "renderers": {name: sha(ROOT / "scripts" / name) for name in
-                      (Path(__file__).name, "cfd_io.py", "replot_sod_promo.py")},
+                      (Path(__file__).name, "promo_signal.py", "cfd_io.py", "replot_sod_promo.py")},
         "versions": {"python": sys.version.split()[0], "numpy": np.__version__, "matplotlib": matplotlib.__version__,
                      "cairosvg": cairosvg.__version__, "pillow": pillow_version},
         "display": {"variable": "density", "shared_window_xy": WINDOW,
@@ -421,10 +416,13 @@ def main():
                     "boundary": "Blank patches where full stencil is unavailable; boundary reference values are not predicted",
                     "feature_order": "LF1 then LF2; variable-major rho/u/v/p, row-major nine locations per variable"},
         "method": {"chapter_titles": TITLES, "chapter_holds_ms": HOLDS, "assembly_counts": COUNTS,
+                   "signal": "Layer-by-layer Graphviz edges; gather four variables at one coordinate; schematic activations and reduced node count",
+                   "water_drop": "OpenSCAD closed 3D mesh; two landings, changing x/y/z and camera elevation/yaw; sampling marker, not fluid simulation",
+                   "lighting": "CPU diffuse/specular/rim mesh shading, soft height-dependent contact shadows, slab shadows and signal glow; CFD texture colors unchanged",
                    "hf_route": "HF label -> loss <- predicted point; loss updates MLP only during training"},
         "memory": {"before_render_mib": available, "before_animation_mib": animation_memory,
                    "static_threshold_mib": 700, "animation_threshold_mib": 2500,
-                   "storage": "At most 51 indexed 960x540 frames (~26 MiB), one transient SVG/RGB frame; animations encoded sequentially"},
+                   "storage": "At most 190 indexed 960x540 frames (<94 MiB), one transient SVG/RGB frame; animations encoded sequentially"},
         "animations": motion,
         "outputs": {name: {"sha256": sha(out / name), "bytes": (out / name).stat().st_size} for name in names},
     }

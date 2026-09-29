@@ -1,0 +1,14 @@
+// Reduced node count for teaching; not the checkpoint's literal architecture.
+digraph NNLCI {
+  graph [rankdir=LR, nodesep=.22, ranksep=.70, bgcolor="transparent", splines=line];
+  node [shape=circle, label="", width=.16, fixedsize=true, style=filled,
+        fillcolor="#d7f6f4", color="#168a97"];
+  edge [color="#669aab", arrowsize=.3];
+  {rank=same; i0; i1; i2; i3;}
+  {rank=same; h0; h1; h2; h3; h4;}
+  {rank=same; j0; j1; j2; j3; j4;}
+  {rank=same; o0; o1; o2; o3;}
+  {i0 i1 i2 i3} -> {h0 h1 h2 h3 h4};
+  {h0 h1 h2 h3 h4} -> {j0 j1 j2 j3 j4};
+  {j0 j1 j2 j3 j4} -> {o0 o1 o2 o3};
+}

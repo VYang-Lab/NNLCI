@@ -1,6 +1,62 @@
 {
   "operation": "Re-render independent CFD comparison and a paced conceptual lesson; no inference or training",
-  "backend": "CPU: Matplotlib contours + editable SVG + CairoSVG + Pillow",
+  "backend": "CPU: Graphviz + OpenSCAD + lit mesh projection + Matplotlib contours + SVG/CairoSVG/Pillow",
+  "drawing_tools": {
+    "execution": "Graphviz layout + OpenSCAD mesh consumed by CPU SVG compositor; no GPU",
+    "mesh_cleanup": {
+      "removed_zero_area_axis_faces": 128,
+      "retained_faces": 576,
+      "vertices_unchanged": 290
+    },
+    "commands": [
+      {
+        "command": [
+          "openscad",
+          "--hardwarnings",
+          "-o",
+          "/workspace/NNLCI/docs/assets/promo/signal_geometry/water_drop.off",
+          "/workspace/NNLCI/scripts/figure_tools/water_drop.scad"
+        ],
+        "exit_code": 0,
+        "memory_before_mib": 5619
+      },
+      {
+        "command": [
+          "dot",
+          "-Tplain",
+          "/workspace/NNLCI/scripts/figure_tools/neural_signal.dot",
+          "-o",
+          "/workspace/NNLCI/docs/assets/promo/signal_geometry/neural_signal.plain"
+        ],
+        "exit_code": 0,
+        "memory_before_mib": 5619
+      },
+      {
+        "command": [
+          "dot",
+          "-Tsvg",
+          "/workspace/NNLCI/scripts/figure_tools/neural_signal.dot",
+          "-o",
+          "/workspace/NNLCI/docs/assets/promo/signal_geometry/neural_signal.svg"
+        ],
+        "exit_code": 0,
+        "memory_before_mib": 5619
+      }
+    ],
+    "versions": {
+      "dot": "dot - graphviz version 2.42.4 (0)",
+      "openscad": "OpenSCAD version 2021.01"
+    },
+    "sources": {
+      "scripts/figure_tools/neural_signal.dot": "b6d43d4c30e87c02064e005a56c385e9778a9d12e599d04a0d539b56af0309d4",
+      "scripts/figure_tools/water_drop.scad": "5194859e1e122d34e14c47547de3e2d458cd74c63315de8338ca415a6df6241c"
+    },
+    "exports": {
+      "signal_geometry/water_drop.off": "dd16673f35eb25c9b8fc33d16bbef638a7b4f689ec5b0088c5ae04ac0323b56e",
+      "signal_geometry/neural_signal.plain": "1f7c8c8b68cf3e0e08236a60f400ae3d4ff6c3e09bca93aa48257009dbf0fb74",
+      "signal_geometry/neural_signal.svg": "5bb26de9b8fd5084c74da56a0fa375597849d336d6ad87b588dd9664a1ca1ac1"
+    }
+  },
   "sources": [
     {
       "path": "problems/2d_riemann/data/promo_cfd/flow_100x100.dat",
@@ -20,7 +76,8 @@
     "sha256": "416f56ceb1be3618e7a404573a13b9335b047754a7bdaf521a87ca26dbcdd4ef"
   },
   "renderers": {
-    "render_promo_followup.py": "f1e7fd4a4a0fbbcc8f6decfcba209da671de4b738dd90557441bf7d65f1dd7af",
+    "render_promo_followup.py": "d7396b798a850f1645f6b87b88b70f95a50c9d6873d4360cbac3b021f3480185",
+    "promo_signal.py": "ebba270af70ff4a32acd793074498712d4edae2d19b07b4899bea1e14987fbcd",
     "cfd_io.py": "00d3fb0733c9a66ab417c44367e02c49a9373bf12a061ab919c2c323779737fa",
     "replot_sod_promo.py": "fbddbfe9af7e9f7b0411849ddf8035381c288ac3067b436ce3440116dc87c764"
   },
@@ -59,11 +116,11 @@
       "Place the point. Repeat."
     ],
     "chapter_holds_ms": [
-      4200,
+      6400,
       4200,
       5000,
-      5000,
-      5000
+      9000,
+      6200
     ],
     "assembly_counts": [
       0,
@@ -94,14 +151,17 @@
       614901,
       641601
     ],
+    "signal": "Layer-by-layer Graphviz edges; gather four variables at one coordinate; schematic activations and reduced node count",
+    "water_drop": "OpenSCAD closed 3D mesh; two landings, changing x/y/z and camera elevation/yaw; sampling marker, not fluid simulation",
+    "lighting": "CPU diffuse/specular/rim mesh shading, soft height-dependent contact shadows, slab shadows and signal glow; CFD texture colors unchanged",
     "hf_route": "HF label -> loss <- predicted point; loss updates MLP only during training"
   },
   "memory": {
-    "before_render_mib": 5614,
-    "before_animation_mib": 5538,
+    "before_render_mib": 5699,
+    "before_animation_mib": 5607,
     "static_threshold_mib": 700,
     "animation_threshold_mib": 2500,
-    "storage": "At most 51 indexed 960x540 frames (~26 MiB), one transient SVG/RGB frame; animations encoded sequentially"
+    "storage": "At most 190 indexed 960x540 frames (<94 MiB), one transient SVG/RGB frame; animations encoded sequentially"
   },
   "animations": {
     "comparison": {
@@ -116,8 +176,8 @@
     },
     "method": {
       "file": "nnlci_method.gif",
-      "frames": 50,
-      "duration_ms": 34880,
+      "frames": 178,
+      "duration_ms": 42280,
       "size": [
         960,
         540
@@ -135,8 +195,8 @@
       "bytes": 128636
     },
     "nnlci_method_step_1.svg": {
-      "sha256": "707d923145cc1b24ed1240e34474a20e3a6d476ff837133455e272e6f88fb1e9",
-      "bytes": 79272
+      "sha256": "0f15ed1e78978f29ad645a23e094d9e316827c13d9107c6d362065872d657c1f",
+      "bytes": 146047
     },
     "nnlci_method_step_2.svg": {
       "sha256": "d394aa886ec861e18eab3dc0d898af29450262dd8abf2c54c896398ff3652465",
@@ -147,20 +207,20 @@
       "bytes": 17971
     },
     "nnlci_method_step_4.svg": {
-      "sha256": "f1ab6120b2f16ba1a212a34b0e4dd849a41092583a274a34bd8b930c5af2932d",
-      "bytes": 10345
+      "sha256": "3368c933e3f048416af8f8130b11f74cede6c0fcdb62eb7b64ca6afabc04d52c",
+      "bytes": 24643
     },
     "nnlci_method_step_5.svg": {
-      "sha256": "0f2cec86d2308069af1c6d201fdd3d72a80c82af9a6c9aef9a1e2ff59003277d",
-      "bytes": 11304
+      "sha256": "a80edd8612b05ea4ef07439413f63e0bc707c8efd2e28fa326a67beb1764a8f5",
+      "bytes": 25682
     },
     "nnlci_method_step_6.svg": {
       "sha256": "48eb89b04df2a0b7781df3b95b392e8bdf8f6b9e30f1616cacc84ba4cb940bde",
       "bytes": 29025
     },
     "nnlci_method_storyboard.png": {
-      "sha256": "8cb17213e1b1fa5fceb91638b6b495de3ed967e02520a697573f2453168bb4d5",
-      "bytes": 242241
+      "sha256": "b6f697a7b1666c472bfe15dd7156fea332fb162fc92d3e625c1a36d18460b54a",
+      "bytes": 420161
     },
     "nnlci_method_final.png": {
       "sha256": "8547b64d69c2bb729dc7dea61b9e37a6dac3c872f0252ec782a48c83cb5cd0e0",
@@ -171,8 +231,8 @@
       "bytes": 796822
     },
     "nnlci_method.gif": {
-      "sha256": "86fbf987d7a46025ab28bfbd75821b9eb83fd5074a41efdedaf096d1a4d26d33",
-      "bytes": 588604
+      "sha256": "141d6aa54c2188e48472f26cc185ed444e7dd8881884903193296988c5fa372b",
+      "bytes": 2172984
     }
   }
 }
