@@ -1,6 +1,6 @@
-![Pointwise reconstruction: LF1 and LF2 each provide a 3×3 patch; the MLP predicts only one POI, then places that point into the HF-like field puzzle](docs/assets/promo/nnlci_local_to_hf.gif)
+![Dense POI assembly: two 3×3 LF patches map to one point; a labeled temporal skip reveals all 801×801 reference locations and finishes on the complete high-fidelity CFD field](docs/assets/promo/nnlci_local_to_hf.gif)
 
-[Motion-free storyboard](docs/assets/promo/nnlci_local_to_hf_concept.png) · [CFD runs & figure sources](docs/assets/promo/README.md#2d-fields-and-the-motion-open)
+[Final HF frame](docs/assets/promo/nnlci_hf_final.png) · [Motion-free storyboard](docs/assets/promo/nnlci_local_to_hf_concept.png) · [CFD runs & figure sources](docs/assets/promo/README.md#2d-fields-and-the-motion-open)
 
 # NNLCI: CFD-informed fidelity lift
 
@@ -10,19 +10,21 @@ Learn from local coarse-CFD neighborhoods to reconstruct high-fidelity-like fiel
 
 *Both LF inputs use a **3×3 patch: nine locations each**. LF2 carries information
 from a finer source mesh. For each POI, the two patches feed the MLP, which
-predicts **only that point**; placing all pointwise predictions at their coordinates
-reconstructs the HF-like field, one puzzle cell at a time. LF imagery comes from
-separate CFD solves; puzzle colors are illustrative, not model output.
-HF in the comparison is the packaged reference.
+predicts **only that point**. The animation illustrates assembly across
+**801 × 801 POIs (641,601 locations)** with an explicitly labeled temporal skip.
+LF imagery comes from separate CFD solves; assembly colors and the final frame
+show the **packaged HF reference, not model output**. The final frame holds the
+full field and an enlarged interaction detail. Boundary patch panels stay blank
+where the complete 3×3 stencil is unavailable.
 [Run provenance](problems/2d_riemann/data/promo_cfd/provenance.json).
 The packaged 2D checkpoint remains a two-epoch bootstrap software check.*
 
 ## How it works
 
-![Schematic: two aligned 3×3 LF patches supply 72 features to an MLP; four variables at one POI fill one cell, and repetition assembles the HF-like reconstruction puzzle. HF labels connect only to training loss.](docs/assets/promo/nnlci_local_mechanism.png)
+![Schematic: two aligned 3×3 LF patches supply 72 features to an MLP; four variables belong to one POI, repeated over 801×801 locations. The field illustration uses labeled HF reference colors. HF labels connect only to training loss.](docs/assets/promo/nnlci_local_mechanism.png)
 
 *2 × 9 locations × 4 variables → 72 inputs → 4 variables at one POI.
-One output cell represents one point; repeat over the target grid.
+One output cell represents one point; repeat over the 801×801 target grid.
 HF supervises training.
 [Editable SVG](docs/assets/promo/nnlci_local_mechanism.svg) · [PDF](docs/assets/promo/nnlci_local_mechanism.pdf) · [Alignment close-up](#local-alignment)*
 

@@ -2,7 +2,8 @@
 
 The POI animation uses actual OpenSCAD meshes and a Graphviz route. Each LF input
 has exactly nine stencil locations on a differently resolved source mesh. The
-MLP emits one POI, placed in one schematic puzzle cell, then repeats everywhere.
+MLP emits one POI. A labeled HF reference reveal illustrates assembly of all
+801x801 grid locations with temporal skips, then holds the final HF field.
 """
 from __future__ import annotations
 import argparse
@@ -84,10 +85,11 @@ def main():
         raise ValueError("Expected independent 100/200 and packaged 800 interval grids")
     norm = Normalize(min(f[:, :, 2].min() for f in fields), max(f[:, :, 2].max() for f in fields))
     OUT.mkdir(parents=True, exist_ok=True)
-    names = comparison(fields, norm) + mechanism()
+    names = comparison(fields, norm)
     tool_report = prepare_tools()
     names += list(tool_report["exports"])
     scene = Scene(fields, norm)
+    names += mechanism(scene)
     names += render_static(scene)
     names += [scientific_panels(fields[-1], True), scientific_panels(fields[-1], False)]
     animation_available = memory_gate()
@@ -103,7 +105,7 @@ def main():
     readme.write_text(re.sub(r"(\]\(docs/assets/promo/)nnlci_(?:local_to_hf\.gif|motion_poster\.png)(\))",
                             lambda m: m[1]+opening+m[2], readme.read_text(), count=1))
     metadata = {
-        "operation": "Render two 3x3 LF inputs, MLP to one POI, and one-cell-at-a-time HF-like reconstruction; HF data is comparison-only",
+        "operation": "Render two 3x3 LF inputs and an accelerated 801x801 POI assembly using explicitly labeled HF reference colors, followed by the complete HF reference; no inference",
         "renderers": {name: sha(ROOT / "scripts" / name) for name in
                       ("render_gatech_promo.py", "promo_poi.py", "render_promo_mechanism.py", "render_config3_contours.py", "cfd_io.py")},
         "versions": {"python": sys.version.split()[0], "numpy": np.__version__, "matplotlib": matplotlib.__version__, "pillow": pillow_version},
@@ -113,13 +115,13 @@ def main():
         "cfd_provenance": {"path": str((LF / "provenance.json").relative_to(ROOT)), "sha256": sha(LF / "provenance.json")},
         "sources": [{"path": str(path.relative_to(ROOT)), "sha256": sha(path), "shape": list(field.shape)} for path, field in zip(paths, fields)],
         "opening_and_comparison": {"window_xy": list(WINDOW), "density_scale": [float(norm.vmin), float(norm.vmax)],
-            "display": "Identical tile dimensions, crop and global linear color scale. Nearest native node; no HF downsampling to create LF, no smoothing/sharpening.",
+            "display": "Intro and comparison share a crop and global linear density scale. Assembly uses the full domain. Nearest native node colors; no HF downsampling to create LF. Final detail uses labeled contour interpolation.",
             "resolution": "100/200/800 intervals per axis; 101/201/801 nodes", "hf": "Packaged CFD target, not prediction"},
         "hf_contours": {"window_xy": [.24, .54, .22, .52], "source": "Packaged HF/bootstrap source only", "rendering": "80 filled intervals, 15 isolines; standard contour interpolation; full-domain min/max for each variable"},
         "evidence_boundary": "LF1/LF2 now come from independent CPU executions of repository CFD kernels. One case, no retraining, no inference, no GPU parity test. Packaged HF execution log unavailable; nominal setup from standard config. Existing bootstrap and two-epoch checkpoint unchanged.",
         "memory": {"before_render_mib": available, "before_animation_mib": animation_available,
                    "static_threshold_mib": 700, "animation_threshold_mib": 1500,
-                   "animation_storage": f"{FRAME_COUNT+1} indexed {WIDTH}x{HEIGHT} frames; {(FRAME_COUNT+1)*WIDTH*HEIGHT/2**20:.1f} MiB raw index storage; one RGB frame at a time"},
+                   "animation_storage": f"{FRAME_COUNT} indexed {WIDTH}x{HEIGHT} frames; {FRAME_COUNT*WIDTH*HEIGHT/2**20:.1f} MiB raw index storage; one transient RGB animation frame at a time"},
         "animation": motion,
         "outputs": {name: {"sha256": sha(OUT / name), "bytes": (OUT / name).stat().st_size} for name in names},
     }

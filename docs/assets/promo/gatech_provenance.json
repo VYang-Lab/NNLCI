@@ -1,9 +1,9 @@
 {
-  "operation": "Render two 3x3 LF inputs, MLP to one POI, and one-cell-at-a-time HF-like reconstruction; HF data is comparison-only",
+  "operation": "Render two 3x3 LF inputs and an accelerated 801x801 POI assembly using explicitly labeled HF reference colors, followed by the complete HF reference; no inference",
   "renderers": {
-    "render_gatech_promo.py": "8df5d5168bb8830ee2d781310550065a4deff05a489374446220f9c0c1c56ba2",
-    "promo_poi.py": "95a370cd4f3aff6f8eb6f2a2e74ad70fb98636bf3c3d833448e94e15ef2c39ed",
-    "render_promo_mechanism.py": "63630cd87351d4a2bcafdd37b26a3dc007596aef22e013fcc617536b7d35292b",
+    "render_gatech_promo.py": "752fb606e682fa055b62dba01fe0d532a5cf55e4523f264b748661948aba5338",
+    "promo_poi.py": "3a33cd4b246e756883764136edd8aca6354cffa3356088e59bee4a81756ca0a6",
+    "render_promo_mechanism.py": "7359abff129c3ee472cb7dddb69b0867e2c18b6995c6deca5610ec4561fd41b5",
     "render_config3_contours.py": "ddc3004a1a7325840b2cdcbee18f1481e3e5874970b5c3a95fe32c97c158aa1c",
     "cfd_io.py": "00d3fb0733c9a66ab417c44367e02c49a9373bf12a061ab919c2c323779737fa"
   },
@@ -28,7 +28,7 @@
           "scripts/figure_tools/poi_planes.scad"
         ],
         "exit_code": 0,
-        "memory_before_mib": 5534
+        "memory_before_mib": 5440
       },
       {
         "command": [
@@ -41,7 +41,7 @@
           "scripts/figure_tools/poi_planes.scad"
         ],
         "exit_code": 0,
-        "memory_before_mib": 5531
+        "memory_before_mib": 5437
       },
       {
         "command": [
@@ -54,7 +54,7 @@
           "scripts/figure_tools/poi_planes.scad"
         ],
         "exit_code": 0,
-        "memory_before_mib": 5527
+        "memory_before_mib": 5438
       },
       {
         "command": [
@@ -67,7 +67,7 @@
           "scripts/figure_tools/poi_planes.scad"
         ],
         "exit_code": 0,
-        "memory_before_mib": 5524
+        "memory_before_mib": 5437
       },
       {
         "command": [
@@ -78,7 +78,7 @@
           "docs/assets/promo/poi_pipeline.svg"
         ],
         "exit_code": 0,
-        "memory_before_mib": 5522
+        "memory_before_mib": 5437
       }
     ],
     "versions": {
@@ -87,14 +87,14 @@
     },
     "sources": {
       "scripts/figure_tools/poi_planes.scad": "23c2da6ed2f337daec50853c5c1c71d3a7d31711fef77cfaa94fd6b550668e79",
-      "scripts/figure_tools/poi_pipeline.dot": "925013829cbb9bf2af4f539d7ee65c0be0e3eda0c5df3ba4063e67a5b59d1ce8"
+      "scripts/figure_tools/poi_pipeline.dot": "2f2a5ff291f56bcbd04e81497d58bde31f2cd7c0cf95e6d1141df4f44b04b5cc"
     },
     "exports": {
       "poi_geometry/plane.off": "0997f27a51b10cfa5752193b74ff73a4eac3ec142cf8071cb94e14fd58b4d57e",
       "poi_geometry/patch.off": "393ea26bc0dd335455c160a8d29cacea6ff5814ca9064796ccf2e937d816e7ff",
       "poi_geometry/sample.off": "da1015adb7842c486e0bc998bb3ef19a00155662791acb3eae4f5c63b3c7c73c",
       "poi_geometry/pin.off": "be65ae4ef795e9cdd706004dbeee1a2d197ba7bb3f187b8bb82b25625abb9feb",
-      "poi_pipeline.svg": "a5dcc764e1cbb75ff8aec10a42ac70b106873846aace5fb42cc6f41885b6aad3"
+      "poi_pipeline.svg": "e5124188fb9ac695acc22cbb98ffe9027762c6de2a0ee89e5228e574211a88a8"
     }
   },
   "poi_workflow": {
@@ -113,8 +113,9 @@
         "lf1": 0.01,
         "lf2": 0.005
       },
-      "interpretation": "Exactly nine white feature markers per LF input at aligned physical positions. Finer LF2 texture is background context, not more features.",
-      "display_contract": "Illustrative common stencil coordinates; the packaged bootstrap instead upsamples both LF arrays and extracts dilation-4 3x3 stencils. No preprocessing or input contract changes."
+      "interpretation": "Nine aligned feature locations on each LF source; native LF2 mesh is finer",
+      "boundary": "Both lower panels blank when any of the 3x3 display locations lies outside [0,1]^2; no padding, clamping, or boundary prediction invented",
+      "display_contract": "Illustrative aligned coordinates; packaged bootstrap upsamples then extracts dilation-4 3x3 stencils. Preprocessing unchanged."
     },
     "pois": {
       "sharp_transition": [
@@ -125,17 +126,123 @@
         0.46,
         0.48
       ],
-      "selection": "Fixed illustrative coordinates in LF fields; no HF-dependent selection"
+      "selection": "Fixed LF display examples, then all target coordinates in deterministic row-major order; no HF-dependent selection"
     },
-    "model_contract": "Two aligned 3x3 stencils, four variables each, 72 scalar features; unchanged",
-    "prediction_mosaic": {
-      "kind": "Synthetic workflow illustration, not NNLCI output or HF reference",
-      "expression": "0.16 + 0.32*exp(-9*((u-0.68)^2+(v-0.7)^2)) + 0.42*(v>0.20+0.50*u)",
-      "display": "9x9 illustrative target grid; one display cell represents exactly one POI, with four output variables at that location. No physical HF-resolution claim.",
-      "assembly": "81 unique coordinates in row-major order, four phases each: sample/MLP, one output, travel, place. Each placement adds exactly one cell; existing cells remain fixed.",
-      "preview": "First GIF frame previews partial reconstruction; then the complete empty-to-full sequence starts."
+    "model_contract": "Two 3x3 stencils, four variables each, 72 features to four variables at ONE POI; unchanged; no inference performed",
+    "reference_assembly": {
+      "kind": "Packaged HF density, explicitly labeled as reference colors; not NNLCI predictions",
+      "grid_nodes": [
+        801,
+        801
+      ],
+      "intervals_per_axis": 800,
+      "point_count": 641601,
+      "domain_xy": [
+        0,
+        1,
+        0,
+        1
+      ],
+      "order": "Top-left to bottom-right in display space, including every boundary node",
+      "displayed_counts": [
+        0,
+        1,
+        801,
+        8082,
+        15364,
+        22646,
+        29928,
+        37210,
+        44491,
+        51773,
+        59055,
+        66337,
+        73619,
+        80901,
+        88182,
+        95464,
+        102746,
+        110028,
+        117310,
+        124591,
+        131873,
+        139155,
+        146437,
+        153719,
+        161001,
+        168282,
+        175564,
+        182846,
+        190128,
+        197410,
+        204691,
+        211973,
+        219255,
+        226537,
+        233819,
+        241101,
+        248382,
+        255664,
+        262946,
+        270228,
+        277510,
+        284791,
+        292073,
+        299355,
+        306637,
+        313919,
+        321201,
+        328482,
+        335764,
+        343046,
+        350328,
+        357610,
+        364891,
+        372173,
+        379455,
+        386737,
+        394019,
+        401301,
+        408582,
+        415864,
+        423146,
+        430428,
+        437710,
+        444991,
+        452273,
+        459555,
+        466837,
+        474119,
+        481401,
+        488682,
+        495964,
+        503246,
+        510528,
+        517810,
+        525091,
+        532373,
+        539655,
+        546937,
+        554219,
+        561501,
+        568782,
+        576064,
+        583346,
+        590628,
+        597910,
+        605191,
+        612473,
+        619755,
+        627037,
+        634319,
+        641601
+      ],
+      "assembly": "Every node between successive counts is revealed in the native 801x801 image; only temporal steps are skipped. Existing values stay fixed.",
+      "timing": "Short accelerated assembly, explicitly labeled temporal skip; not a measured NNLCI speedup",
+      "final": "Full-domain HF density with enlarged interaction detail, held 4500 ms; also saved as a lossless PNG",
+      "final_rendering": "Full field: native node colors, nearest display resampling. Detail: 80 contour intervals and 15 isolines, shared global linear density scale."
     },
-    "camera": "Orthographic; both planes share geometry, projection, crop and scale; tilt 52 to 0 degrees"
+    "camera": "Intro uses OpenSCAD meshes, shared crop, tilt 52 to 0 degrees. Sweep switches both LF panels and the target to full domain."
   },
   "cfd_provenance": {
     "path": "problems/2d_riemann/data/promo_cfd/provenance.json",
@@ -181,7 +288,7 @@
       0.138,
       1.7528
     ],
-    "display": "Identical tile dimensions, crop and global linear color scale. Nearest native node; no HF downsampling to create LF, no smoothing/sharpening.",
+    "display": "Intro and comparison share a crop and global linear density scale. Assembly uses the full domain. Nearest native node colors; no HF downsampling to create LF. Final detail uses labeled contour interpolation.",
     "resolution": "100/200/800 intervals per axis; 101/201/801 nodes",
     "hf": "Packaged CFD target, not prediction"
   },
@@ -197,23 +304,25 @@
   },
   "evidence_boundary": "LF1/LF2 now come from independent CPU executions of repository CFD kernels. One case, no retraining, no inference, no GPU parity test. Packaged HF execution log unavailable; nominal setup from standard config. Existing bootstrap and two-epoch checkpoint unchanged.",
   "memory": {
-    "before_render_mib": 5678,
-    "before_animation_mib": 5399,
+    "before_render_mib": 5546,
+    "before_animation_mib": 5301,
     "static_threshold_mib": 700,
     "animation_threshold_mib": 1500,
-    "animation_storage": "401 indexed 1200x840 frames; 385.5 MiB raw index storage; one RGB frame at a time"
+    "animation_storage": "136 indexed 1200x840 frames; 130.7 MiB raw index storage; one transient RGB animation frame at a time"
   },
   "animation": {
     "file": "nnlci_local_to_hf.gif",
-    "frames": 374,
-    "rendered_frames": 401,
+    "frames": 130,
+    "rendered_frames": 136,
     "dimensions": [
       1200,
       840
     ],
-    "duration_ms": 30420,
-    "meaning": "Two nine-point LF stencils feed the MLP; one output POI moves into one puzzle cell. All 81 POIs are shown separately; no physical evolution or inferred field",
-    "memory_before_mib": 5399
+    "duration_ms": 11410,
+    "final_hold_ms": 4500,
+    "palette": "192 inferno scale colors + 64 adaptive annotation colors; no dithering",
+    "meaning": "801x801 reference locations revealed in row-major order with temporal skips; schematic assembly, not inference, physical evolution or measured speed",
+    "memory_before_mib": 5301
   },
   "outputs": {
     "config3_independent_resolution.png": {
@@ -221,24 +330,12 @@
       "bytes": 152795
     },
     "config3_independent_resolution.svg": {
-      "sha256": "0325a798edf3f0c941cf1368bc978e81c494692c94699d646c1fb9bd8727bc09",
+      "sha256": "54dcf6bb68eef27955aba14e6ee483dd69a4f6b7608e99702f6c020353887a3a",
       "bytes": 82060
     },
     "config3_independent_resolution.pdf": {
-      "sha256": "17bace2232d71fb21f70fbb7212f4435fcb680e847bb7ca00bbc4c2fbc16834b",
+      "sha256": "ff65933586514d126cc128c62150520180659f4fabd2b416b8d88251ef4621dd",
       "bytes": 58533
-    },
-    "nnlci_local_mechanism.svg": {
-      "sha256": "e031143e7c5fb1442b1b01186623605ee6c06195006e1b4811197e6d433e3c19",
-      "bytes": 24481
-    },
-    "nnlci_local_mechanism.png": {
-      "sha256": "cf6f9d0890e84f21bcc21939171014df722f7ee723bcd6147a0d5c5987c9dd59",
-      "bytes": 159627
-    },
-    "nnlci_local_mechanism.pdf": {
-      "sha256": "7a7b1928af7e988fcf11ae3601ab21d87b4a2d01efcbff42256046138275803a",
-      "bytes": 32397
     },
     "poi_geometry/plane.off": {
       "sha256": "0997f27a51b10cfa5752193b74ff73a4eac3ec142cf8071cb94e14fd58b4d57e",
@@ -257,16 +354,32 @@
       "bytes": 9537
     },
     "poi_pipeline.svg": {
-      "sha256": "a5dcc764e1cbb75ff8aec10a42ac70b106873846aace5fb42cc6f41885b6aad3",
-      "bytes": 4151
+      "sha256": "e5124188fb9ac695acc22cbb98ffe9027762c6de2a0ee89e5228e574211a88a8",
+      "bytes": 4153
+    },
+    "nnlci_local_mechanism.svg": {
+      "sha256": "ca3fff407bed2e45d671589fd05b6d639762737ff551c31df00edaafff0084ed",
+      "bytes": 60854
+    },
+    "nnlci_local_mechanism.png": {
+      "sha256": "47461cdfc4e84ba357e835e5bbac266e2aef397b43b3c488767041ff52451dbd",
+      "bytes": 181271
+    },
+    "nnlci_local_mechanism.pdf": {
+      "sha256": "4393f196d7098299f18c48202c484e9da66c8ecb0ae69ea2dd4e47ae9991562e",
+      "bytes": 68113
     },
     "nnlci_motion_poster.png": {
-      "sha256": "6f32773a832b3d11796158035c8b73f489cadf80027776566fe7d54f4d1b2c64",
-      "bytes": 88343
+      "sha256": "0eb101d3e4206115c1f4af7ddd99ea83659ef60ff1d93151afda028e77cd1300",
+      "bytes": 138459
+    },
+    "nnlci_hf_final.png": {
+      "sha256": "0eb101d3e4206115c1f4af7ddd99ea83659ef60ff1d93151afda028e77cd1300",
+      "bytes": 138459
     },
     "nnlci_local_to_hf_concept.png": {
-      "sha256": "c401989df347aaa19706eae7bc03421116e8eb2ddd50acc5298bc9ed9063c261",
-      "bytes": 279525
+      "sha256": "7d7c015d488e5ea0eb4b909e1eeca3be03c342be5501c9fd28bbcf7f069f8359",
+      "bytes": 331966
     },
     "config3_contour_hero.png": {
       "sha256": "5fd7aa116fa0dc29b2ae5fbca2996b8f3f17bf80f37bcabb78c9a7a040ff291c",
@@ -277,8 +390,8 @@
       "bytes": 257705
     },
     "nnlci_local_to_hf.gif": {
-      "sha256": "6560689174d17eb0d8e99f51357bac0f63023602403e5c444626955c00d53e2e",
-      "bytes": 13117500
+      "sha256": "08855e6f3172e545537c61e5d17f390f54cb121cbceda422a7fca5a5991c3942",
+      "bytes": 2726602
     }
   }
 }
