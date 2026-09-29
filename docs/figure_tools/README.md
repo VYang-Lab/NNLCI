@@ -1,10 +1,17 @@
 # Scriptable research figures
 
 Use the smallest tool that expresses the figure. The current promo uses
-**SVG/Python on CPU**: a minimal three-column CFD comparison and a separate,
-paced method animation. Matplotlib renders native-field contours; CairoSVG and
-Pillow compose small GIFs. [Renderer](../../scripts/render_promo_followup.py) ·
+**Graphviz, OpenSCAD and SVG/Python on CPU**: a minimal three-column CFD comparison
+and a separate, paced method animation. Graphviz positions neural nodes for
+current-like signals; OpenSCAD exports the moving water-drop meshes. The CPU
+compositor shades and projects the geometry with soft shadows. Matplotlib renders
+native-field contours; CairoSVG and Pillow compose the GIFs. [Renderer](../../scripts/render_promo_followup.py) ·
 [Editable chapters, provenance and commands](../assets/promo/README.md#two-animations).
+
+The current [neural graph](../../scripts/figure_tools/neural_signal.dot) and
+[water drop](../../scripts/figure_tools/water_drop.scad) are editable sources.
+Their exported layouts/geometry are consumed directly by
+[the compositor](../../scripts/promo_signal.py). No installation occurs during rendering.
 
 The preceding PR #7 presentation used [OpenSCAD meshes](../../scripts/figure_tools/poi_planes.scad)
 and a [Graphviz diagram](../../scripts/figure_tools/poi_pipeline.dot) directly

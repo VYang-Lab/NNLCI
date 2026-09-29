@@ -9,9 +9,9 @@ Learn from local coarse-CFD neighborhoods to reconstruct high-fidelity-like fiel
 
 ## How it works
 
-![Slow schematic lesson: aligned 3×3 patches, four variables at each location, 72 input features, an MLP predicting one point, training-only HF supervision, and full-field assembly with labeled reference colors](docs/assets/promo/nnlci_method.gif)
+![Slow schematic lesson: lit 3D water drops select aligned LF patches; 72 features send signals through a neural network to one point, followed by training-only HF supervision and labeled reference assembly](docs/assets/promo/nnlci_method.gif)
 
-*Follow one point from its two neighborhoods to a prediction, then assemble the field. HF labels supervise training only.*
+*Follow the water-drop sampling markers, then the signals through the network to one predicted point. Repeat to assemble an HF-like field. HF labels supervise training only; the field artwork is the HF reference.*
 [Motion-free steps](docs/assets/promo/nnlci_method_storyboard.png) · [Editable chapters & timing](docs/assets/promo/README.md#two-animations) · [Alignment close-up](#local-alignment)
 
 <details>
