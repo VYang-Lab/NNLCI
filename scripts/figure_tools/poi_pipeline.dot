@@ -5,9 +5,9 @@ digraph POI {
         color="#cad7df", fillcolor="#f4f7fa", fontcolor="#162536", margin="0.18,0.12"];
   edge [color="#8699a8", penwidth=1.5, arrowsize=0.7];
   lf [label="LF1 + LF2", fontcolor="#2563eb"];
-  align [label="Aligned 3 × 3 stencils\n72 scalar features", fontsize=15];
-  net [label="NNLCI", fillcolor="#e8f5f3", color="#99c9c4", fontcolor="#087f8c"];
-  point [label="One value per POI", fontcolor="#087f8c"];
-  field [label="Assemble the field", fontcolor="#087f8c"];
+  align [label="3 × 3 each\n72 scalar features", fontsize=15];
+  net [label="MLP", fillcolor="#e8f5f3", color="#99c9c4", fontcolor="#087f8c"];
+  point [label="One POI\n4 variables", fontcolor="#087f8c", fontsize=15];
+  field [label="Place one cell · repeat", fontcolor="#087f8c"];
   lf -> align -> net -> point -> field;
 }

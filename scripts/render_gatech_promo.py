@@ -1,8 +1,8 @@
 """Render independently solved LF fields, an HF target, and the NNLCI workflow.
 
-The POI animation uses actual OpenSCAD meshes and a Graphviz route. Equal physical
-LF patches reveal different native sample densities, then turn to a 2D schematic
-prediction mosaic. HF appears only in the separate scientific comparison.
+The POI animation uses actual OpenSCAD meshes and a Graphviz route. Each LF input
+has exactly nine stencil locations on a differently resolved source mesh. The
+MLP emits one POI, placed in one schematic puzzle cell, then repeats everywhere.
 """
 from __future__ import annotations
 import argparse
@@ -103,7 +103,7 @@ def main():
     readme.write_text(re.sub(r"(\]\(docs/assets/promo/)nnlci_(?:local_to_hf\.gif|motion_poster\.png)(\))",
                             lambda m: m[1]+opening+m[2], readme.read_text(), count=1))
     metadata = {
-        "operation": "Render independent LF CFD planes, equal-area POI sampling and a schematic prediction assembly; HF is comparison-only",
+        "operation": "Render two 3x3 LF inputs, MLP to one POI, and one-cell-at-a-time HF-like reconstruction; HF data is comparison-only",
         "renderers": {name: sha(ROOT / "scripts" / name) for name in
                       ("render_gatech_promo.py", "promo_poi.py", "render_promo_mechanism.py", "render_config3_contours.py", "cfd_io.py")},
         "versions": {"python": sys.version.split()[0], "numpy": np.__version__, "matplotlib": matplotlib.__version__, "pillow": pillow_version},
@@ -119,7 +119,7 @@ def main():
         "evidence_boundary": "LF1/LF2 now come from independent CPU executions of repository CFD kernels. One case, no retraining, no inference, no GPU parity test. Packaged HF execution log unavailable; nominal setup from standard config. Existing bootstrap and two-epoch checkpoint unchanged.",
         "memory": {"before_render_mib": available, "before_animation_mib": animation_available,
                    "static_threshold_mib": 700, "animation_threshold_mib": 1500,
-                   "animation_storage": f"{FRAME_COUNT} indexed {WIDTH}x{HEIGHT} frames; {FRAME_COUNT*WIDTH*HEIGHT/2**20:.1f} MiB raw index storage; one RGB frame at a time"},
+                   "animation_storage": f"{FRAME_COUNT+1} indexed {WIDTH}x{HEIGHT} frames; {(FRAME_COUNT+1)*WIDTH*HEIGHT/2**20:.1f} MiB raw index storage; one RGB frame at a time"},
         "animation": motion,
         "outputs": {name: {"sha256": sha(OUT / name), "bytes": (OUT / name).stat().st_size} for name in names},
     }

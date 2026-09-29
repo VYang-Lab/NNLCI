@@ -9,7 +9,9 @@ is needed for these figures.
 The production sources are [poi_planes.scad](../../scripts/figure_tools/poi_planes.scad),
 [poi_pipeline.dot](../../scripts/figure_tools/poi_pipeline.dot), and the
 [CPU compositor](../../scripts/promo_poi.py). Both LF planes share the same CAD
-slab and patch frame. OpenSCAD OFF meshes and the Graphviz SVG are committed in
+slab and patch frame, with exactly nine feature markers on each LF input.
+The MLP emits one POI and the compositor places one display cell per prediction
+until the HF-like puzzle is complete. OpenSCAD OFF meshes and the Graphviz SVG are committed in
 the [promo gallery](../assets/promo/); they are inputs to the compositor, not
 separate tool demos. The [render provenance](../assets/promo/gatech_provenance.json)
 records their commands, versions, hashes and memory gates.
