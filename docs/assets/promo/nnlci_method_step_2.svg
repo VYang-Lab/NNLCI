@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img">
+<title>Schematic: Four variables at each location</title>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="#82929f"/></marker></defs>
+<rect width="960" height="540" fill="white"/>
+<text x="32" y="42" font-family="DejaVu Sans,sans-serif" font-size="19" font-weight="700" text-anchor="start" fill="#087f8c">02</text>
+<text x="79" y="42" font-family="DejaVu Sans,sans-serif" font-size="28" font-weight="700" text-anchor="start" fill="#162536">Four variables at each location</text>
+<rect x="32" y="66" width="140" height="4" rx="2" fill="#e8eef2" stroke="none" stroke-width="2"/>
+<rect x="183" y="66" width="140" height="4" rx="2" fill="#087f8c" stroke="none" stroke-width="2"/>
+<rect x="334" y="66" width="140" height="4" rx="2" fill="#e8eef2" stroke="none" stroke-width="2"/>
+<rect x="485" y="66" width="140" height="4" rx="2" fill="#e8eef2" stroke="none" stroke-width="2"/>
+<rect x="636" y="66" width="140" height="4" rx="2" fill="#e8eef2" stroke="none" stroke-width="2"/>
+<rect x="787" y="66" width="140" height="4" rx="2" fill="#e8eef2" stroke="none" stroke-width="2"/>
+<text x="32" y="520" font-family="DejaVu Sans,sans-serif" font-size="16" font-weight="400" text-anchor="start" fill="#596879">Schematic · Config 3 · field artwork is CFD reference, not model output</text>
+<text x="146" y="164" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="700" text-anchor="middle" fill="#2563eb">LF1</text>
+<rect x="65.0" y="190.0" width="54.0" height="54.0" rx="0" fill="#bd3753" stroke="white" stroke-width="1"/>
+<circle cx="92.0" cy="217.0" r="4" fill="white" stroke="#2563eb" stroke-width="2"/>
+<rect x="119.0" y="190.0" width="54.0" height="54.0" rx="0" fill="#f8870d" stroke="white" stroke-width="1"/>
+<circle cx="146.0" cy="217.0" r="4" fill="white" stroke="#2563eb" stroke-width="2"/>
+<rect x="173.0" y="190.0" width="54.0" height="54.0" rx="0" fill="#fba007" stroke="white" stroke-width="1"/>
+<circle cx="200.0" cy="217.0" r="4" fill="white" stroke="#2563eb" stroke-width="2"/>
+<rect x="65.0" y="244.0" width="54.0" height="54.0" rx="0" fill="#cd4247" stroke="white" stroke-width="1"/>
+<circle cx="92.0" cy="271.0" r="4" fill="white" stroke="#2563eb" stroke-width="2"/>
+<rect x="119.0" y="244.0" width="54.0" height="54.0" rx="0" fill="#ef6d21" stroke="white" stroke-width="1"/>
+<circle cx="146.0" cy="271.0" r="4" fill="white" stroke="#2563eb" stroke-width="2"/>
+<rect x="173.0" y="244.0" width="54.0" height="54.0" rx="0" fill="#f37719" stroke="white" stroke-width="1"/>
+<circle cx="200.0" cy="271.0" r="4" fill="white" stroke="#2563eb" stroke-width="2"/>
+<rect x="65.0" y="298.0" width="54.0" height="54.0" rx="0" fill="#cf4446" stroke="white" stroke-width="1"/>
+<circle cx="92.0" cy="325.0" r="4" fill="white" stroke="#2563eb" stroke-width="2"/>
+<rect x="119.0" y="298.0" width="54.0" height="54.0" rx="0" fill="#d14643" stroke="white" stroke-width="1"/>
+<circle cx="146.0" cy="325.0" r="4" fill="white" stroke="#2563eb" stroke-width="2"/>
+<rect x="173.0" y="298.0" width="54.0" height="54.0" rx="0" fill="#d14643" stroke="white" stroke-width="1"/>
+<circle cx="200.0" cy="325.0" r="4" fill="white" stroke="#2563eb" stroke-width="2"/>
+<circle cx="146.0" cy="271.0" r="10" fill="none" stroke="white" stroke-width="2"/>
+<rect x="65" y="190" width="162" height="162" rx="0" fill="none" stroke="#2563eb" stroke-width="3"/>
+<text x="381" y="164" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="700" text-anchor="middle" fill="#159947">LF2</text>
+<rect x="300.0" y="190.0" width="54.0" height="54.0" rx="0" fill="#c43c4e" stroke="white" stroke-width="1"/>
+<circle cx="327.0" cy="217.0" r="4" fill="white" stroke="#159947" stroke-width="2"/>
+<rect x="354.0" y="190.0" width="54.0" height="54.0" rx="0" fill="#c83e4b" stroke="white" stroke-width="1"/>
+<circle cx="381.0" cy="217.0" r="4" fill="white" stroke="#159947" stroke-width="2"/>
+<rect x="408.0" y="190.0" width="54.0" height="54.0" rx="0" fill="#d94d3d" stroke="white" stroke-width="1"/>
+<circle cx="435.0" cy="217.0" r="4" fill="white" stroke="#159947" stroke-width="2"/>
+<rect x="300.0" y="244.0" width="54.0" height="54.0" rx="0" fill="#cd4247" stroke="white" stroke-width="1"/>
+<circle cx="327.0" cy="271.0" r="4" fill="white" stroke="#159947" stroke-width="2"/>
+<rect x="354.0" y="244.0" width="54.0" height="54.0" rx="0" fill="#c13a50" stroke="white" stroke-width="1"/>
+<circle cx="381.0" cy="271.0" r="4" fill="white" stroke="#159947" stroke-width="2"/>
+<rect x="408.0" y="244.0" width="54.0" height="54.0" rx="0" fill="#b43358" stroke="white" stroke-width="1"/>
+<circle cx="435.0" cy="271.0" r="4" fill="white" stroke="#159947" stroke-width="2"/>
+<rect x="300.0" y="298.0" width="54.0" height="54.0" rx="0" fill="#c53d4d" stroke="white" stroke-width="1"/>
+<circle cx="327.0" cy="325.0" r="4" fill="white" stroke="#159947" stroke-width="2"/>
+<rect x="354.0" y="298.0" width="54.0" height="54.0" rx="0" fill="#b53357" stroke="white" stroke-width="1"/>
+<circle cx="381.0" cy="325.0" r="4" fill="white" stroke="#159947" stroke-width="2"/>
+<rect x="408.0" y="298.0" width="54.0" height="54.0" rx="0" fill="#9c2963" stroke="white" stroke-width="1"/>
+<circle cx="435.0" cy="325.0" r="4" fill="white" stroke="#159947" stroke-width="2"/>
+<circle cx="381.0" cy="271.0" r="10" fill="none" stroke="white" stroke-width="2"/>
+<rect x="300" y="190" width="162" height="162" rx="0" fill="none" stroke="#159947" stroke-width="3"/>
+<path d="M 480 270 H 575" fill="none" stroke="#b4c1ce" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="608" y="136" width="284" height="54" rx="9" fill="#f5f8fa" stroke="none" stroke-width="2"/>
+<text x="633" y="172" font-family="DejaVu Sans,sans-serif" font-size="27" font-weight="700" text-anchor="start" fill="#087f8c">ρ</text>
+<text x="691" y="170" font-family="DejaVu Sans,sans-serif" font-size="21" font-weight="400" text-anchor="start" fill="#162536">density</text>
+<rect x="608" y="204" width="284" height="54" rx="9" fill="#f5f8fa" stroke="none" stroke-width="2"/>
+<text x="633" y="240" font-family="DejaVu Sans,sans-serif" font-size="27" font-weight="700" text-anchor="start" fill="#7c64b5">u</text>
+<text x="691" y="238" font-family="DejaVu Sans,sans-serif" font-size="21" font-weight="400" text-anchor="start" fill="#162536">x velocity</text>
+<rect x="608" y="272" width="284" height="54" rx="9" fill="#f5f8fa" stroke="none" stroke-width="2"/>
+<text x="633" y="308" font-family="DejaVu Sans,sans-serif" font-size="27" font-weight="700" text-anchor="start" fill="#bd741b">v</text>
+<text x="691" y="306" font-family="DejaVu Sans,sans-serif" font-size="21" font-weight="400" text-anchor="start" fill="#162536">y velocity</text>
+<rect x="608" y="340" width="284" height="54" rx="9" fill="#f5f8fa" stroke="none" stroke-width="2"/>
+<text x="633" y="376" font-family="DejaVu Sans,sans-serif" font-size="27" font-weight="700" text-anchor="start" fill="#c5444d">p</text>
+<text x="691" y="374" font-family="DejaVu Sans,sans-serif" font-size="21" font-weight="400" text-anchor="start" fill="#162536">pressure</text>
+<text x="264" y="414" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400" text-anchor="middle" fill="#162536">Every dot holds four values</text>
+</svg>

@@ -1,0 +1,178 @@
+{
+  "operation": "Re-render independent CFD comparison and a paced conceptual lesson; no inference or training",
+  "backend": "CPU: Matplotlib contours + editable SVG + CairoSVG + Pillow",
+  "sources": [
+    {
+      "path": "problems/2d_riemann/data/promo_cfd/flow_100x100.dat",
+      "sha256": "d0982997c3a2705079ea6cf70167a504c40c3d88fe04cfce1429277c528e94cf"
+    },
+    {
+      "path": "problems/2d_riemann/data/promo_cfd/flow_200x200.dat",
+      "sha256": "24938b20160dc9808ae18715fb4e42e7174dccea6e1e77f0b377580af29e033a"
+    },
+    {
+      "path": "problems/2d_riemann/data/raw/flow_standard_config3.dat",
+      "sha256": "02037fbc38dab8d9bef879d7ab4184a50f9e9d9a7b7f0f1c6d98d2d91dc02d3c"
+    }
+  ],
+  "cfd_provenance": {
+    "path": "problems/2d_riemann/data/promo_cfd/provenance.json",
+    "sha256": "416f56ceb1be3618e7a404573a13b9335b047754a7bdaf521a87ca26dbcdd4ef"
+  },
+  "renderers": {
+    "render_promo_followup.py": "f1e7fd4a4a0fbbcc8f6decfcba209da671de4b738dd90557441bf7d65f1dd7af",
+    "cfd_io.py": "00d3fb0733c9a66ab417c44367e02c49a9373bf12a061ab919c2c323779737fa",
+    "replot_sod_promo.py": "fbddbfe9af7e9f7b0411849ddf8035381c288ac3067b436ce3440116dc87c764"
+  },
+  "versions": {
+    "python": "3.13.5",
+    "numpy": "2.2.4",
+    "matplotlib": "3.10.1+dfsg1",
+    "cairosvg": "2.7.1",
+    "pillow": "11.1.0"
+  },
+  "display": {
+    "variable": "density",
+    "shared_window_xy": [
+      0.26,
+      0.52,
+      0.26,
+      0.52
+    ],
+    "global_density_limits": [
+      0.138,
+      1.7528
+    ],
+    "details": "160 shared contour levels interpolated from native CFD; no blur/sharpening/data smoothing",
+    "patches": "9 nearest native samples per LF, aligned illustrative offsets of +/-0.01; not the bootstrap dilation-4 preprocessing",
+    "assembly": "All 641601 native HF reference colors in row-major order; temporal skips, not physical time or model inference",
+    "boundary": "Blank patches where full stencil is unavailable; boundary reference values are not predicted",
+    "feature_order": "LF1 then LF2; variable-major rho/u/v/p, row-major nine locations per variable"
+  },
+  "method": {
+    "chapter_titles": [
+      "Choose the same point",
+      "Four variables at each location",
+      "Assemble the input vector",
+      "Predict one point",
+      "Learn from HF labels",
+      "Place the point. Repeat."
+    ],
+    "chapter_holds_ms": [
+      4200,
+      4200,
+      5000,
+      5000,
+      5000
+    ],
+    "assembly_counts": [
+      0,
+      1,
+      801,
+      27501,
+      54201,
+      80901,
+      107601,
+      134301,
+      161001,
+      187701,
+      214401,
+      241101,
+      267801,
+      294501,
+      321201,
+      347901,
+      374601,
+      401301,
+      428001,
+      454701,
+      481401,
+      508101,
+      534801,
+      561501,
+      588201,
+      614901,
+      641601
+    ],
+    "hf_route": "HF label -> loss <- predicted point; loss updates MLP only during training"
+  },
+  "memory": {
+    "before_render_mib": 5614,
+    "before_animation_mib": 5538,
+    "static_threshold_mib": 700,
+    "animation_threshold_mib": 2500,
+    "storage": "At most 51 indexed 960x540 frames (~26 MiB), one transient SVG/RGB frame; animations encoded sequentially"
+  },
+  "animations": {
+    "comparison": {
+      "file": "nnlci_comparison.gif",
+      "frames": 15,
+      "duration_ms": 11960,
+      "size": [
+        960,
+        540
+      ],
+      "final_hold_ms": 5000
+    },
+    "method": {
+      "file": "nnlci_method.gif",
+      "frames": 50,
+      "duration_ms": 34880,
+      "size": [
+        960,
+        540
+      ],
+      "final_hold_ms": 4500
+    }
+  },
+  "outputs": {
+    "nnlci_comparison_poster.svg": {
+      "sha256": "1c52c5e2577d42fe5a38739c3bdabda0961676a88b3829bb4da4846172181c32",
+      "bytes": 173759
+    },
+    "nnlci_comparison_poster.png": {
+      "sha256": "d76f949c7c32cc4dbc0a3593cfd71b654a649d955b19afdf5b64c8538a1c712d",
+      "bytes": 128636
+    },
+    "nnlci_method_step_1.svg": {
+      "sha256": "707d923145cc1b24ed1240e34474a20e3a6d476ff837133455e272e6f88fb1e9",
+      "bytes": 79272
+    },
+    "nnlci_method_step_2.svg": {
+      "sha256": "d394aa886ec861e18eab3dc0d898af29450262dd8abf2c54c896398ff3652465",
+      "bytes": 7376
+    },
+    "nnlci_method_step_3.svg": {
+      "sha256": "b9c333100edf6754644c70006617068e6165f5fa09e0aab28321e48cd3f4a426",
+      "bytes": 17971
+    },
+    "nnlci_method_step_4.svg": {
+      "sha256": "f1ab6120b2f16ba1a212a34b0e4dd849a41092583a274a34bd8b930c5af2932d",
+      "bytes": 10345
+    },
+    "nnlci_method_step_5.svg": {
+      "sha256": "0f2cec86d2308069af1c6d201fdd3d72a80c82af9a6c9aef9a1e2ff59003277d",
+      "bytes": 11304
+    },
+    "nnlci_method_step_6.svg": {
+      "sha256": "48eb89b04df2a0b7781df3b95b392e8bdf8f6b9e30f1616cacc84ba4cb940bde",
+      "bytes": 29025
+    },
+    "nnlci_method_storyboard.png": {
+      "sha256": "8cb17213e1b1fa5fceb91638b6b495de3ed967e02520a697573f2453168bb4d5",
+      "bytes": 242241
+    },
+    "nnlci_method_final.png": {
+      "sha256": "8547b64d69c2bb729dc7dea61b9e37a6dac3c872f0252ec782a48c83cb5cd0e0",
+      "bytes": 82247
+    },
+    "nnlci_comparison.gif": {
+      "sha256": "6d4acc2013ec04b111e8e6d9ad4472621387c6e9a25d075b6386ef9afae37716",
+      "bytes": 796822
+    },
+    "nnlci_method.gif": {
+      "sha256": "86fbf987d7a46025ab28bfbd75821b9eb83fd5074a41efdedaf096d1a4d26d33",
+      "bytes": 588604
+    }
+  }
+}

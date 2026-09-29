@@ -1,23 +1,15 @@
 # Scriptable research figures
 
-Use the smallest tool that expresses the figure. The promo opening now uses
-**OpenSCAD meshes and a Graphviz diagram directly in the delivered animation**;
-Python projects the geometry, paints native CFD values, and assembles the GIF.
-The mechanism remains an editable SVG generated with Python. No Blender render
-is needed for these figures.
+Use the smallest tool that expresses the figure. The current promo uses
+**SVG/Python on CPU**: a minimal three-column CFD comparison and a separate,
+paced method animation. Matplotlib renders native-field contours; CairoSVG and
+Pillow compose small GIFs. [Renderer](../../scripts/render_promo_followup.py) ·
+[Editable chapters, provenance and commands](../assets/promo/README.md#two-animations).
 
-The production sources are [poi_planes.scad](../../scripts/figure_tools/poi_planes.scad),
-[poi_pipeline.dot](../../scripts/figure_tools/poi_pipeline.dot), and the
-[CPU compositor](../../scripts/promo_poi.py). Both LF planes share the same CAD
-slab and patch frame, with exactly nine feature markers on each LF input.
-The MLP contract emits one POI. The compositor illustrates full-domain assembly
-over 801 × 801 locations using labeled HF reference colors and temporal skips;
-it performs no inference. Missing boundary patches leave both lower panels blank.
-The final frame holds the full HF field and an enlarged interaction detail.
-OpenSCAD OFF meshes and the Graphviz SVG are committed in
-the [promo gallery](../assets/promo/); they are inputs to the compositor, not
-separate tool demos. The [render provenance](../assets/promo/gatech_provenance.json)
-records their commands, versions, hashes and memory gates.
+The preceding PR #7 presentation used [OpenSCAD meshes](../../scripts/figure_tools/poi_planes.scad)
+and a [Graphviz diagram](../../scripts/figure_tools/poi_pipeline.dot) directly
+in its [CPU compositor](../../scripts/promo_poi.py). Those sources and exports
+remain available as historical artwork. Neither presentation needs a GPU.
 
 | Figure | First tool | Editable source | Tested exports |
 | --- | --- | --- | --- |
@@ -97,7 +89,7 @@ virtual environment need not contain any CAD or Blender dependencies.
 For the actual research visuals:
 
 ```bash
-python3 scripts/render_gatech_promo.py
+python3 scripts/render_promo_followup.py
 ```
 
 See the [gallery](../assets/promo/README.md#reproduce) for CFD inputs and provenance.

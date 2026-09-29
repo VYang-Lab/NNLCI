@@ -15,7 +15,7 @@ PROBLEM_DIR = Path(__file__).resolve().parents[2]
 DATA_DIR = PROBLEM_DIR / "data" / "raw"
 MODEL_FILENAME = os.getenv('NNLCI_MODEL_FILENAME', 'best_model_sod_final.pth')
 WEIGHTS_PATH = PROBLEM_DIR / "models" / MODEL_FILENAME
-RESULTS_DIR = PROBLEM_DIR / "results" / "predictions"
+RESULTS_DIR = Path(os.getenv('NNLCI_RESULTS_DIR', str(PROBLEM_DIR / "results" / "predictions")))
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 GRID_HF = 800
