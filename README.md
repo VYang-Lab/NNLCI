@@ -1,4 +1,4 @@
-![POI workflow: equal physical LF patches with denser LF2 samples, sharp and smooth regions, a turn to 2D, and schematic prediction assembly](docs/assets/promo/nnlci_local_to_hf.gif)
+![Pointwise reconstruction: LF1 and LF2 each provide a 3×3 patch; the MLP predicts only one POI, then places that point into the HF-like field puzzle](docs/assets/promo/nnlci_local_to_hf.gif)
 
 [Motion-free storyboard](docs/assets/promo/nnlci_local_to_hf_concept.png) · [CFD runs & figure sources](docs/assets/promo/README.md#2d-fields-and-the-motion-open)
 
@@ -8,18 +8,22 @@ Learn from local coarse-CFD neighborhoods to reconstruct high-fidelity-like fiel
 
 ![Config 3 CFD density: independently solved LF1 at 100 resolution and LF2 at 200 versus the packaged 800-resolution HF reference, on identical axes and color scales](docs/assets/promo/config3_independent_resolution.png)
 
-*Equal physical patches reveal denser LF2 information. The animation drops a POI
-onto both LF planes, visits sharp and smooth regions, then turns to 2D and assembles
-a schematic HF-like prediction. LF imagery comes from separate CFD solves; the
-teal prediction mosaic uses illustrative colors. HF in this comparison is the
-packaged reference. [Run provenance](problems/2d_riemann/data/promo_cfd/provenance.json).
+*Both LF inputs use a **3×3 patch: nine locations each**. LF2 carries information
+from a finer source mesh. For each POI, the two patches feed the MLP, which
+predicts **only that point**; placing all pointwise predictions at their coordinates
+reconstructs the HF-like field, one puzzle cell at a time. LF imagery comes from
+separate CFD solves; puzzle colors are illustrative, not model output.
+HF in the comparison is the packaged reference.
+[Run provenance](problems/2d_riemann/data/promo_cfd/provenance.json).
 The packaged 2D checkpoint remains a two-epoch bootstrap software check.*
 
 ## How it works
 
-![Schematic / Conceptual: two aligned LF stencils form a token, NNLCI predicts a refined value, and HF supervision connects only to training loss](docs/assets/promo/nnlci_local_mechanism.png)
+![Schematic: two aligned 3×3 LF patches supply 72 features to an MLP; four variables at one POI fill one cell, and repetition assembles the HF-like reconstruction puzzle. HF labels connect only to training loss.](docs/assets/promo/nnlci_local_mechanism.png)
 
-*Aligned local inputs; HF supervises training.
+*2 × 9 locations × 4 variables → 72 inputs → 4 variables at one POI.
+One output cell represents one point; repeat over the target grid.
+HF supervises training.
 [Editable SVG](docs/assets/promo/nnlci_local_mechanism.svg) · [PDF](docs/assets/promo/nnlci_local_mechanism.pdf) · [Alignment close-up](#local-alignment)*
 
 <details>

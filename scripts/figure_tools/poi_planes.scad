@@ -1,6 +1,7 @@
 // Production geometry for the NNLCI POI animation. Units are display units.
 // Both LF planes use this SAME 100 x 100 slab and 20 x 20 patch frame.
-// Native node spacing is applied by Python: LF1=5 units, LF2=2.5 units.
+// Python highlights exactly nine aligned stencil locations on either mesh.
+// Native CFD spacing appears only in the underlying field texture.
 // Export each part as OFF; the CPU compositor projects the actual CAD meshes.
 part = "plane";
 $fn = 20;

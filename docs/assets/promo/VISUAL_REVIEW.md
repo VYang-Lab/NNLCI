@@ -1,11 +1,88 @@
-# Promo review · equal patches and POI assembly
+# Promo review · fixed 3 × 3 inputs and pointwise reconstruction
+
+2026-09-29 · response to lyao76's raw email on [PR #5](https://github.com/LADDER-Net/NNLCI/pull/5)
+(`6fcbe86`, already merged as `9a2157a`) · branch `promo/readme-redesign`.
+This is the implementation author's review, not reviewer acceptance or
+independent scientific validation. Historical reviews below describe earlier
+artifacts and are superseded by this section.
+
+## Corrections delivered
+
+- Both LF inputs now visibly contain **exactly nine highlighted locations in
+  a 3 × 3 stencil**. LF2's finer source mesh remains visible in the underlying
+  CFD texture; the former 5 × 5 / 9 × 9 feature-like marker arrays are removed.
+- A visible MLP receives the two local patches: 2 × 9 locations × 4 variables
+  = 72 features. Its four outputs belong to **one spatial POI**.
+- One output cell travels into its matching target location. All **81 target
+  POIs** receive a separate sample / output / move / place pass; each placement
+  adds exactly one cell. Earlier values remain fixed as the puzzle fills.
+- The opening preview and static poster show a cell in flight. The storyboard
+  preserves inputs, a partial reconstruction and the completed field. The
+  editable SVG mechanism now includes the puzzle and repeat loop, so the full
+  explanation is available without animation.
+- README captions, the gallery, Graphviz route and render provenance describe
+  this same pointwise contract. The bootstrap's actual bilinear upsampling and
+  dilation-4 stencil extraction remain unchanged and are distinguished from
+  the illustrative display coordinates.
+
+## Provenance and resources
+
+OpenSCAD meshes, the Graphviz workflow strip, SVG/Python, CairoSVG and Pillow
+produce the delivered figures on CPU. Native LF textures are the unchanged
+independent CFD solves from PR #4, on the same physical crop and density scale.
+The teal puzzle uses the documented analytic illustrative color function; it
+is labeled as a schematic with no model output. One cell represents one POI,
+and the 9 × 9 display grid makes no numerical HF-resolution claim. Packaged
+HF remains a comparison reference. No new inference, training, CFD solve,
+accuracy result or speedup claim is introduced.
+
+The memory gate passed with **5,399 MiB** effectively available immediately
+before GIF construction (1,500 MiB required). Static/tool export gates remain
+700 MiB. The bounded animation holds 401 indexed 1200 × 840 frames (about
+386 MiB of raw index storage), with one transient RGB frame at a time. No
+NVIDIA GPU is used. The final GIF has **374 encoded frames, 30,420 ms duration,
+and 13,117,500 bytes**; identical holds are coalesced.
+
+## Validation
+
+- Checked every assembly transition: 81 unique coordinates, one newly placed
+  cell per pass, the same POI throughout each four-phase pass, and completion
+  at 81/81. Both LF stencils have nine distinct, aligned, valid locations.
+- Parsed the SVG and counted nine feature markers per LF stencil.
+- Decoded all 374 GIF frames. Pixel checks verified all 81 placement states,
+  unfilled cells, and preservation of all earlier cell colors.
+- Inspected the static mechanism and animation frames showing input selection,
+  the MLP output, a cell in flight, partial assembly and completion. Reviewed
+  the poster at full size and a frame contact sheet at 390 px per panel;
+  detailed labels require opening the full-size images.
+- Executed `--static-only`: stale GIF removed, README switched to the PNG,
+  poster and storyboard decoded. Regenerated the complete motion output.
+- Verified 16 output hashes, renderer/source hashes, CFD provenance, finite
+  positive LF density/pressure, OFF geometry, SVG XML, PDF headers, PNG decoding,
+  Python syntax and local Markdown file targets. No model or CFD data changed.
+
+## Reproduce
+
+```bash
+python3 scripts/render_gatech_promo.py --static-only
+python3 scripts/render_gatech_promo.py
+```
+
+See the [gallery](README.md#reproduce) and [render provenance](gatech_provenance.json)
+for dependencies, inputs and export details. PR #5 was already merged at task
+start; a follow-up PR is required. Repository visibility is unchanged. No email
+is sent and no PR is merged.
+
+---
+
+## Historical PR #5 record · superseded equal-patch depiction
 
 2026-09-29 · follow-up to merged [PR #4](https://github.com/LADDER-Net/NNLCI/pull/4)
 (`091e20d`, merge `094cf1d`) · branch `promo/readme-redesign`.
 This is the implementation author's review, not reviewer acceptance or
 independent scientific validation. The earlier PR #4 record is retained below.
 
-## lyao76 follow-up
+### lyao76 follow-up
 
 The former opening used equal outer field tiles but a native 3 × 3 highlight
 on each resolution. LF2's highlight was half the physical width and height.
@@ -29,7 +106,7 @@ committed. These tools contribute directly to the delivered figures. See the
 [tool guide](../../figure_tools/README.md) and [provenance](gatech_provenance.json)
 for commands, versions, source/export hashes and memory readings.
 
-## Evidence and resource checks
+### Evidence and resource checks
 
 - Both LF fields are the unchanged, independently solved Config 3 CFD fields
   from PR #4. Native nearest-node colors use one crop and density scale.
@@ -44,7 +121,7 @@ for commands, versions, source/export hashes and memory readings.
   fresh checks. At most 132 indexed frames occupy about 113 MiB; RGB animation
   frames are transient. CPU only; no NVIDIA GPU or Blender required.
 
-## Validation
+### Validation
 
 - Checked all 37 distinct POIs actually visited in the rendered sequence:
   identical closed .04-square physical bounds, 5 × 5 / 9 × 9 native nodes,
@@ -61,7 +138,7 @@ for commands, versions, source/export hashes and memory readings.
 - Checked source/output hashes, native mesh validity, SVG XML, PNG decoding,
   PDF headers, local Markdown file targets, Python syntax and diff whitespace.
 
-## Reproduce this follow-up
+### Reproduce this follow-up
 
 ```bash
 python3 scripts/render_gatech_promo.py --static-only

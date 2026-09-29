@@ -32,28 +32,49 @@ both LF planes, first at a sharp transition (0.34, 0.44), then in a smooth regio
 shared linear density scale. Native nearest-node colors expose the actual CFD
 sampling; no blur, artificial sharpening or HF-derived LF data is used.
 
-**The highlighted patches have identical physical size: 0.04 × 0.04.** At the
-chosen common grid nodes, a closed patch contains 5 × 5 LF1 nodes and 9 × 9 LF2
-nodes, including its boundary. Enlarged insets use the same display size, so the
-extra LF2 information is visible in the same space. These are native sample
-counts, not neural-network feature counts. The mechanism still takes two
-**aligned 3 × 3 stencils × four variables = 72 scalar features**.
+**LF1 and LF2 each supply a 3 × 3 patch: exactly nine input locations.**
+The white markers are those nine locations on both planes and in both insets;
+the center ring marks the POI. LF2's finer mesh provides denser spatial
+information in the field beneath the markers. It does not increase the number
+of input locations. With four variables per location, the two patches form
+**2 × 9 × 4 = 72 scalar features** for the MLP.
 
-The camera then rotates from tilted planes to a top-down 2D view. Repeated POIs
-fill a puzzle-like mosaic of grouped point predictions. That teal panel is
-labeled **“Schematic · illustrative colors”** and **“No model output shown”**
-throughout. Its piecewise analytic motif illustrates a sharp interface and a
-smooth region; it contains neither HF data nor model predictions. The expression
-is recorded in [render provenance](gatech_provenance.json). Field values remain
-fixed at the final CFD time; motion is a workflow explanation, not a simulation.
-The separate scientific comparison above retains the actual packaged HF target.
+Both insets use the same display size and a 0.04 × 0.04 context window. Their
+nine highlighted locations span 0.02 × 0.02 and align in physical space; the
+background textures retain the native mesh spacing of 0.01 (LF1) and 0.005
+(LF2). These coordinates explain the input count and mesh distinction. They
+are not a literal rendering of the packaged bootstrap's preprocessing, which
+bilinearly upsamples both fields, then extracts aligned dilation-4 3 × 3
+stencils. That implementation and the 72-feature contract are unchanged.
 
-The [poster](nnlci_motion_poster.png) preserves the equal-patch opening; the
-[three-scene storyboard](nnlci_local_to_hf_concept.png) also preserves landing,
-the turn to 2D, and the completed schematic field without requiring motion.
-The [mechanism](nnlci_local_mechanism.png) now gives both aligned stencils equal
-physical support, with a denser native LF2 grid underneath. HF reaches only the
-training loss. [SVG](nnlci_local_mechanism.svg) is the editable master;
+### The HF reconstruction puzzle
+
+The visible **MLP → one POI → one grid cell** route is the core of the animation.
+The MLP output has four components (density, x/y velocity and pressure), all
+at **one spatial point**. Each small square is a display cell for that point,
+not an output patch. The camera turns to 2D, then all 81 illustrative target
+locations are visited separately. Each pass selects the two local 3 × 3 inputs,
+shows one output, moves that single cell to its coordinate, and places it.
+The completed field is the assembly of these pointwise predictions. Previously
+placed values remain fixed; no group of points appears in one placement.
+Batched numerical execution can evaluate many such independent inputs together;
+the animation explains the per-input mapping, not a serial runtime requirement.
+
+The puzzle is labeled **“Schematic · illustrative colors”** and **“no model
+output”**. Its documented analytic color motif illustrates a sharp interface
+and a smooth region; it uses neither HF values nor checkpoint predictions.
+The 9 × 9 display grid is deliberately small and makes no HF-resolution or
+accuracy claim. Field values remain fixed at the final CFD time; motion
+explains the workflow, not time evolution. Packaged HF remains in the separate
+scientific comparison above.
+
+The first GIF frame and [poster](nnlci_motion_poster.png) preview a single cell
+in flight toward a partly assembled puzzle. The animation then starts the full
+empty-to-complete sequence. The [three-scene storyboard](nnlci_local_to_hf_concept.png)
+retains the nine-point inputs, a cell in flight, and the completed field.
+The redesigned [mechanism](nnlci_local_mechanism.png) also shows the full
+pointwise reconstruction in one static diagram, with HF labels reaching only
+the training loss. [SVG](nnlci_local_mechanism.svg) is the editable master;
 [PDF](nnlci_local_mechanism.pdf) and PNG are exports.
 
 **Installed tools are used in the delivered artwork.**
@@ -101,7 +122,7 @@ python3 scripts/render_gatech_promo.py --static-only
 
 The solver and static renderer require at least 700 MiB effective available RAM;
 the GIF gate is 1,500 MiB. Host and ancestor-cgroup availability are checked.
-Animation is bounded to 132 indexed 1200 × 750 frames (about 113 MiB of index
+Animation is bounded to 401 indexed 1200 × 840 frames (about 386 MiB of index
 data), with only one transient RGB animation frame at a time. Identical hold
 frames may be coalesced by the GIF encoder. Tool exports run sequentially and
 recheck the 700 MiB gate before each process. If GIF generation is deferred, the
