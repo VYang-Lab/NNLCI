@@ -26,24 +26,46 @@ for the figures, not a new training ensemble or held-out NNLCI validation.
 
 ### Presentation and motion
 
-The [4.41-second opening](nnlci_local_to_hf.gif) uses three equal-sized density
-tiles with the same x/y = 0.30–0.50 window and one linear color scale spanning
-all three complete fields. Each display pixel uses the nearest native node.
-LF2 therefore visibly retains its coarse samples and broader features relative
-to HF; no blur, artificial sharpening, per-panel rescaling or HF-derived LF data
-is used. Counts identify intervals per axis, not node counts.
+The [POI opening](nnlci_local_to_hf.gif) drops the same point of interest onto
+both LF planes, first at a sharp transition (0.34, 0.44), then in a smooth region
+(0.46, 0.48). Both planes show x/y = 0.30–0.50 with the same projection and a
+shared linear density scale. Native nearest-node colors expose the actual CFD
+sampling; no blur, artificial sharpening or HF-derived LF data is used.
 
-Only stencil and signal highlights move. Field values remain fixed at the final
-physical time. The dashed arrow points to an **HF target**, not an inferred
-prediction. Short labels replace the previous animated headlines and paragraphs.
-The [poster](nnlci_motion_poster.png) and [permanent strip](nnlci_local_to_hf_concept.png)
-show the same workflow without motion. These are workflow schematics using actual
-CFD imagery, not a measured NNLCI reconstruction.
+**The highlighted patches have identical physical size: 0.04 × 0.04.** At the
+chosen common grid nodes, a closed patch contains 5 × 5 LF1 nodes and 9 × 9 LF2
+nodes, including its boundary. Enlarged insets use the same display size, so the
+extra LF2 information is visible in the same space. These are native sample
+counts, not neural-network feature counts. The mechanism still takes two
+**aligned 3 × 3 stencils × four variables = 72 scalar features**.
 
-The rebuilt [mechanism](nnlci_local_mechanism.png) uses three stages and a separate
-training lane. Its 72 colored scalars correspond to two nine-point neighborhoods
-with four variables. HF reaches only the loss. [SVG](nnlci_local_mechanism.svg)
-is the editable vector master; [PDF](nnlci_local_mechanism.pdf) and PNG are exports.
+The camera then rotates from tilted planes to a top-down 2D view. Repeated POIs
+fill a puzzle-like mosaic of grouped point predictions. That teal panel is
+labeled **“Schematic · illustrative colors”** and **“No model output shown”**
+throughout. Its piecewise analytic motif illustrates a sharp interface and a
+smooth region; it contains neither HF data nor model predictions. The expression
+is recorded in [render provenance](gatech_provenance.json). Field values remain
+fixed at the final CFD time; motion is a workflow explanation, not a simulation.
+The separate scientific comparison above retains the actual packaged HF target.
+
+The [poster](nnlci_motion_poster.png) preserves the equal-patch opening; the
+[three-scene storyboard](nnlci_local_to_hf_concept.png) also preserves landing,
+the turn to 2D, and the completed schematic field without requiring motion.
+The [mechanism](nnlci_local_mechanism.png) now gives both aligned stencils equal
+physical support, with a denser native LF2 grid underneath. HF reaches only the
+training loss. [SVG](nnlci_local_mechanism.svg) is the editable master;
+[PDF](nnlci_local_mechanism.pdf) and PNG are exports.
+
+**Installed tools are used in the delivered artwork.**
+[OpenSCAD](../../../scripts/figure_tools/poi_planes.scad) exports the plane,
+patch frame, sample marker and POI meshes in [OFF format](poi_geometry/).
+The CPU compositor projects those actual meshes in every scene and overlays the
+native CFD colors. [Graphviz](../../../scripts/figure_tools/poi_pipeline.dot)
+produces the [workflow strip](poi_pipeline.svg) composited into every frame.
+[Python source](../../../scripts/promo_poi.py) controls the camera, POIs and
+assembly. Commands, versions, memory readings and source/export hashes are in
+the provenance. No Blender or GPU rendering is required.
+
 The resolution comparison also has [SVG](config3_independent_resolution.svg) and
 [PDF](config3_independent_resolution.pdf) exports; axes/text are vector, dense fields rasterized.
 
@@ -62,8 +84,9 @@ record the delivered assets and their limits.
 
 ### Reproduce
 
-After retrieving LFS data and installing NumPy, Matplotlib, Pillow, CairoSVG and
-gfortran (see [tool setup](../../figure_tools/README.md)), run from the repo root:
+After retrieving LFS data and installing NumPy, Matplotlib, Pillow, CairoSVG,
+OpenSCAD and Graphviz (see [tool setup](../../figure_tools/README.md)), run from
+the repo root. Rerunning CFD also requires gfortran.
 
 ```bash
 # Optional: independently regenerate both LF fields (~2 minutes on this host).
@@ -78,8 +101,10 @@ python3 scripts/render_gatech_promo.py --static-only
 
 The solver and static renderer require at least 700 MiB effective available RAM;
 the GIF gate is 1,500 MiB. Host and ancestor-cgroup availability are checked.
-Animation is bounded to 40 indexed 1080 × 430 frames (about 18 MiB of index data),
-with no high-resolution RGB frame stack. If GIF generation is deferred, the
+Animation is bounded to 132 indexed 1200 × 750 frames (about 113 MiB of index
+data), with only one transient RGB animation frame at a time. Identical hold
+frames may be coalesced by the GIF encoder. Tool exports run sequentially and
+recheck the 700 MiB gate before each process. If GIF generation is deferred, the
 renderer removes the outdated GIF and points the first README image at the PNG.
 No NVIDIA GPU is used. The original solver and bootstrap remain available.
 

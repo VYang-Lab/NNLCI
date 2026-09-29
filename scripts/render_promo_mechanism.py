@@ -34,11 +34,15 @@ def render():
         text(x, 166, n, 15, TEAL, 700)
         text(x + 32, 166, title, 19, INK, 700)
     rect(36, 189, 340, 242, "#f7f9fc")
-    for cx, cy, label, color, step in [(116, 282, "LF1", BLUE, 30), (285, 282, "LF2", GREEN, 22)]:
+    for cx, cy, label, color, step in [(116, 282, "LF1", BLUE, 30), (285, 282, "LF2", GREEN, 30)]:
         text(cx, 221, label, 18, color, 700, "middle")
-        for k in (-2, -1, 0, 1, 2):
-            path(f"M {cx-2*step} {cy+k*step} H {cx+2*step}", "#dbe2ec", 1)
-            path(f"M {cx+k*step} {cy-2*step} V {cy+2*step}", "#dbe2ec", 1)
+        # Identical physical support; denser native LF2 grid underneath the
+        # same aligned 3x3 model stencil (the 72-feature contract is unchanged).
+        grid_step = step if label == "LF1" else step/2
+        count = 2 if label == "LF1" else 4
+        for k in range(-count, count+1):
+            path(f"M {cx-60} {cy+k*grid_step} H {cx+60}", "#dbe2ec", 1)
+            path(f"M {cx+k*grid_step} {cy-60} V {cy+60}", "#dbe2ec", 1)
         rect(cx-step-9, cy-step-9, 2*step+18, 2*step+18, "none", color, 5)
         for i in (-1, 0, 1):
             for j in (-1, 0, 1):
@@ -82,7 +86,7 @@ def render():
     rect(1036, 524, 95, 43, "white", "#e4b6ba", 6)
     text(1084, 552, "Loss", 18, RED, 700, "middle")
     path("M 1159 282 H 1178 V 545 H 1135", "#94aaaa", 1.5, True, "4 4")
-    text(36, 610, "Config 3 input contract · 3 × 3 stencils shown after alignment; spacing is illustrative.", 13, MUTED)
+    text(36, 610, "Equal physical support · aligned 3 × 3 model stencils; native sampling density is shown in the opener.", 13, MUTED)
     parts.append("</svg>")
     svg = "\n".join(parts).encode()
     target = OUT / "nnlci_local_mechanism"

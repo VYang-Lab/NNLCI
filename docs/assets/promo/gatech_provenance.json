@@ -1,8 +1,9 @@
 {
-  "operation": "Render independent LF CFD solves and packaged HF reference; animate workflow highlights only",
+  "operation": "Render independent LF CFD planes, equal-area POI sampling and a schematic prediction assembly; HF is comparison-only",
   "renderers": {
-    "render_gatech_promo.py": "b564fc792c48780bd01cabdb4f77fcbb639ce41e771c0155972a38821b255f86",
-    "render_promo_mechanism.py": "a01928fd654deeacf226b70d24c21038ef7d08628ad16ba47cbb7acf61127907",
+    "render_gatech_promo.py": "3a87a97539c457104fcb049e3cc465802daf973a21f961abe7cf21dda2921bf8",
+    "promo_poi.py": "5d3a8db22d0f0c2afeacb1ab318636229f7ab07d8e8a675dae140eb70e9b3eb9",
+    "render_promo_mechanism.py": "5fe699c811b151b5815228a74713b85333237b849f947444c4475b467c6a664c",
     "render_config3_contours.py": "ddc3004a1a7325840b2cdcbee18f1481e3e5874970b5c3a95fe32c97c158aa1c",
     "cfd_io.py": "00d3fb0733c9a66ab417c44367e02c49a9373bf12a061ab919c2c323779737fa"
   },
@@ -12,7 +13,122 @@
     "matplotlib": "3.10.1+dfsg1",
     "pillow": "11.1.0"
   },
-  "backend": "CPU: Agg, Pillow, CairoSVG",
+  "backend": "CPU: OpenSCAD, Graphviz, Agg, Pillow, CairoSVG",
+  "production_tools": {
+    "execution": "OpenSCAD OFF meshes + Graphviz SVG, used directly by CPU compositor; no GPU",
+    "commands": [
+      {
+        "command": [
+          "openscad",
+          "--hardwarnings",
+          "-o",
+          "docs/assets/promo/poi_geometry/plane.off",
+          "-D",
+          "part=\"plane\"",
+          "scripts/figure_tools/poi_planes.scad"
+        ],
+        "exit_code": 0,
+        "memory_before_mib": 5492
+      },
+      {
+        "command": [
+          "openscad",
+          "--hardwarnings",
+          "-o",
+          "docs/assets/promo/poi_geometry/patch.off",
+          "-D",
+          "part=\"patch\"",
+          "scripts/figure_tools/poi_planes.scad"
+        ],
+        "exit_code": 0,
+        "memory_before_mib": 5491
+      },
+      {
+        "command": [
+          "openscad",
+          "--hardwarnings",
+          "-o",
+          "docs/assets/promo/poi_geometry/sample.off",
+          "-D",
+          "part=\"sample\"",
+          "scripts/figure_tools/poi_planes.scad"
+        ],
+        "exit_code": 0,
+        "memory_before_mib": 5489
+      },
+      {
+        "command": [
+          "openscad",
+          "--hardwarnings",
+          "-o",
+          "docs/assets/promo/poi_geometry/pin.off",
+          "-D",
+          "part=\"pin\"",
+          "scripts/figure_tools/poi_planes.scad"
+        ],
+        "exit_code": 0,
+        "memory_before_mib": 5489
+      },
+      {
+        "command": [
+          "dot",
+          "-Tsvg",
+          "scripts/figure_tools/poi_pipeline.dot",
+          "-o",
+          "docs/assets/promo/poi_pipeline.svg"
+        ],
+        "exit_code": 0,
+        "memory_before_mib": 5482
+      }
+    ],
+    "versions": {
+      "openscad": "OpenSCAD version 2021.01",
+      "dot": "dot - graphviz version 2.42.4 (0)"
+    },
+    "sources": {
+      "scripts/figure_tools/poi_planes.scad": "4eaf8a4eebe5c2c1daf8af5d606802fc19c23df96976844a35ef665d9d0e0c2e",
+      "scripts/figure_tools/poi_pipeline.dot": "f3bbeec7546b9d210906271a966a2a1509bb247682b3eeb39f78925740bed22d"
+    },
+    "exports": {
+      "poi_geometry/plane.off": "0997f27a51b10cfa5752193b74ff73a4eac3ec142cf8071cb94e14fd58b4d57e",
+      "poi_geometry/patch.off": "393ea26bc0dd335455c160a8d29cacea6ff5814ca9064796ccf2e937d816e7ff",
+      "poi_geometry/sample.off": "da1015adb7842c486e0bc998bb3ef19a00155662791acb3eae4f5c63b3c7c73c",
+      "poi_geometry/pin.off": "be65ae4ef795e9cdd706004dbeee1a2d197ba7bb3f187b8bb82b25625abb9feb",
+      "poi_pipeline.svg": "949f7e7c9c3dc2849baad2283e8ed6449de65a90295300380075b1e134e6ba20"
+    }
+  },
+  "poi_workflow": {
+    "patch": {
+      "physical_side": 0.04,
+      "lf1_nodes": [
+        5,
+        5
+      ],
+      "lf2_nodes": [
+        9,
+        9
+      ],
+      "interpretation": "Closed native-grid patches on common LF1 nodes; not network feature counts"
+    },
+    "pois": {
+      "sharp_transition": [
+        0.34,
+        0.44
+      ],
+      "smooth_region": [
+        0.46,
+        0.48
+      ],
+      "selection": "Fixed illustrative coordinates in LF fields; no HF-dependent selection"
+    },
+    "model_contract": "Two aligned 3x3 stencils, four variables each, 72 scalar features; unchanged",
+    "prediction_mosaic": {
+      "kind": "Synthetic workflow illustration, not NNLCI output or HF reference",
+      "expression": "0.16 + 0.32*exp(-9*((u-0.68)^2+(v-0.7)^2)) + 0.42*(v>0.20+0.50*u)",
+      "display": "Teal schematic; 9x9 tiles group many target-point predictions; no physical grid-resolution claim"
+    },
+    "camera": "Orthographic; both planes share geometry, projection, crop and scale; tilt 52 to 0 degrees"
+  },
   "cfd_provenance": {
     "path": "problems/2d_riemann/data/promo_cfd/provenance.json",
     "sha256": "416f56ceb1be3618e7a404573a13b9335b047754a7bdaf521a87ca26dbcdd4ef"
@@ -73,21 +189,22 @@
   },
   "evidence_boundary": "LF1/LF2 now come from independent CPU executions of repository CFD kernels. One case, no retraining, no inference, no GPU parity test. Packaged HF execution log unavailable; nominal setup from standard config. Existing bootstrap and two-epoch checkpoint unchanged.",
   "memory": {
-    "before_render_mib": 2704,
-    "before_animation_mib": 2470,
+    "before_render_mib": 5652,
+    "before_animation_mib": 5357,
     "static_threshold_mib": 700,
     "animation_threshold_mib": 1500,
-    "animation_storage": "40 indexed 1080x430 frames; about 18 MiB raw index storage, no high-resolution frame stack"
+    "animation_storage": "132 indexed 1200x750 frames; 113.3 MiB raw index storage; one RGB frame at a time"
   },
   "animation": {
     "file": "nnlci_local_to_hf.gif",
-    "frames": 40,
+    "frames": 86,
+    "rendered_frames": 132,
     "dimensions": [
-      1080,
-      430
+      1200,
+      750
     ],
-    "duration_ms": 4410,
-    "meaning": "Sampling and signal highlights only; no physical time evolution, solver iterations or NNLCI predictions"
+    "duration_ms": 15830,
+    "meaning": "Shared POI drops onto equal LF patches, visits sharp/smooth regions, rotates to 2D, then assembles schematic point groups; no physical evolution or inferred field"
   },
   "outputs": {
     "config3_independent_resolution.png": {
@@ -95,32 +212,52 @@
       "bytes": 152795
     },
     "config3_independent_resolution.svg": {
-      "sha256": "3feb036df8541182c15db649811fa08c5a56691d59bc1b3773d69767f5b36af2",
+      "sha256": "caaed3c1624cdbe0fa4250f25ce1c079ad2255f05860b271161b037e10ee76bc",
       "bytes": 82060
     },
     "config3_independent_resolution.pdf": {
-      "sha256": "38138ebe76ecf0fd01cc18b5f11786ff7823f76f12ef14423a2114dc9f928711",
+      "sha256": "7261429ed2096bf6d3675118897ba07d6e8b3c015a32d1f98611e57871169de0",
       "bytes": 58533
     },
     "nnlci_local_mechanism.svg": {
-      "sha256": "34edc1b20ecc880878f1adb445d5ea0b9f1b2e868c66946546ad8ccce2f0d65a",
-      "bytes": 18932
+      "sha256": "9414c93c7b0a4a8f8f869148dfe1a12ff1a320b139525eecdbcc4c7ab428a455",
+      "bytes": 19734
     },
     "nnlci_local_mechanism.png": {
-      "sha256": "e5cb155ef0b3c65d5ac7308ea2084b2a82e30bcf05b5b2ee8c791495e1bd1eae",
-      "bytes": 150965
+      "sha256": "436c5cc25e2995867bc22fe07be1cb05dd2164d3710b82007dd406a72c73f8ba",
+      "bytes": 151966
     },
     "nnlci_local_mechanism.pdf": {
-      "sha256": "ab67c027673dea747b25799c635c68a8a7985b1d304cfdf88bcd66684c89ba87",
-      "bytes": 31340
+      "sha256": "195015a2848e3d7644d1e539ba8747d84e56a4aa4f256b4ef3698ae4e0dd2d46",
+      "bytes": 31479
+    },
+    "poi_geometry/plane.off": {
+      "sha256": "0997f27a51b10cfa5752193b74ff73a4eac3ec142cf8071cb94e14fd58b4d57e",
+      "bytes": 146
+    },
+    "poi_geometry/patch.off": {
+      "sha256": "393ea26bc0dd335455c160a8d29cacea6ff5814ca9064796ccf2e937d816e7ff",
+      "bytes": 528
+    },
+    "poi_geometry/sample.off": {
+      "sha256": "da1015adb7842c486e0bc998bb3ef19a00155662791acb3eae4f5c63b3c7c73c",
+      "bytes": 632
+    },
+    "poi_geometry/pin.off": {
+      "sha256": "be65ae4ef795e9cdd706004dbeee1a2d197ba7bb3f187b8bb82b25625abb9feb",
+      "bytes": 9537
+    },
+    "poi_pipeline.svg": {
+      "sha256": "949f7e7c9c3dc2849baad2283e8ed6449de65a90295300380075b1e134e6ba20",
+      "bytes": 4049
     },
     "nnlci_motion_poster.png": {
-      "sha256": "977a4d0ee9130373368014815f7e00823f068621b5b775434195e6ceb49be0f9",
-      "bytes": 66797
+      "sha256": "8dfb359cae4f8c86632cb9a8ad234221005cdf978e7654dd13a9386c76013f91",
+      "bytes": 97473
     },
     "nnlci_local_to_hf_concept.png": {
-      "sha256": "977a4d0ee9130373368014815f7e00823f068621b5b775434195e6ceb49be0f9",
-      "bytes": 66797
+      "sha256": "cb85253070bb6613f077f95a8edd9c4afc11a9978bb6c2d8ed532dd264a4a8be",
+      "bytes": 257718
     },
     "config3_contour_hero.png": {
       "sha256": "5fd7aa116fa0dc29b2ae5fbca2996b8f3f17bf80f37bcabb78c9a7a040ff291c",
@@ -131,8 +268,8 @@
       "bytes": 257705
     },
     "nnlci_local_to_hf.gif": {
-      "sha256": "ffe9838b8edf4e842de3ad3f6d265fd017653ec78bfd8a0ed0e5b6df25124fbd",
-      "bytes": 128810
+      "sha256": "48e484c022a0fab959fb7fde2edf5ab00b61146d99cc07812d52fd2995bdd90f",
+      "bytes": 2205883
     }
   }
 }
